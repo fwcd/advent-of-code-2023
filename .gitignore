@@ -1,0 +1,7 @@
+*~
+.vscode
+.DS_Store
+*.swp
+.curry
+.metals
+.fake
