@@ -6,6 +6,8 @@
 # See https://swift.org/LICENSE.txt for license information
 # See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 
+# Source: https://github.com/apple/swift/blob/1deff4904679ea62fb6c010c0aa01649b647bd5e/utils/gyb.py
+
 # GYB: Generate Your Boilerplate (improved names welcome; at least
 # this one's short).  See -h output for instructions
 
