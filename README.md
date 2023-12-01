@@ -8,9 +8,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 ## Scripts
 
-Each day includes a `shell.nix` that sets up the corresponding language's compiler or interpreter.
-
-This standardized pattern lets CI use a single workflow (per OS) across all days. Additionally, they make it easy to get started developing locally even across the range of different languages, build tools and package managers involved.
+The programs are packaged with Nix, making it easy for CI to run a single workflow over all days regardless of the compiler/language used.
 
 ## Previous years
 
