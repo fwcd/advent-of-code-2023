@@ -8,7 +8,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 ## Scripts
 
-Each program is packaged with Nix in a uniform way. By abstracting over languages' compilers, interpreters and build tools in an elegant, declarative way, CI can use a single workflow across all programs.
+The programs are packaged with Nix. By abstracting over languages' compilers, interpreters and build tools in an elegant, declarative way, CI can use a single workflow across all programs.
 
 ## Previous years
 
