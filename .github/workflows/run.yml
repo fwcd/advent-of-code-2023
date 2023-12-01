@@ -19,5 +19,5 @@ jobs:
       run: nix-build
       working-directory: 'day${{ matrix.day }}'
     - name: Run with input
-      run: 'result/bin/day${{ matrix.day }}' resources/input.txt
+      run: 'result/bin/day${{ matrix.day }} resources/input.txt'
       working-directory: 'day${{ matrix.day }}'
