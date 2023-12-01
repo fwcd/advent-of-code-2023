@@ -6,5 +6,12 @@
     },
     "path": "day01/src/day01.c",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "cobol",
+      "name": "COBOL"
+    },
+    "path": "day02/src/day02.cob"
   }
 ]

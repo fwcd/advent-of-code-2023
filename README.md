@@ -5,6 +5,7 @@
 My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), written in 25 different programming languages.
 
 - [x] Day 01: [C](day01/src/day01.c)
+- [ ] Day 02: [COBOL](day02/src/day02.cob)
 
 ## Packaging
 
