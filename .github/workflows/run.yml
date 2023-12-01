@@ -1,0 +1,23 @@
+name: Run
+
+on:
+  push:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: Day ${{ matrix.day }}
+
+    strategy:
+      matrix:
+        day: ['01']
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: cachix/install-nix-action@v22
+    - name: Build
+      run: nix-build
+      working-directory: 'day${{ matrix.day }}'
+    - name: Run with input
+      run: 'result/bin/day${{ matrix.day }}' resources/input.txt
+      working-directory: 'day${{ matrix.day }}'
