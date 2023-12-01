@@ -1,2 +1,9 @@
 [
+  {
+    "lang": {
+      "codemirror": "clike",
+      "name": "C"
+    },
+    "path": "day01/src/day01.c"
+  }
 ]

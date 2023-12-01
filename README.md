@@ -4,10 +4,11 @@
 
 My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), written in 25 different programming languages.
 
+- [ ] Day 01: [C](day01/src/day01.c)
 
 ## Scripts
 
-Each day includes a `shell.nix` that sets up the corresponding language's compiler or interpreter and a `./run` script to build and run the program.
+Each day includes a `shell.nix` that sets up the corresponding language's compiler or interpreter.
 
 This standardized pattern lets CI use a single workflow (per OS) across all days. Additionally, they make it easy to get started developing locally even across the range of different languages, build tools and package managers involved.
 
