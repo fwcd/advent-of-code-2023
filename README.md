@@ -6,7 +6,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 - [x] Day 01: [C](day01/src/day01.c)
 
-## Scripts
+## Packaging
 
 The programs are packaged with Nix, making it easy for CI to run a single workflow over all days regardless of the compiler/language used.
 

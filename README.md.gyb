@@ -23,7 +23,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [${'x' if day.get('completed', False) else ' '}] Day ${f'{i + 1:02}'}: ${format_day(day)}
 % end
 
-## Scripts
+## Packaging
 
 The programs are packaged with Nix, making it easy for CI to run a single workflow over all days regardless of the compiler/language used.
 
