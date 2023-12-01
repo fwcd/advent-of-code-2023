@@ -4,6 +4,7 @@
       "codemirror": "clike",
       "name": "C"
     },
-    "path": "day01/src/day01.c"
+    "path": "day01/src/day01.c",
+    "completed": true
   }
 ]
