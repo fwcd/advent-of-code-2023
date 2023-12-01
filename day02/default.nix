@@ -4,6 +4,7 @@
     src = ./src;
 
     buildInputs = [
+      pkgs.gmp
       (pkgs.gnu-cobol.overrideAttrs (_: { doInstallCheck = false; })).bin
     ];
 
