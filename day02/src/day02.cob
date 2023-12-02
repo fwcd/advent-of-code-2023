@@ -45,14 +45,14 @@
                    05 MaxRed              PIC 9(2) VALUE 0.
                    05 MaxGreen            PIC 9(2) VALUE 0.
                    05 MaxBlue             PIC 9(2) VALUE 0.
-               01 Power                   PIC 9(4) VALUE 0.
+               01 Power                   PIC 9(5) VALUE 0.
                01 TotalCubeSet.
                    05 TotalRed            PIC 9(2) VALUE 12.
                    05 TotalGreen          PIC 9(2) VALUE 13.
                    05 TotalBlue           PIC 9(2) VALUE 14.
                01 Result.
                    05 Part1               PIC 9(4) VALUE 0.
-                   05 Part2               PIC 9(6) VALUE 0.
+                   05 Part2               PIC 9(5) VALUE 0.
 
        PROCEDURE DIVISION.
            ACCEPT FileName FROM COMMAND-LINE.
@@ -88,27 +88,21 @@
                DELIMITED BY ": "
                INTO GameName, RawCubeSets.
 
-           PERFORM ClearRawCubeSet
-               VARYING CubeSetIndex
-               FROM 1 BY 1
-               UNTIL CubeSetIndex > 6.
+           PERFORM VARYING CubeSetIndex
+               FROM 1 BY 1 UNTIL CubeSetIndex > 6
+               MOVE SPACES TO RawCubeSet(CubeSetIndex)
+           END-PERFORM.
 
            UNSTRING RawCubeSets
                DELIMITED BY "; "
-               INTO RawCubeSet(1),
-                    RawCubeSet(2),
-                    RawCubeSet(3),
-                    RawCubeSet(4),
-                    RawCubeSet(5),
-                    RawCubeSet(6).
+               INTO RawCubeSet(1), RawCubeSet(2), RawCubeSet(3),
+                    RawCubeSet(4), RawCubeSet(5), RawCubeSet(6).
            
            MOVE 'Y' TO GameValid.
            MOVE 0   TO MaxRed, MaxGreen, MaxBlue.
 
-           PERFORM ProcessCubeSet
-               VARYING CubeSetIndex
-               FROM 1 BY 1
-               UNTIL CubeSetIndex > 6.
+           PERFORM ProcessCubeSet VARYING CubeSetIndex
+               FROM 1 BY 1 UNTIL CubeSetIndex > 6.
            
            IF GameValid = 'Y'
                COMPUTE Part1 = Part1 + GameIndex
@@ -118,9 +112,6 @@
            COMPUTE Part2 = Part2 + Power
 
            COMPUTE GameIndex = GameIndex + 1.
-
-       ClearRawCubeSet.
-           MOVE SPACES TO RawCubeSet(CubeSetIndex).
 
        ProcessCubeSet.
            UNSTRING RawCubeSet(CubeSetIndex)
