@@ -14,8 +14,8 @@
     '';
 
     installPhase = ''
-      mkdir -p $out/bin
-      cp out/day03-impl $out/bin
+      mkdir -p $out/{libexec,bin}
+      cp out/day03-impl $out/libexec
 
       cat <<EOF > $out/bin/day03
       #!/bin/bash
@@ -28,7 +28,7 @@
         echo "File \$1 does not exist!"
         exit 1
       fi
-      FILE_2="\$1" "\$(dirname "\$0")/day03-impl"
+      FILE_2="\$1" "\$(dirname "\$0")/../libexec/day03-impl"
       EOF
 
       chmod +x $out/bin/day03
