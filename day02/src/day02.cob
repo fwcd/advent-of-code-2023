@@ -13,13 +13,11 @@
        DATA DIVISION.
            FILE SECTION.
                FD InputFile.
-               01 InputRecord.
-                   05 InputNumber PIC 9(5).
+               01 InputLine PIC X(256).
 
            WORKING-STORAGE SECTION.
                01 FileName         PIC X(100).
                01 ReachedEndOfFile PIC A(1) VALUE 'N'.
-               01 Computed         PIC 9(5).
 
        PROCEDURE DIVISION.
            ACCEPT FileName FROM COMMAND-LINE.
@@ -45,6 +43,4 @@
            STOP RUN.
 
        ProcessLine.
-           DISPLAY "Read     " InputNumber.
-           COMPUTE Computed = InputNumber * 2.
-           DISPLAY "Computed " Computed.
+           DISPLAY "Read     " InputLine.
