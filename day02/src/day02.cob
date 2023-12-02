@@ -30,9 +30,10 @@
                    05 RawCubeSets         PIC X(256).
                01 ParsedCubeSets.
                    05 RawCubeSet          PIC X(32) OCCURS 6 TIMES.
+               01 CubeSetIndex            PIC 9(2) VALUE 0.
                01 ParsedCubeSet.
                    05 CubeStack           OCCURS 3 TIMES.
-                        10 CubeCount      PIC 9(2) VALUE 0.
+                        10 CubeCount      PIC 9(2).
                         10 CubeColor      PIC X(16).
                01 CubeSet.
                    05 Red                 PIC 9(2) VALUE 0.
@@ -66,6 +67,7 @@
            UNSTRING InputLine
                DELIMITED BY ": "
                INTO GameName, RawCubeSets.
+
            UNSTRING RawCubeSets
                DELIMITED BY "; "
                INTO RawCubeSet(1),
@@ -80,4 +82,20 @@
                    RawCubeSet(4)
                    RawCubeSet(5)
                    RawCubeSet(6).
+            
+           PERFORM ProcessCubeSet
+               VARYING CubeSetIndex
+               FROM 1 BY 1
+               UNTIL CubeSetIndex > 6.
+           
            COMPUTE GameIndex = GameIndex + 1.
+
+       ProcessCubeSet.
+           UNSTRING RawCubeSet(CubeSetIndex)
+              DELIMITED BY " "
+              INTO CubeCount(1), CubeColor(1),
+                   CubeCount(2), CubeColor(2),
+                   CubeCount(3), CubeColor(3).
+           DISPLAY "First: "  CubeCount(1) " " CubeColor(1) ", "
+                   "Second: " CubeCount(2) " " CubeColor(2) ", "
+                   "Third: "  CubeCount(3) " " CubeColor(3).
