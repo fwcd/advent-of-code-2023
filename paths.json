@@ -14,5 +14,11 @@
     },
     "path": "day02/src/day02.cob",
     "completed": true
+  },
+  {
+    "lang": {
+      "name": "ALGOL 60"
+    },
+    "path": "day03/src/day03.alg"
   }
 ]
