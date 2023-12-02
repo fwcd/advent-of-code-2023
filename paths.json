@@ -12,6 +12,7 @@
       "codemirror": "cobol",
       "name": "COBOL"
     },
-    "path": "day02/src/day02.cob"
+    "path": "day02/src/day02.cob",
+    "completed": true
   }
 ]
