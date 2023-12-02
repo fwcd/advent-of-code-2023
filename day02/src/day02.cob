@@ -1,5 +1,11 @@
       * We have to indent by 7 spaces, because... because!
 
+      * Helpful resources I found while learning enough COBOL to implement this:
+      * - https://www.tutorialspoint.com/cobol/cobol_data_types.htm
+      * - https://gnucobol.sourceforge.io/doc/gnucobol.html
+      * - https://craftofcoding.wordpress.com/2021/01/26/coding-cobol-reading-a-file-of-integers/
+      * - https://www.mainframestechhelp.com/tutorials/cobol/unstring-statement.htm
+
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DAY02.
 
