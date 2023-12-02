@@ -8,14 +8,13 @@
                FILE-CONTROL.
                    SELECT InputFile
                    ASSIGN TO FileName
-                   ORGANIZATION IS SEQUENTIAL.
+                   ORGANIZATION IS LINE SEQUENTIAL.
 
        DATA DIVISION.
            FILE SECTION.
                FD InputFile.
                01 InputRecord.
                    05 InputNumber PIC 9(5).
-                   05 EndOfLine   PIC X(1).
 
            WORKING-STORAGE SECTION.
                01 FileName         PIC X(100).
