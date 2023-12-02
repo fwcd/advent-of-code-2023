@@ -75,6 +75,8 @@
            STOP RUN.
 
        ProcessLine.
+           DISPLAY "Game " GameIndex.
+
            UNSTRING InputLine
                DELIMITED BY ": "
                INTO GameName, RawCubeSets.
@@ -93,14 +95,6 @@
                     RawCubeSet(5),
                     RawCubeSet(6).
            
-           DISPLAY "Game " GameIndex.
-           DISPLAY RawCubeSet(1)
-                   RawCubeSet(2)
-                   RawCubeSet(3)
-                   RawCubeSet(4)
-                   RawCubeSet(5)
-                   RawCubeSet(6).
-            
            MOVE 'Y' TO GameValid.
 
            PERFORM ProcessCubeSet
@@ -109,7 +103,6 @@
                UNTIL CubeSetIndex > 6.
            
            IF GameValid = 'Y'
-              DISPLAY GameIndex " is valid"
               COMPUTE Part1 = Part1 + GameIndex
            END-IF.
 
@@ -134,7 +127,9 @@
                FROM 1 BY 1
                UNTIL CubeStackIndex > 3.
            
-           DISPLAY "Red: " Red " Green: " Green " Blue: " Blue.
+           IF Red > 0 OR Green > 0 OR Blue > 0
+               DISPLAY "Red: " Red " Green: " Green " Blue: " Blue
+           END-IF.
 
            IF Red > TotalRed OR Green > TotalGreen
                              OR Blue  > TotalBlue
