@@ -28,12 +28,7 @@
         echo "File \$1 does not exist!"
         exit 1
       fi
-      installdir="\$PWD/\$(dirname "\$0")"
-      tmpdir="\$(mktemp -d)"
-      trap "rm -rf -- '\$tmpdir'" EXIT
-      cat "\$1" > "\$tmpdir/FILE_2"
-      cd "\$tmpdir"
-      "\$installdir/day03-impl"
+      FILE_2="\$1" "\$(dirname "\$0")/day03-impl"
       EOF
 
       chmod +x $out/bin/day03
