@@ -25,6 +25,7 @@
                01 FileName                PIC X(100).
                01 ReachedEndOfFile        PIC A(1) VALUE 'N'.
                01 GameIndex               PIC 9(3) VALUE 1.
+               01 GameValid               PIC A(4) VALUE 'Y'.
                01 ParsedLine.
                    05 GameName            PIC X(12).
                    05 RawCubeSets         PIC X(256).
@@ -68,12 +69,20 @@
            END-PERFORM.
 
            CLOSE InputFile.
+
+           DISPLAY "Part 1: " Part1.
+
            STOP RUN.
 
        ProcessLine.
            UNSTRING InputLine
                DELIMITED BY ": "
                INTO GameName, RawCubeSets.
+
+           PERFORM ClearRawCubeSet
+               VARYING CubeSetIndex
+               FROM 1 BY 1
+               UNTIL CubeSetIndex > 6.
 
            UNSTRING RawCubeSets
                DELIMITED BY "; "
@@ -83,6 +92,8 @@
                     RawCubeSet(4),
                     RawCubeSet(5),
                     RawCubeSet(6).
+           
+           DISPLAY "Game " GameIndex.
            DISPLAY RawCubeSet(1)
                    RawCubeSet(2)
                    RawCubeSet(3)
@@ -90,12 +101,22 @@
                    RawCubeSet(5)
                    RawCubeSet(6).
             
+           MOVE 'Y' TO GameValid.
+
            PERFORM ProcessCubeSet
                VARYING CubeSetIndex
                FROM 1 BY 1
                UNTIL CubeSetIndex > 6.
            
+           IF GameValid = 'Y'
+              DISPLAY GameIndex " is valid"
+              COMPUTE Part1 = Part1 + GameIndex
+           END-IF.
+
            COMPUTE GameIndex = GameIndex + 1.
+
+       ClearRawCubeSet.
+           MOVE SPACES TO RawCubeSet(CubeSetIndex).
 
        ProcessCubeSet.
            UNSTRING RawCubeSet(CubeSetIndex)
@@ -104,9 +125,9 @@
                    CubeCount(2), CubeColor(2),
                    CubeCount(3), CubeColor(3).
 
-           MOVE 0 TO Red;
-           MOVE 0 TO Green;
-           MOVE 0 TO Blue;
+           MOVE 0 TO Red.
+           MOVE 0 TO Green.
+           MOVE 0 TO Blue.
 
            PERFORM ProcessCubeStack
                VARYING CubeStackIndex
@@ -114,6 +135,11 @@
                UNTIL CubeStackIndex > 3.
            
            DISPLAY "Red: " Red " Green: " Green " Blue: " Blue.
+
+           IF Red > TotalRed OR Green > TotalGreen
+                             OR Blue  > TotalBlue
+               MOVE 'N' TO GameValid
+           END-IF.
        
        ProcessCubeStack.
            EVALUATE CubeColor(CubeStackIndex)
