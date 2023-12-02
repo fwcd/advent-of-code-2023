@@ -22,9 +22,22 @@
                01 InputLine PIC X(256).
 
            WORKING-STORAGE SECTION.
-               01 FileName         PIC X(100).
-               01 ReachedEndOfFile PIC A(1) VALUE 'N'.
-               01 GameIndex        PIC 9(2) VALUE 1.
+               01 FileName                PIC X(100).
+               01 ReachedEndOfFile        PIC A(1) VALUE 'N'.
+               01 GameIndex               PIC 9(2) VALUE 1.
+               01 ParsedLine.
+                   05 GameName            PIC X(12).
+                   05 RawCubeSets         PIC X(256).
+               01 ParsedCubeSets.
+                   05 RawCubeSet          PIC X(32) OCCURS 6 TIMES.
+               01 ParsedCubeSet.
+                   05 CubeStack           OCCURS 3 TIMES.
+                        10 CubeCount      PIC 9(2) VALUE 0.
+                        10 CubeColor      PIC X(16).
+               01 CubeSet.
+                   05 Red                 PIC 9(2) VALUE 0.
+                   05 Green               PIC 9(2) VALUE 0.
+                   05 Blue                PIC 9(2) VALUE 0.
 
        PROCEDURE DIVISION.
            ACCEPT FileName FROM COMMAND-LINE.
@@ -50,5 +63,21 @@
            STOP RUN.
 
        ProcessLine.
-           DISPLAY "Read     " InputLine ", index " GameIndex.
+           UNSTRING InputLine
+               DELIMITED BY ": "
+               INTO GameName, RawCubeSets.
+           UNSTRING RawCubeSets
+               DELIMITED BY "; "
+               INTO RawCubeSet(1),
+                    RawCubeSet(2),
+                    RawCubeSet(3),
+                    RawCubeSet(4),
+                    RawCubeSet(5),
+                    RawCubeSet(6).
+           DISPLAY RawCubeSet(1)
+                   RawCubeSet(2)
+                   RawCubeSet(3)
+                   RawCubeSet(4)
+                   RawCubeSet(5)
+                   RawCubeSet(6).
            COMPUTE GameIndex = GameIndex + 1.
