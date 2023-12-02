@@ -24,6 +24,7 @@
            WORKING-STORAGE SECTION.
                01 FileName         PIC X(100).
                01 ReachedEndOfFile PIC A(1) VALUE 'N'.
+               01 GameIndex        PIC 9(2) VALUE 1.
 
        PROCEDURE DIVISION.
            ACCEPT FileName FROM COMMAND-LINE.
@@ -49,4 +50,5 @@
            STOP RUN.
 
        ProcessLine.
-           DISPLAY "Read     " InputLine.
+           DISPLAY "Read     " InputLine ", index " GameIndex.
+           COMPUTE GameIndex = GameIndex + 1.
