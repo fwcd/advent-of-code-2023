@@ -41,12 +41,18 @@
                    05 Red                 PIC 9(2) VALUE 0.
                    05 Green               PIC 9(2) VALUE 0.
                    05 Blue                PIC 9(2) VALUE 0.
-               01 Total.
+               01 MaxCubeSet.
+                   05 MaxRed              PIC 9(2) VALUE 0.
+                   05 MaxGreen            PIC 9(2) VALUE 0.
+                   05 MaxBlue             PIC 9(2) VALUE 0.
+               01 Power                   PIC 9(4) VALUE 0.
+               01 TotalCubeSet.
                    05 TotalRed            PIC 9(2) VALUE 12.
                    05 TotalGreen          PIC 9(2) VALUE 13.
                    05 TotalBlue           PIC 9(2) VALUE 14.
                01 Result.
                    05 Part1               PIC 9(4) VALUE 0.
+                   05 Part2               PIC 9(6) VALUE 0.
 
        PROCEDURE DIVISION.
            ACCEPT FileName FROM COMMAND-LINE.
@@ -71,6 +77,7 @@
            CLOSE InputFile.
 
            DISPLAY "Part 1: " Part1.
+           DISPLAY "Part 2: " Part2.
 
            STOP RUN.
 
@@ -96,6 +103,7 @@
                     RawCubeSet(6).
            
            MOVE 'Y' TO GameValid.
+           MOVE 0   TO MaxRed, MaxGreen, MaxBlue.
 
            PERFORM ProcessCubeSet
                VARYING CubeSetIndex
@@ -103,8 +111,11 @@
                UNTIL CubeSetIndex > 6.
            
            IF GameValid = 'Y'
-              COMPUTE Part1 = Part1 + GameIndex
+               COMPUTE Part1 = Part1 + GameIndex
            END-IF.
+
+           COMPUTE Power = MaxRed * MaxGreen * MaxBlue
+           COMPUTE Part2 = Part2 + Power
 
            COMPUTE GameIndex = GameIndex + 1.
 
@@ -118,9 +129,7 @@
                    CubeCount(2), CubeColor(2),
                    CubeCount(3), CubeColor(3).
 
-           MOVE 0 TO Red.
-           MOVE 0 TO Green.
-           MOVE 0 TO Blue.
+           MOVE 0 TO Red, Green, Blue.
 
            PERFORM ProcessCubeStack
                VARYING CubeStackIndex
@@ -131,15 +140,18 @@
                DISPLAY "Red: " Red " Green: " Green " Blue: " Blue
            END-IF.
 
-           IF Red > TotalRed OR Green > TotalGreen
-                             OR Blue  > TotalBlue
+           IF Red > TotalRed OR Green > TotalGreen OR Blue  > TotalBlue
                MOVE 'N' TO GameValid
            END-IF.
+
+           IF Red   > MaxRed   MOVE Red   TO MaxRed   END-IF.
+           IF Green > MaxGreen MOVE Green TO MaxGreen END-IF.
+           IF Blue  > MaxBlue  MOVE Blue  TO MaxBlue  END-IF.
        
        ProcessCubeStack.
            EVALUATE CubeColor(CubeStackIndex)
-               WHEN 'r' COMPUTE Red   = CubeCount(CubeStackIndex)
-               WHEN 'g' COMPUTE Green = CubeCount(CubeStackIndex)
-               WHEN 'b' COMPUTE Blue  = CubeCount(CubeStackIndex)
+               WHEN 'r' MOVE CubeCount(CubeStackIndex) TO Red
+               WHEN 'g' MOVE CubeCount(CubeStackIndex) TO Green
+               WHEN 'b' MOVE CubeCount(CubeStackIndex) TO Blue
                WHEN OTHER CONTINUE
            END-EVALUATE.
