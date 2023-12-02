@@ -1,5 +1,7 @@
 begin
   comment File 1 is stdout, file 2 is our input file;
+  comment TODO: Actually implement the problem;
+
   integer i, n;
   outstring(1, "Hello world!\n");
   for i := 0 step 1 until 2 do
