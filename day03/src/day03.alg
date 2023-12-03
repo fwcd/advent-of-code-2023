@@ -3,6 +3,10 @@
 
 comment An implementation of day 3 in ALGOL 60 (GNU MARST);
 
+comment Our symbols are mapped to integers as follows:;
+comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |;
+comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
+
 Boolean procedure isInBounds(i, j); integer i, j; isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
 Boolean procedure isSymbol(cell); integer cell; isSymbol := cell > 10;
 Boolean procedure isNumber(cell); integer cell; isNumber := cell < 10;
@@ -73,10 +77,10 @@ begin
   begin
     for j := 0 step 1 until COLS - 1 do
     begin
-      comment File 1 is stdout, file 2 is our input file;
-      comment Our symbols are mapped to integers as follows:;
-      comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |;
-      comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
+      comment File 2 is our input file;
+      comment See the comment at the top for a description of this symbol
+              mapping We need to specify % twice to escape it (presumably
+              since it otherwise would be interpreted as a format specifier);
 
       inchar(2, "0123456789.*+$#=@/%%&-", cell);
       grid[i, j] := cell - 1;
