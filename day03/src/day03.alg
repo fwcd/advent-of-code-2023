@@ -7,12 +7,15 @@ comment Our symbols are mapped to integers as follows:;
 comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |;
 comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
 
-Boolean procedure isInBounds(i, j); integer i, j; isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
-Boolean procedure isSymbol(cell); integer cell; isSymbol := cell > 10;
-Boolean procedure isNumber(cell); integer cell; isNumber := cell < 10;
+Boolean procedure isInBounds(i, j); value i, j; integer i, j;
+  isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
 
-Boolean procedure hasNeighboringSymbol(i, j, grid);
-  integer i, j;
+Boolean procedure isSymbol(cell); value cell; integer cell; isSymbol := cell > 10;
+Boolean procedure isNumber(cell); value cell; integer cell; isNumber := cell < 10;
+
+Boolean procedure neighbor(i, j, outNi, outNj, grid);
+  value i, j, grid;
+  integer i, j, outNi, outNj;
   integer array grid;
 begin
   integer di, dj, ni, nj;
@@ -26,31 +29,34 @@ begin
         begin
           if grid[ni, nj] > 10 then
           begin
-            hasNeighboringSymbol := true;
+            outNi := ni;
+            outNj := nj;
+            neighbor := true;
             goto return;
           end;
         end;
       end;
-  hasNeighboringSymbol := false;
+  neighbor := false;
   return:
 end;
 
-integer procedure part1(grid);
+procedure solve(outPart1, outPart2, grid);
+  value grid;
+  integer outPart1, outPart2;
   integer array grid;
 begin
-  integer i, j, number, result;
+  integer i, j, ni, nj, number;
   Boolean hasNeighbor;
 
   procedure consumeNumber;
   begin
     if number > 0 & hasNeighbor then
-      result := result + number;
+      outPart1 := outPart1 + number;
     number := 0;
     hasNeighbor := false;
   end;
 
   number := 0;
-  result := 0;
   hasNeighbor := false;
 
   for i := 0 step 1 until ROWS - 1 do
@@ -60,17 +66,19 @@ begin
       if grid[i, j] < 10 then
       begin
         number := number * 10 + grid[i, j];
-        hasNeighbor := hasNeighbor | hasNeighboringSymbol(i, j, grid);
+        if neighbor(i, j, ni, nj, grid) then
+        begin
+          hasNeighbor := true;
+        end;
       end else
         consumeNumber;
     end;
     consumeNumber;
   end;
-  part1 := result;
 end;
 
 begin
-  integer i, j, cell;
+  integer i, j, cell, part1, part2;
   integer array grid[0:ROWS, 0:COLS];
 
   for i := 0 step 1 until ROWS - 1 do
@@ -88,7 +96,15 @@ begin
     inchar(2, "\n", cell);
   end;
 
+  part1 := 0;
+  part2 := 0;
+  solve(part1, part2, grid);
+
   outstring(1, "Part 1: ");
-  outinteger(1, part1(grid));
+  outinteger(1, part1);
+  outstring(1, "\n");
+
+  outstring(1, "Part 2: ");
+  outinteger(1, part2);
   outstring(1, "\n");
 end
