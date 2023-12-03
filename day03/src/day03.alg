@@ -27,15 +27,13 @@ begin
         ni := i + di;
         nj := j + dj;
         if isInBounds(ni, nj) then
-        begin
-          if grid[ni, nj] > 10 then
+          if isSymbol(grid[ni, nj]) then
           begin
             outNi := ni;
             outNj := nj;
             neighbor := true;
             goto return;
           end;
-        end;
       end;
   neighbor := false;
   return:
@@ -50,6 +48,12 @@ begin
   integer array gears[0:ROWS, 0:COLS];
   Boolean hasNeighbor;
 
+  procedure resetNumber;
+  begin
+    number := 0;
+    hasNeighbor := 0;
+  end;
+
   procedure consumeNumber;
   begin
     if number > 0 & hasNeighbor then
@@ -61,12 +65,10 @@ begin
         else
           outPart2 := outPart2 + number * gears[ni, nj];
     end;
-    number := 0;
-    hasNeighbor := false;
+    resetNumber;
   end;
 
-  number := 0;
-  hasNeighbor := false;
+  resetNumber;
 
   for i := 0 step 1 until ROWS - 1 do
     for j := 0 step 1 until COLS - 1 do
@@ -82,7 +84,8 @@ begin
         if !hasNeighbor then
           if neighbor(i, j, ni, nj, grid) then
             hasNeighbor := true;
-      end else
+      end
+      else
         consumeNumber;
     end;
     consumeNumber;
