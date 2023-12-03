@@ -9,7 +9,12 @@
       
       cat <<EOF > $out/bin/day04
       #!/bin/bash
-      nix-instantiate --eval --arg x 4 --arg y 3 $out/share/day04.nix
+      set -e
+      if [ -z "\$1" ]; then
+        echo "Usage: \$0 <path to input>"
+        exit 1
+      fi
+      nix-instantiate --eval --arg inputPath "\"\$(realpath \$1)\"" $out/share/day04.nix
       EOF
 
       chmod +x $out/bin/day04

@@ -1,2 +1,3 @@
-{ x, y }:
-  x + y
+{ inputPath }:
+  let input = builtins.readFile inputPath;
+  in input
