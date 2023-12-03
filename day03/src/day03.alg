@@ -32,8 +32,8 @@ begin
             outNi := ni;
             outNj := nj;
             neighbor := true;
-            goto return;
-          end;
+            goto return
+          end
       end;
   neighbor := false;
   return:
@@ -51,7 +51,7 @@ begin
   procedure resetNumber;
   begin
     number := 0;
-    hasNeighbor := false;
+    hasNeighbor := false
   end;
 
   procedure consumeNumber;
@@ -63,9 +63,9 @@ begin
         if gears[ni, nj] = 0 then
           gears[ni, nj] := number
         else
-          outPart2 := outPart2 + number * gears[ni, nj];
+          outPart2 := outPart2 + number * gears[ni, nj]
     end;
-    resetNumber;
+    resetNumber
   end;
 
   resetNumber;
@@ -83,13 +83,13 @@ begin
         number := number * 10 + grid[i, j];
         if !hasNeighbor then
           if neighbor(i, j, ni, nj, grid) then
-            hasNeighbor := true;
+            hasNeighbor := true
       end
       else
-        consumeNumber;
+        consumeNumber
     end;
-    consumeNumber;
-  end;
+    consumeNumber
+  end
 end;
 
 begin
@@ -106,9 +106,9 @@ begin
               since it otherwise would be interpreted as a format specifier);
 
       inchar(2, "0123456789.*+$#=@/%%&-", cell);
-      grid[i, j] := cell - 1;
+      grid[i, j] := cell - 1
     end;
-    inchar(2, "\n", cell);
+    inchar(2, "\n", cell)
   end;
 
   part1 := 0;
@@ -121,5 +121,5 @@ begin
 
   outstring(1, "Part 2: ");
   outinteger(1, part2);
-  outstring(1, "\n");
+  outstring(1, "\n")
 end
