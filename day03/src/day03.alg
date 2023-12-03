@@ -3,23 +3,9 @@
 
 comment An implementation of day 3 in ALGOL 60 (GNU MARST);
 
-Boolean procedure isInBounds(i, j);
-  integer i, j;
-begin
-  isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
-end;
-
-Boolean procedure isSymbol(cell);
-  integer cell;
-begin
-  isSymbol := cell > 10;
-end;
-
-Boolean procedure isNumber(cell);
-  integer cell;
-begin
-  isNumber := cell < 10;
-end;
+Boolean procedure isInBounds(i, j); integer i, j; isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
+Boolean procedure isSymbol(cell); integer cell; isSymbol := cell > 10;
+Boolean procedure isNumber(cell); integer cell; isNumber := cell < 10;
 
 Boolean procedure hasNeighboringSymbol(i, j, grid);
   integer i, j;
