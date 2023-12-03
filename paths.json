@@ -21,5 +21,11 @@
     },
     "path": "day03/src/day03.alg",
     "completed": true
+  },
+  {
+    "lang": {
+      "name": "Nix"
+    },
+    "path": "day04/src/day04.nix"
   }
 ]
