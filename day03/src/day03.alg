@@ -1,11 +1,18 @@
 #define ROWS 140
 #define COLS 140
 
-comment An implementation of day 3 in ALGOL 60 (GNU MARST);
+comment An implementation of day 3 in ALGOL 60 (GNU MARST)
 
-comment Our symbols are mapped to integers as follows:;
-comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |;
-comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
+        Resources I found helpful while learning enough ALGOL 60 to implement this:
+
+        - https://www.gtoal.com/languages/algol60/marst-2.6/doc/marst.pdf
+        - https://www.algol60.org/5shortIntro.htm
+        - http://cs.ecs.baylor.edu/~maurer/SieveE/Algol60.htm
+        - http://www.math.bas.bg/bantchev/place/rpn/rpn.algol60.html
+
+        Our symbols are mapped to integers as follows:
+        | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |
+        | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
 
 Boolean procedure isInBounds(i, j); value i, j; integer i, j;
   isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
