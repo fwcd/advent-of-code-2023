@@ -51,7 +51,7 @@ begin
   procedure resetNumber;
   begin
     number := 0;
-    hasNeighbor := 0;
+    hasNeighbor := false;
   end;
 
   procedure consumeNumber;
