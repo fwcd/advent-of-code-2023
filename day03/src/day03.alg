@@ -43,7 +43,6 @@ begin
     begin
       if hasNeighbor then
         result := result + number;
-      print(number);
       number := 0;
       hasNeighbor := false;
     end;
@@ -58,10 +57,11 @@ begin
     for j := 0 step 1 until COLS - 1 do
     begin
       if grid[i, j] < 10 then
-        number := number * 10 + grid[i, j]
-      else
+      begin
+        number := number * 10 + grid[i, j];
+        hasNeighbor := hasNeighbor | hasNeighboringSymbol(i, j, grid);
+      end else
         consumeNumber;
-      hasNeighbor := hasNeighbor | hasNeighboringSymbol(i, j, grid);
     end;
     consumeNumber;
   end;
@@ -88,5 +88,7 @@ begin
     inchar(2, "\n", cell);
   end;
 
-  print(part1(grid));
+  outstring(1, "Part 1: ");
+  outinteger(1, part1(grid));
+  outstring(1, "\n");
 end
