@@ -12,6 +12,7 @@ Boolean procedure isInBounds(i, j); value i, j; integer i, j;
 
 Boolean procedure isSymbol(cell); value cell; integer cell; isSymbol := cell > 10;
 Boolean procedure isNumber(cell); value cell; integer cell; isNumber := cell < 10;
+Boolean procedure isGear(cell);   value cell; integer cell; isGear   := cell = 11;
 
 Boolean procedure neighbor(i, j, outNi, outNj, grid);
   value i, j, grid;
@@ -46,12 +47,20 @@ procedure solve(outPart1, outPart2, grid);
   integer array grid;
 begin
   integer i, j, ni, nj, number;
+  integer array gears[0:ROWS, 0:COLS];
   Boolean hasNeighbor;
 
   procedure consumeNumber;
   begin
     if number > 0 & hasNeighbor then
+    begin
       outPart1 := outPart1 + number;
+      if isGear(grid[ni, nj]) then
+        if gears[ni, nj] = 0 then
+          gears[ni, nj] := number
+        else
+          outPart2 := outPart2 + number * gears[ni, nj];
+    end;
     number := 0;
     hasNeighbor := false;
   end;
@@ -60,16 +69,19 @@ begin
   hasNeighbor := false;
 
   for i := 0 step 1 until ROWS - 1 do
+    for j := 0 step 1 until COLS - 1 do
+      gears[i, j] := 0;
+
+  for i := 0 step 1 until ROWS - 1 do
   begin
     for j := 0 step 1 until COLS - 1 do
     begin
       if grid[i, j] < 10 then
       begin
         number := number * 10 + grid[i, j];
-        if neighbor(i, j, ni, nj, grid) then
-        begin
-          hasNeighbor := true;
-        end;
+        if !hasNeighbor then
+          if neighbor(i, j, ni, nj, grid) then
+            hasNeighbor := true;
       end else
         consumeNumber;
     end;
