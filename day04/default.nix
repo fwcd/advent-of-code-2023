@@ -14,7 +14,7 @@
         echo "Usage: \$0 <path to input>"
         exit 1
       fi
-      nix-instantiate --eval --arg inputPath "\"\$(realpath \$1)\"" $out/share/day04.nix
+      nix-instantiate --eval --expr "import $out/share/day04.nix { inputPath = \"\$(realpath \$1)\"; }"
       EOF
 
       chmod +x $out/bin/day04
