@@ -24,6 +24,7 @@
   },
   {
     "lang": {
+      "codemirror": "nix",
       "name": "Nix"
     },
     "path": "day04/src/day04.nix"
