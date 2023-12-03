@@ -19,6 +19,7 @@
     "lang": {
       "name": "ALGOL 60"
     },
-    "path": "day03/src/day03.alg"
+    "path": "day03/src/day03.alg",
+    "completed": true
   }
 ]
