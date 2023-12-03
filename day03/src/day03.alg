@@ -9,6 +9,18 @@ begin
   isInBounds := i >= 0 & i < ROWS & j >= 0 & j < COLS;
 end;
 
+Boolean procedure isSymbol(cell);
+  integer cell;
+begin
+  isSymbol := cell > 10;
+end;
+
+Boolean procedure isNumber(cell);
+  integer cell;
+begin
+  isNumber := cell < 10;
+end;
+
 Boolean procedure hasNeighboringSymbol(i, j, grid);
   integer i, j;
   integer array grid;
@@ -21,11 +33,13 @@ begin
         ni := i + di;
         nj := j + dj;
         if isInBounds(ni, nj) then
+        begin
           if grid[ni, nj] > 10 then
           begin
             hasNeighboringSymbol := true;
             goto return;
           end;
+        end;
       end;
   hasNeighboringSymbol := false;
   return:
@@ -39,13 +53,10 @@ begin
 
   procedure consumeNumber;
   begin
-    if number > 0 then
-    begin
-      if hasNeighbor then
-        result := result + number;
-      number := 0;
-      hasNeighbor := false;
-    end;
+    if number > 0 & hasNeighbor then
+      result := result + number;
+    number := 0;
+    hasNeighbor := false;
   end;
 
   number := 0;
@@ -72,18 +83,17 @@ begin
   integer i, j, cell;
   integer array grid[0:ROWS, 0:COLS];
 
-  comment File 1 is stdout, file 2 is our input file;
-
   for i := 0 step 1 until ROWS - 1 do
   begin
     for j := 0 step 1 until COLS - 1 do
     begin
+      comment File 1 is stdout, file 2 is our input file;
       comment Our symbols are mapped to integers as follows:;
-      comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 |;
-      comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |;
+      comment | 0 | ... | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |;
+      comment | 0 | ... | 9 |  . |  * |  + |  $ |  # |  = |  @ |  / |  % |  & |  - |;
 
-      inchar(2, "123456789.*+$#", cell);
-      grid[i, j] := cell;
+      inchar(2, "0123456789.*+$#=@/%%&-", cell);
+      grid[i, j] := cell - 1;
     end;
     inchar(2, "\n", cell);
   end;

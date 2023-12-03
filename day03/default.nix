@@ -12,15 +12,16 @@
 
       # Run the C preprocessor and make sure lines align by
       # replacing preprocessor directives with empty lines.
-      cat day03.alg | cpp | awk '!/^#/' > day03.preprocessed.alg
+      cat day03.alg | cpp | awk '!/^#/' > out/day03.preprocessed.alg
 
-      marst -o out/day03.c day03.preprocessed.alg
+      marst -o out/day03.c out/day03.preprocessed.alg
       cc -o out/day03-impl -lalgol -lm out/day03.c
     '';
 
     installPhase = ''
-      mkdir -p $out/{libexec,bin}
+      mkdir -p $out/{libexec,bin,src}
       cp out/day03-impl $out/libexec
+      cp out/*.{c,alg} $out/src
 
       cat <<EOF > $out/bin/day03
       #!/bin/bash
