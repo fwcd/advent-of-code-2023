@@ -1,5 +1,5 @@
-#define ROWS 10
-#define COLS 10
+#define ROWS 140
+#define COLS 140
 
 comment An implementation of day 3 in ALGOL 60 (GNU MARST);
 
