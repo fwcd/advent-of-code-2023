@@ -14,7 +14,7 @@
         echo "Usage: \$0 <path to input>"
         exit 1
       fi
-      nix-instantiate --eval --strict --arg inputPath "\"\$(realpath \$1)\"" $out/share/day04.nix
+      nix-instantiate --eval --strict --arg inputPath "\"\$(realpath \$1)\"" "\$(dirname "\$0")/../share/day04.nix"
       EOF
 
       chmod +x $out/bin/day04
