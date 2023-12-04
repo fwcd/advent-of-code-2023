@@ -1,7 +1,7 @@
 { inputPath, lib ? import <nixpkgs/lib> }:
   let inherit (builtins) elem foldl' filter length readFile stringLength;
       inherit (lib.strings) splitString toInt;
-      inherit (lib.lists) head last;
+      inherit (lib.lists) head last intersectLists;
       inherit (lib.trivial) flip pipe;
   in
   let compose     = f: g: x: f (g x);
@@ -17,11 +17,13 @@
       compose5    = f: g: h: i: j: compose f (compose4 g h i j);
       isNonEmpty  = s: stringLength s > 0;
       sum         = foldl' (x: y: x + y) 0;
+      pow         = n: m: if m == 0 then 1 else n * (pow n (m - 1));
 
       parseNums   = compose (map toInt) (filter isNonEmpty);
       parseSide   = compose parseNums (splitString " ");
       parseCard   = compose5 (c: { winning = head c; own = last c; }) (map parseSide) (splitString " | ") last (splitString ": ");
-      cardValue   = c: 0; # TODO: Implement the actual function
+      cardValue   = c: let count = length (intersectLists c.winning c.own);
+                       in if count > 0 then pow 2 (count - 1) else 0; # TODO: Implement the actual function
 
       input = readFile inputPath;
       lines = splitString "\n" input;
