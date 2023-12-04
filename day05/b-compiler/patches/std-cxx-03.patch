@@ -1,0 +1,16 @@
+diff --git a/Makefile b/Makefile
+index 0eae8fa..b7879c1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@ CXX = g++
+ LEX = flex
+ M4 = m4
+ YACC = bison
+-CXXFLAGS = -g -O3 -Wall -Wextra
++CXXFLAGS = -g -O3 -Wall -Wextra -std=c++03
+ 
+ M4FLAGS = -DCHAR_BITS=8 -DWORD_BITS=16 -DWORD_CHARS=2
+ CPPFLAGS = -DCHAR_BITS=8 -DWORD_BITS=16 -DWORD_CHARS=2
+-- 
+2.42.0
+

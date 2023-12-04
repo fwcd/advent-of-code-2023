@@ -1,0 +1,16 @@
+diff --git a/compile.cc b/compile.cc
+index 86ebc96..38e60b4 100644
+--- a/compile.cc
++++ b/compile.cc
+@@ -652,7 +652,7 @@ void compiler::put_statement(statement *stmt)
+             case STMT_CASE:
+                 if (switchstack.empty())
+                 {
+-                    std::cerr << "Error: case without switch." << std::cerr;
++                    std::cerr << "Error: case without switch." << std::endl;
+                     error = true;
+                     break;
+                 }
+-- 
+2.42.0
+
