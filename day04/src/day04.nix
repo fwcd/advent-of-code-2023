@@ -1,7 +1,7 @@
 { inputPath, lib ? import <nixpkgs/lib> }:
   let inherit (builtins) elem foldl' filter length readFile stringLength;
       inherit (lib.strings) splitString toInt;
-      inherit (lib.lists) head last intersectLists;
+      inherit (lib.lists) head tail last intersectLists reverseList take;
       inherit (lib.trivial) flip pipe;
   in
   let compose     = f: g: x: f (g x);
@@ -18,6 +18,7 @@
       isNonEmpty  = s: stringLength s > 0;
       sum         = foldl' (x: y: x + y) 0;
       pow         = n: m: if m == 0 then 1 else n * (pow n (m - 1));
+      cons        = x: xs: [x] ++ xs;
 
       parseNums   = compose (map toInt) (filter isNonEmpty);
       parseSide   = compose parseNums (splitString " ");
@@ -25,8 +26,15 @@
       cardValue   = c: let count = length (intersectLists c.winning c.own);
                        in if count > 0 then pow 2 (count - 1) else 0; # TODO: Implement the actual function
 
-      input = readFile inputPath;
-      lines = splitString "\n" input;
-      cards = map parseCard lines;
-      part1 = sum (map cardValue cards);
-  in "Part 1: " + toString part1
+      input  = readFile inputPath;
+      lines  = splitString "\n" input;
+      cards  = map parseCard lines;
+      values = map cardValue cards;
+      
+      computePart2  = acc: remaining: if remaining == [] then sum acc - 1
+                                                         else let wonCards = 1 + sum (take (head remaining) acc);
+                                                              in computePart2 (builtins.trace (toString acc) (cons wonCards acc)) (tail remaining);
+
+      part1  = sum values;
+      part2  = computePart2 [] (reverseList values);
+  in "Part 1: " + toString part1 + ", Part 2: " + toString part2
