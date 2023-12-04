@@ -5,7 +5,7 @@
 
     buildPhase = ''
       mkdir -p out
-      cc -o out/day01 day01.c
+      $CC -o out/day01 day01.c
     '';
 
     installPhase = ''

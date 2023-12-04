@@ -15,7 +15,7 @@
       cat day03.alg | cpp | awk '!/^#/' > out/day03.preprocessed.alg
 
       marst -o out/day03.c out/day03.preprocessed.alg
-      cc -o out/day03-impl -lalgol -lm out/day03.c
+      $CC -o out/day03-impl -lalgol -lm out/day03.c
     '';
 
     installPhase = ''
