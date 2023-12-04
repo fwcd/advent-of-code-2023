@@ -1,8 +1,8 @@
 { inputPath, lib ? import <nixpkgs/lib> }:
-  let inherit (builtins) elem foldl' filter length readFile stringLength;
+  let inherit (builtins) elem foldl' filter genList length readFile stringLength;
       inherit (lib.strings) splitString toInt;
       inherit (lib.lists) head tail last intersectLists reverseList take;
-      inherit (lib.trivial) flip pipe;
+      inherit (lib.trivial) const flip pipe;
   in
   let compose     = f: g: x: f (g x);
       compose3    = f: compose (compose compose compose f) compose; # = f: compose (compose (compose f)) compose
@@ -18,7 +18,7 @@
       isNonEmpty  = s: stringLength s > 0;
       sum         = foldl' (x: y: x + y) 0;
       pow         = n: m: if m == 0 then 1 else n * (pow n (m - 1));
-      replicate   = n: x: if n <= 0 then [] else [x] ++ replicate (n - 1) x;
+      replicate   = n: x: genList (const x) n;
 
       parseNums      = compose (map toInt) (filter isNonEmpty);
       parseSide      = compose parseNums (splitString " ");
