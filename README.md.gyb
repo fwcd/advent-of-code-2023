@@ -8,7 +8,7 @@
     lang = day['lang']
     path = day['path']
     s = f"[{lang['name']}]({path})"
-    additional_notes = lang.get('additionalNotes', '')
+    additional_notes = day.get('additionalNotes', '')
     if additional_notes:
       s = f'{s} {additional_notes}'
     return s
