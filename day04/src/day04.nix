@@ -31,7 +31,7 @@
       matchCounts = map cardMatchCount cards;
 
       values      = map (m: if m > 0 then pow 2 (m - 1) else 0) matchCounts;
-      part1  = sum values;
+      part1       = sum values;
 
       winCards    = n: times: counts: if n <= 0 || counts == [] then counts
                                                                 else [(head counts + times)] ++ winCards (n - 1) times (tail counts);
@@ -40,6 +40,6 @@
                                                                   matchCount = head matchCounts;
                                                               in [count] ++ totalCounts (winCards matchCount count (tail counts)) (tail matchCounts);
 
-      part2  = sum (totalCounts (replicate (length cards) 1) matchCounts);
+      part2       = sum (totalCounts (replicate (length cards) 1) matchCounts);
 
   in "Part 1: " + toString part1 + ", Part 2: " + toString part2
