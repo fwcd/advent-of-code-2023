@@ -18,23 +18,28 @@
       isNonEmpty  = s: stringLength s > 0;
       sum         = foldl' (x: y: x + y) 0;
       pow         = n: m: if m == 0 then 1 else n * (pow n (m - 1));
-      cons        = x: xs: [x] ++ xs;
+      replicate   = n: x: if n <= 0 then [] else [x] ++ replicate (n - 1) x;
 
-      parseNums   = compose (map toInt) (filter isNonEmpty);
-      parseSide   = compose parseNums (splitString " ");
-      parseCard   = compose5 (c: { winning = head c; own = last c; }) (map parseSide) (splitString " | ") last (splitString ": ");
-      cardValue   = c: let count = length (intersectLists c.winning c.own);
-                       in if count > 0 then pow 2 (count - 1) else 0; # TODO: Implement the actual function
+      parseNums      = compose (map toInt) (filter isNonEmpty);
+      parseSide      = compose parseNums (splitString " ");
+      parseCard      = compose5 (c: { winning = head c; own = last c; }) (map parseSide) (splitString " | ") last (splitString ": ");
+      cardMatchCount = c: length (intersectLists c.winning c.own);
 
-      input  = readFile inputPath;
-      lines  = splitString "\n" input;
-      cards  = map parseCard lines;
-      values = map cardValue cards;
-      
-      computePart2  = acc: remaining: if remaining == [] then sum acc - 1
-                                                         else let wonCards = 1 + sum (take (head remaining) acc);
-                                                              in computePart2 (builtins.trace (toString acc) (cons wonCards acc)) (tail remaining);
+      input       = readFile inputPath;
+      lines       = splitString "\n" input;
+      cards       = map parseCard lines;
+      matchCounts = map cardMatchCount cards;
 
+      values      = map (m: if m > 0 then pow 2 (m - 1) else 0) matchCounts;
       part1  = sum values;
-      part2  = computePart2 [] (reverseList values);
+
+      winCards    = n: times: counts: if n <= 0 || counts == [] then counts
+                                                                else [(head counts + times)] ++ winCards (n - 1) times (tail counts);
+      totalCounts = counts: matchCounts: if counts == [] then []
+                                                         else let count      = head counts;
+                                                                  matchCount = head matchCounts;
+                                                              in [count] ++ totalCounts (winCards matchCount count (tail counts)) (tail matchCounts);
+
+      part2  = sum (totalCounts (replicate (length cards) 1) matchCounts);
+
   in "Part 1: " + toString part1 + ", Part 2: " + toString part2
