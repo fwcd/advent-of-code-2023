@@ -15,7 +15,7 @@ getline(buf, size) {
     i++;
   }
 
-  /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the 'modern' NUL. */
+  /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
   end:
   buf[i] = '*e';
 
