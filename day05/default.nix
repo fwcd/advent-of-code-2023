@@ -12,7 +12,12 @@
 
     buildPhase = ''
       mkdir out
-      bc -o out/day05.ba day05.b
+
+      # Run the C preprocessor and make sure lines align by
+      # replacing preprocessor directives with empty lines.
+      cat day05.b | cpp | awk '!/^#/' > out/day05.preprocessed.b
+
+      bc -o out/day05.ba out/day05.preprocessed.b
       ba -o out/day05.bin ${b-compiler.outPath}/share/b/libb.ba out/day05.ba
     '';
 

@@ -1,3 +1,5 @@
+#define LINE_BUFSIZE 128
+
 getline(buf, size) {
   extrn getchar;
   auto i, c;
@@ -21,16 +23,11 @@ getline(buf, size) {
 }
 
 main() {
-  extrn printf, getline, buf;
+  extrn printf, getline, line;
   auto i, n;
 
-  i = 0;
-  while (i < 128) {
-    buf[i++] = 0;
-  }
-
-  n = getline(buf, 128);
-  printf("Got line of length %d: %s*n", n, buf);
+  n = getline(line, LINE_BUFSIZE);
+  printf("Got line of length %d: %s*n", n, line);
 }
 
-buf[128];
+line[LINE_BUFSIZE];
