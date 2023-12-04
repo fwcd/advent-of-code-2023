@@ -8,6 +8,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 02: [COBOL](day02/src/day02.cob)
 - [x] Day 03: [ALGOL 60](day03/src/day03.alg)
 - [x] Day 04: [Nix](day04/src/day04.nix)
+- [ ] Day 05: [B](day05/src/day05.b)
 
 ## Packaging
 

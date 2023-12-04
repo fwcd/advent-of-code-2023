@@ -29,5 +29,12 @@
     },
     "path": "day04/src/day04.nix",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "clike",
+      "name": "B"
+    },
+    "path": "day05/src/day05.b"
   }
 ]
