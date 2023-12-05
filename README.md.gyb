@@ -8,9 +8,14 @@
     lang = day['lang']
     path = day['path']
     s = f"[{lang['name']}]({path})"
+
+    additional_paths = day.get('additionalPaths', '')
+    if additional_paths:
+      s += f" ({', '.join(f'[{name}]({path})' for name, path in additional_paths.items())})"
+
     additional_notes = day.get('additionalNotes', '')
     if additional_notes:
-      s = f'{s} {additional_notes}'
+      s += f' {additional_notes}'
     return s
 }%
 <!-- Automatically generated from README.md.gyb, do not edit directly! -->

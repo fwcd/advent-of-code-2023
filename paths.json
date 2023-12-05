@@ -35,6 +35,9 @@
       "codemirror": "clike",
       "name": "B"
     },
-    "path": "day05/src/day05.b"
+    "path": "day05/src/day05.b",
+    "additionalPaths": {
+      "readme": "day05/README.md"
+    }
   }
 ]
