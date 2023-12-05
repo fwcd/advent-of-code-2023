@@ -1,6 +1,6 @@
 # Day 5
 
-On our journey through the programming languages of the 60s, we can of course not skip the [B programming language][1], one of the more influential predecessors of C. Both B and C, being developed by Ken Thompson and Dennies Ritchie, exhibit large similarities in their syntax, yet B ended up [being quickly succeeded by C][2] and was therefore never used widely. This made it quite challenging to find a B compiler that runs on modern systems. The few systems that still use B [target mainframes][3] rather than mainstream x86_64/ARM hardware.
+On our journey through the programming languages of the 60s, we can of course not skip the [B programming language][1], one of the more influential predecessors of C. Both B and C, being developed at Bell Labs by Ken Thompson and Dennis Ritchie, exhibit large similarities in their syntax, yet B ended up [being quickly succeeded by C][2] and was therefore never used widely. This made it quite challenging to find a B compiler that runs on modern systems. The few systems that still use B [target mainframes][3] rather than mainstream x86_64/ARM hardware.
 
 Fortunately, a few hobbyists have taken on the challenge of building a B compiler based on the Ken Thompson book, in particular C. Smith, [whose implementation][4] I will use for this challenge. To quote the website:
 
