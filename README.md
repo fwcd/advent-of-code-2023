@@ -18,8 +18,8 @@ The programs are packaged with Nix, making it easy for CI to run a single workfl
 
 My solutions to the previous challenges can be found here:
 
-- [`advent-of-code-2022`](https://github.com/fwcd/advent-of-code-2022)
-- [`advent-of-code-2021`](https://github.com/fwcd/advent-of-code-2021)
-- [`advent-of-code-2020`](https://github.com/fwcd/advent-of-code-2020)
-- [`advent-of-code-2019`](https://github.com/fwcd/advent-of-code-2019)
-- [`advent-of-code-2015`](https://github.com/fwcd/advent-of-code-2015)
+- [Advent of Code 2022](https://github.com/fwcd/advent-of-code-2022)
+- [Advent of Code 2021](https://github.com/fwcd/advent-of-code-2021)
+- [Advent of Code 2020](https://github.com/fwcd/advent-of-code-2020)
+- [Advent of Code 2019](https://github.com/fwcd/advent-of-code-2019)
+- [Advent of Code 2015](https://github.com/fwcd/advent-of-code-2015)
