@@ -11,7 +11,7 @@
 /* Buffer sizes. */
 #define LINE_SIZE 128
 #define SEEDS_SIZE 64
-#define MAPS_SIZE 256
+#define MAP_DATA_SIZE 256
 #define MAP_LENGTHS_SIZE 16
 
 /* Parse states. */
@@ -22,6 +22,9 @@
 
 /* Magic parse constants. */
 #define SEEDS_SKIP_CHARS 7
+
+/* Format-specific stuff. */
+#define MAP_ENTRY_LENGTH 3
 
 read_line(str, size, out_eof) {
   extrn getchar;
@@ -100,13 +103,17 @@ parse_integers(str, length, out_count, buf, buf_size) {
 
 line[LINE_SIZE];
 
-read_input(seeds, seeds_size, out_seed_count, maps, maps_size, map_lengths, map_lengths_size, out_map_count) {
+read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengths, map_lengths_size, out_map_count) {
   extrn printf, exit, line, read_line, parse_integers;
-  auto length, eof, state, map_index, map_length;
+  auto state, line_number, length, eof, map_index, map_length, map_data_offset, entry_index, entry_length;
 
   state = PARSE_STATE_SEEDS;
+  line_number = 1;
+
   map_index = 0;
   map_length = 0;
+  map_data_offset = 0;
+  entry_index = 0;
 
   while (1) {
     length = read_line(line, LINE_SIZE, &eof);
@@ -124,14 +131,19 @@ read_input(seeds, seeds_size, out_seed_count, maps, maps_size, map_lengths, map_
       goto switch_end;
     case PARSE_STATE_MAP:
       if (length > 0) {
-        parse_integers(line, length, map_lengths + map_index, maps, maps_size);
+        entry_length = parse_integers(line, length, map_lengths + map_index, map_data + map_data_offset, map_data_size - map_data_offset);
+        if (entry_length != MAP_ENTRY_LENGTH) {
+          printf("Line %d: Map %d entry %d has length %d (expected %d)!*n", line_number, map_index, entry_index, entry_length, MAP_ENTRY_LENGTH);
+          exit(1);
+        }
         map_length++;
+        map_data_offset =+ entry_length;
       } else {
         state = PARSE_STATE_MAP_HEADER;
       }
       if (length == 0 | eof) {
         if (map_index >= map_lengths_size) {
-          printf("Map index out of bounds!*n");
+          printf("Line %d: Map index out of bounds, maximum size is %d!*n", line_number, map_lengths_size);
           exit(1);
         }
         map_lengths[map_index++] = map_length;
@@ -143,6 +155,8 @@ read_input(seeds, seeds_size, out_seed_count, maps, maps_size, map_lengths, map_
     if (eof) {
       goto while_end;
     }
+
+    line_number++;
   }
 
   while_end:
@@ -152,17 +166,34 @@ read_input(seeds, seeds_size, out_seed_count, maps, maps_size, map_lengths, map_
 seeds[SEEDS_SIZE];
 seed_count;
 
-maps[MAPS_SIZE];
+map_data[MAP_DATA_SIZE];
 map_lengths[MAP_LENGTHS_SIZE];
 map_count;
 
 main() {
-  extrn printf, print_array, read_input, line, seeds, seed_count, maps, map_lengths, map_count;
+  extrn printf, print_array, read_input, line, seeds, seed_count, map_data, map_lengths, map_count;
+  auto i, j, k;
 
-  read_input(seeds, SEEDS_SIZE, &seed_count, maps, MAPS_SIZE, map_lengths, MAP_LENGTHS_SIZE, &map_count);
+  read_input(seeds, SEEDS_SIZE, &seed_count, map_data, MAP_DATA_SIZE, map_lengths, MAP_LENGTHS_SIZE, &map_count);
 
-  printf("Parsed %d maps*n", map_count);
+  printf("Parsed %d map_data*n", map_count);
+
   printf("Seeds: ");
   print_array(seeds, seed_count);
   printf("*n");
+
+  printf("Maps: ");
+  i = 0;
+  k = 0;
+  while (i < map_count) {
+    j = 0;
+    while (j < map_lengths[i]) {
+      print_array(map_data + k, map_lengths[i]);
+      printf("*n");
+      j++;
+    }
+    i++;
+    k =+ map_lengths[i];
+    printf("*n");
+  }
 }
