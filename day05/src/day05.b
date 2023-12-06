@@ -14,7 +14,7 @@
 #define SEEDS_SKIP_CHARS 7
 #define MAP_SKIP_LINES 2
 
-read_line(out_str, out_size, out_eof) {
+read_line(inout_str, size, out_eof) {
   extrn getchar;
   auto i, c;
 
@@ -22,13 +22,13 @@ read_line(out_str, out_size, out_eof) {
 
   while (1) {
     c = getchar();
-    if (c == '*n' | c == '*e' | i >= (out_size - 1)) {
+    if (c == '*n' | c == '*e' | i >= (size - 1)) {
       *out_eof = c != '*n';
       /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
-      out_str[i] = '*e';
+      inout_str[i] = '*e';
       return (i);
     }
-    out_str[i] = c;
+    inout_str[i] = c;
     i++;
   }
 }
@@ -67,7 +67,7 @@ parse_integer(str, length, out_integer) {
   }
 }
 
-parse_integers(str, length, out_count, out_buf, out_size) {
+parse_integers(str, length, out_count, inout_buf, buf_size) {
   extrn parse_integer, printf;
   auto i, j, di;
   
@@ -75,8 +75,8 @@ parse_integers(str, length, out_count, out_buf, out_size) {
   j = 0;
   di = 0;
 
-  while (i < length && j < out_size) {
-    di = parse_integer(str + i, length - i, out_buf + j) + 1 /* space */;
+  while (i < length && j < buf_size) {
+    di = parse_integer(str + i, length - i, inout_buf + j) + 1 /* space */;
     if (di == 0) {
       goto end;
     }
