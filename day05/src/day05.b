@@ -8,13 +8,22 @@
  * require something more fancy?
  */
 
-#define LINE_BUFSIZE 128
-#define SEEDS_BUFSIZE 64
-#define MAP_COUNT 7
-#define SEEDS_SKIP_CHARS 7
-#define MAP_SKIP_LINES 2
+/* Buffer sizes. */
+#define LINE_SIZE 128
+#define SEEDS_SIZE 64
+#define MAPS_SIZE 256
+#define MAP_LENGTHS_SIZE 16
 
-read_line(inout_str, size, out_eof) {
+/* Parse states. */
+#define PARSE_STATE_SEEDS 1
+#define PARSE_STATE_DELIMITER 2
+#define PARSE_STATE_MAP_HEADER 3
+#define PARSE_STATE_MAP 4
+
+/* Magic parse constants. */
+#define SEEDS_SKIP_CHARS 7
+
+read_line(str, size, out_eof) {
   extrn getchar;
   auto i, c;
 
@@ -25,11 +34,10 @@ read_line(inout_str, size, out_eof) {
     if (c == '*n' | c == '*e' | i >= (size - 1)) {
       *out_eof = c != '*n';
       /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
-      inout_str[i] = '*e';
+      str[i] = '*e';
       return (i);
     }
-    inout_str[i] = c;
-    i++;
+    str[i++] = c;
   }
 }
 
@@ -67,7 +75,7 @@ parse_integer(str, length, out_integer) {
   }
 }
 
-parse_integers(str, length, out_count, inout_buf, buf_size) {
+parse_integers(str, length, out_count, buf, buf_size) {
   extrn parse_integer, printf;
   auto i, j, di;
   
@@ -76,7 +84,7 @@ parse_integers(str, length, out_count, inout_buf, buf_size) {
   di = 0;
 
   while (i < length && j < buf_size) {
-    di = parse_integer(str + i, length - i, inout_buf + j) + 1 /* space */;
+    di = parse_integer(str + i, length - i, buf + j) + 1 /* space */;
     if (di == 0) {
       goto end;
     }
@@ -90,22 +98,71 @@ parse_integers(str, length, out_count, inout_buf, buf_size) {
   return (i);
 }
 
+line[LINE_SIZE];
+
+read_input(seeds, seeds_size, out_seed_count, maps, maps_size, map_lengths, map_lengths_size, out_map_count) {
+  extrn printf, exit, line, read_line, parse_integers;
+  auto length, eof, state, map_index, map_length;
+
+  state = PARSE_STATE_SEEDS;
+  map_index = 0;
+  map_length = 0;
+
+  while (1) {
+    length = read_line(line, LINE_SIZE, &eof);
+
+    switch (state) {
+    case PARSE_STATE_SEEDS:
+      parse_integers(line + SEEDS_SKIP_CHARS, length - SEEDS_SKIP_CHARS, out_seed_count, seeds, seeds_size);
+      state = PARSE_STATE_DELIMITER;
+      goto switch_end;
+    case PARSE_STATE_DELIMITER:
+      state = PARSE_STATE_MAP_HEADER;
+      goto switch_end;
+    case PARSE_STATE_MAP_HEADER:
+      state = PARSE_STATE_MAP;
+      goto switch_end;
+    case PARSE_STATE_MAP:
+      if (length > 0) {
+        parse_integers(line, length, map_lengths + map_index, maps, maps_size);
+        map_length++;
+      } else {
+        state = PARSE_STATE_MAP_HEADER;
+      }
+      if (length == 0 | eof) {
+        if (map_index >= map_lengths_size) {
+          printf("Map index out of bounds!*n");
+          exit(1);
+        }
+        map_lengths[map_index++] = map_length;
+      }
+      goto switch_end;
+    }
+
+    switch_end:
+    if (eof) {
+      goto while_end;
+    }
+  }
+
+  while_end:
+  *out_map_count = map_index;
+}
+
+seeds[SEEDS_SIZE];
+seed_count;
+
+maps[MAPS_SIZE];
+map_lengths[MAP_LENGTHS_SIZE];
+map_count;
+
 main() {
-  extrn printf, read_line, print_array, parse_integers, line, seeds, seed_count;
-  auto length, eof;
+  extrn printf, print_array, read_input, line, seeds, seed_count, maps, map_lengths, map_count;
 
-  length = read_line(line, LINE_BUFSIZE, &eof);
-  parse_integers(line + SEEDS_SKIP_CHARS, length - SEEDS_SKIP_CHARS, &seed_count, seeds, SEEDS_BUFSIZE);
+  read_input(seeds, SEEDS_SIZE, &seed_count, maps, MAPS_SIZE, map_lengths, MAP_LENGTHS_SIZE, &map_count);
 
-  printf("Got: ");
+  printf("Parsed %d maps*n", map_count);
+  printf("Seeds: ");
   print_array(seeds, seed_count);
   printf("*n");
 }
-
-line[LINE_BUFSIZE];
-
-seeds[SEEDS_BUFSIZE];
-seed_count;
-
-maps[MAP_COUNT];
-map_lengths[MAP_COUNT];
