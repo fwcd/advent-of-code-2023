@@ -10,7 +10,9 @@
 
 #define LINE_BUFSIZE 128
 #define SEEDS_BUFSIZE 64
+
 #define MAP_COUNT 7
+#define SEEDS_SKIP_CHARS 7
 
 read_line(out_str, out_size) {
   extrn getchar;
@@ -21,40 +23,82 @@ read_line(out_str, out_size) {
   while (1) {
     c = getchar();
     if (c == '*n' | c == '*e' | i >= (out_size - 1)) {
-      goto end;
+      /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
+      out_str[i] = '*e';
+      return (i);
     }
     out_str[i] = c;
     i++;
   }
+}
 
-  /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
+print_array(buf, length) {
+  extrn printf;
+  auto i;
+
+  i = 0;
+
+  printf("[");
+  while (i < length) {
+    printf("%d", buf[i]);
+    if (i < length - 1) {
+      printf(", ");
+    }
+    i++;
+  }
+  printf("]");
+}
+
+parse_integer(str, length, out_integer) {
+  auto i, c, result;
+
+  i = 0;
+  result = 0;
+
+  while (1) {
+    c = str[i];
+    if (c < '0' | c > '9') {
+      *out_integer = result;
+      return (i);
+    }
+    result = result * 10 + (c - '0');
+    i++;
+  }
+}
+
+parse_integers(str, length, out_count, out_buf, out_size) {
+  extrn parse_integer, printf;
+  auto i, j, di;
+  
+  i = 0;
+  j = 0;
+  di = 0;
+
+  while (i < length && j < out_size) {
+    di = parse_integer(str + i, length - i, out_buf + j) + 1 /* space */;
+    if (di == 0) {
+      goto end;
+    }
+    i =+ di;
+    j++;
+  }
+
   end:
-  out_str[i] = '*e';
+  *out_count = j;
 
   return (i);
 }
 
-parse_integer(str, length) {
-  auto i, n;
-
-  i = 0;
-
-  return (n);
-}
-
-parse_seeds(str, length, out_buf, out_size) {
-  auto i;
-
-  /* Skip the initial 'seeds: ' */
-  i = 7;
-}
-
 main() {
-  extrn printf, read_line, line;
-  auto i, length;
+  extrn printf, read_line, print_array, parse_integers, line, seeds, seed_count;
+  auto length;
 
   length = read_line(line, LINE_BUFSIZE);
-  printf("Got line of length %d: %s*n", length, line);
+  parse_integers(line + SEEDS_SKIP_CHARS, length - SEEDS_SKIP_CHARS, &seed_count, seeds, SEEDS_BUFSIZE);
+
+  printf("Got: ");
+  print_array(seeds, seed_count);
+  printf("*n");
 }
 
 line[LINE_BUFSIZE];
