@@ -10,11 +10,11 @@
 
 #define LINE_BUFSIZE 128
 #define SEEDS_BUFSIZE 64
-
 #define MAP_COUNT 7
 #define SEEDS_SKIP_CHARS 7
+#define MAP_SKIP_LINES 2
 
-read_line(out_str, out_size) {
+read_line(out_str, out_size, out_eof) {
   extrn getchar;
   auto i, c;
 
@@ -23,6 +23,7 @@ read_line(out_str, out_size) {
   while (1) {
     c = getchar();
     if (c == '*n' | c == '*e' | i >= (out_size - 1)) {
+      *out_eof = c != '*n';
       /* NOTE: B uses '*e' (EOT, U+0004) as string terminators instead of the "modern" NUL. */
       out_str[i] = '*e';
       return (i);
@@ -91,9 +92,9 @@ parse_integers(str, length, out_count, out_buf, out_size) {
 
 main() {
   extrn printf, read_line, print_array, parse_integers, line, seeds, seed_count;
-  auto length;
+  auto length, eof;
 
-  length = read_line(line, LINE_BUFSIZE);
+  length = read_line(line, LINE_BUFSIZE, &eof);
   parse_integers(line + SEEDS_SKIP_CHARS, length - SEEDS_SKIP_CHARS, &seed_count, seeds, SEEDS_BUFSIZE);
 
   printf("Got: ");
