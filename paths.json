@@ -40,5 +40,12 @@
       "readme": "day05/README.md"
     },
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "llvm",
+      "name": "LLVM IR"
+    },
+    "path": "day06/src/day06.ll"
   }
 ]

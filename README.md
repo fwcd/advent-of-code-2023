@@ -9,6 +9,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 03: [ALGOL 60](day03/src/day03.alg)
 - [x] Day 04: [Nix](day04/src/day04.nix)
 - [x] Day 05: [B](day05/src/day05.b) ([readme](day05/README.md))
+- [ ] Day 06: [LLVM IR](day06/src/day06.ll)
 
 ## Packaging
 
