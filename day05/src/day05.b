@@ -227,8 +227,22 @@ seed_to_location(seed, map_data, map_lengths, map_count) {
   return (value);
 }
 
-compute_part1(seeds, seed_count, map_data, map_lengths, map_count) {
-  extrn printf, seed_to_location;
+seeds[SEEDS_SIZE];
+seed_count;
+
+/*
+ * Map data is stored as a flat buffer using to the following format:
+ * 
+ * | 50   | 98   | 2  | 52   | 50  | 48  | 0   | 15   | 37  | ... |
+ * | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | ... |
+ * | map_length[0] = 2                   | map_length[1] = 3  ... |
+ */
+map_data[MAP_DATA_SIZE];
+map_lengths[MAP_LENGTHS_SIZE];
+map_count;
+
+compute_part1() {
+  extrn printf, seed_to_location, seeds, seed_count, map_data, map_lengths, map_count;
   auto seed_index, seed, min_location, location;
 
   seed_index = 0;
@@ -245,20 +259,6 @@ compute_part1(seeds, seed_count, map_data, map_lengths, map_count) {
 
   return (min_location);
 }
-
-seeds[SEEDS_SIZE];
-seed_count;
-
-/*
- * Map data is stored as a flat buffer using to the following format:
- * 
- * | 50   | 98   | 2  | 52   | 50  | 48  | 0   | 15   | 37  | ... |
- * | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | ... |
- * | map_length[0] = 2                   | map_length[1] = 3  ... |
- */
-map_data[MAP_DATA_SIZE];
-map_lengths[MAP_LENGTHS_SIZE];
-map_count;
 
 main() {
   extrn printf, print_array, read_input, compute_part1, line, seeds, seed_count, map_data, map_lengths, map_count;
@@ -289,6 +289,6 @@ main() {
   }
   #endif
 
-  part1 = compute_part1(seeds, seed_count, map_data, map_lengths, map_count);
+  part1 = compute_part1();
   printf("Part 1: %d*n", part1);
 }
