@@ -484,7 +484,7 @@ ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_
     printf(" => ...*n");
     #endif
 
-    map_ranges(src_ranges, *inout_src_range_count, dest_ranges, dest_ranges_size, inout_dest_range_count, map_data, map_length);
+    map_ranges(src_ranges, *inout_src_range_count, dest_ranges, dest_ranges_size, inout_dest_range_count, map_data + map_data_offset, map_length);
 
     memcpy(src_ranges, dest_ranges, *inout_dest_range_count);
     *inout_src_range_count = *inout_dest_range_count;
