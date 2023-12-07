@@ -73,13 +73,12 @@ parse_integer(str, length, out_integer) {
   while (i < length) {
     c = str[i];
     if (c < '0' | c > '9') {
-      goto end;
+      break;
     }
     result = result * 10 + (c - '0');
     i++;
   }
 
-  end:
   *out_integer = result;
 
   return (i);
@@ -93,12 +92,11 @@ parse_spaces(str, length) {
   while (i < length) {
     c = str[i];
     if (c != ' ') {
-      goto end;
+      break;
     }
     i++;
   }
 
-  end:
   return (i);
 }
 
@@ -113,14 +111,13 @@ parse_integers(str, length, out_count, buf, buf_size) {
   while (i < length && j < buf_size) {
     di = parse_integer(str + i, length - i, buf + j);
     if (di == 0) {
-      goto end;
+      break;
     }
     i =+ di;
     i =+ parse_spaces(str + i, length - i);
     j++;
   }
 
-  end:
   *out_count = j;
 
   return (i);
@@ -147,13 +144,13 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
     case PARSE_STATE_SEEDS:
       parse_integers(line + SEEDS_SKIP_CHARS, length - SEEDS_SKIP_CHARS, out_seed_count, seeds, seeds_size);
       next_state = PARSE_STATE_DELIMITER;
-      goto switch_end;
+      break;
     case PARSE_STATE_DELIMITER:
       next_state = PARSE_STATE_MAP_HEADER;
-      goto switch_end;
+      break;
     case PARSE_STATE_MAP_HEADER:
       next_state = PARSE_STATE_MAP;
-      goto switch_end;
+      break;
     case PARSE_STATE_MAP:
       if (length > 0) {
         parse_integers(line, length, &entry_length, map_data + map_data_offset, map_data_size - map_data_offset);
@@ -173,12 +170,11 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
         map_length = 0;
         next_state = PARSE_STATE_MAP_HEADER;
       }
-      goto switch_end;
+      break;
     }
 
-    switch_end:
     if (eof) {
-      goto while_end;
+      break;
     }
 
     #ifdef DEBUG_LOGGING
@@ -189,7 +185,6 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
     state = next_state;
   }
 
-  while_end:
   *out_map_count = map_index;
 }
 
