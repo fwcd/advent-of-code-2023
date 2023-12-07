@@ -15,7 +15,7 @@
 #define SEEDS_SIZE 64
 #define MAP_DATA_SIZE 2048
 #define MAP_LENGTHS_SIZE 16
-#define RANGES_SIZE 128
+#define RANGES_SIZE 512
 
 /* Parse states. */
 #define PARSE_STATE_SEEDS 1
