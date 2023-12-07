@@ -108,7 +108,7 @@ parse_integers(str, length, out_count, buf, buf_size) {
   j = 0;
   di = 0;
 
-  while (i < length && j < buf_size) {
+  while (i < length & j < buf_size) {
     di = parse_integer(str + i, length - i, buf + j);
     if (di == 0) {
       break;
