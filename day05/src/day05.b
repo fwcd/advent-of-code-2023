@@ -13,7 +13,7 @@
 /* Buffer sizes. */
 #define LINE_SIZE 256
 #define SEEDS_SIZE 64
-#define MAP_DATA_SIZE 1024
+#define MAP_DATA_SIZE 2048
 #define MAP_LENGTHS_SIZE 16
 #define RANGES_SIZE 128
 
@@ -29,6 +29,9 @@
 /* Domain-specific stuff. */
 #define MAP_ENTRY_LENGTH 3
 #define RANGE_SIZE 2
+
+/* Generic stuff. */
+#define MAX_INT 10000000000
 
 read_line(str, size, out_eof) {
   extrn getchar;
@@ -133,6 +136,7 @@ swap(buf, i, j) {
   buf[j] = tmp;
 }
 
+/* Sort by start of source range using insertion sort. */
 sort_map(map_data, map_length) {
   extrn printf, print_array;
   auto i, j, k, previous_index, current_index;
@@ -144,7 +148,6 @@ sort_map(map_data, map_length) {
 
   i = 1;
 
-  /* Sort by start of source range using insertion sort. */
   while (i < map_length) {
     j = i;
     while (j > 0) {
@@ -175,13 +178,57 @@ sort_map(map_data, map_length) {
   #endif
 }
 
-gapfill_map(map_data, map_data_size, inout_map_length) {
-  /* TODO */
+append_range_to_map(dest_range_start, src_range_start, range_length, map_data, map_data_size, inout_map_length) {
+  #ifdef DEBUG_LOGGING
+  printf("Appending*n");
+  print_array(map_data, *inout_map_length * MAP_ENTRY_LENGTH);
+  printf("*n");
+  #endif
+
+  if (*inout_map_length * MAP_ENTRY_LENGTH >= map_data_size) {
+    printf("Cannot append range [dest: %d, src: %d, length: %d] to map since map data size (%d) is too small!*n", dest_range_start, src_range_start, range_length, map_data_size);
+    exit(1);
+  }
+  map_data[*inout_map_length * MAP_ENTRY_LENGTH]     = dest_range_start;
+  map_data[*inout_map_length * MAP_ENTRY_LENGTH + 1] = src_range_start;
+  map_data[*inout_map_length * MAP_ENTRY_LENGTH + 2] = range_length;
+  ++*inout_map_length;
+
+  #ifdef DEBUG_LOGGING
+  print_array(map_data, *inout_map_length * MAP_ENTRY_LENGTH);
+  printf("*n");
+  #endif
 }
 
+/* Append the gaps between ranges to make sure we cover the entire domain. This assumes the map is sorted by src range start. */
+fill_gaps_in_map(map_data, map_data_size, inout_map_length) {
+  extrn exit, printf;
+  auto offset, entry_index, base_map_length, src_range_start, range_length;
+
+  offset = 0;
+  entry_index = 0;
+  base_map_length = *inout_map_length;
+
+  while (entry_index < base_map_length) {
+    src_range_start  = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
+    range_length     = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
+
+    if (offset < src_range_start) {
+      /* We have a gap: [offset, src_range_start] */
+      append_range_to_map(offset, offset, src_range_start - offset, map_data, map_data_size, inout_map_length);
+    }
+
+    offset = src_range_start + range_length;
+    entry_index++;
+  }
+
+  append_range_to_map(offset, offset, MAX_INT - offset, map_data, map_data_size, inout_map_length);
+}
+
+/* Sort and append gaps as ranges to the map. */
 postprocess_map(map_data, map_data_size, inout_map_length) {
   sort_map(map_data, *inout_map_length);
-  gapfill_map(map_data, map_data_size, inout_map_length);
+  fill_gaps_in_map(map_data, map_data_size, inout_map_length);
 }
 
 line[LINE_SIZE];
@@ -215,21 +262,21 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
       break;
     case PARSE_STATE_MAP:
       if (length > 0) {
+        map_data_offset = map_data_start_offset + map_length * MAP_ENTRY_LENGTH;
         parse_integers(line, length, &entry_length, map_data + map_data_offset, map_data_size - map_data_offset);
         if (entry_length != MAP_ENTRY_LENGTH) {
           printf("Line %d: Map %d entry %d has length %d (expected %d)!*n", line_number, map_index, map_length, entry_length, MAP_ENTRY_LENGTH);
           exit(1);
         }
         map_length++;
-        map_data_offset =+ entry_length;
       }
       if ((length == 0) | eof) {
         if (map_index >= map_lengths_size) {
           printf("Line %d: Map index out of bounds, maximum size is %d!*n", line_number, map_lengths_size);
           exit(1);
         }
+        postprocess_map(map_data + map_data_start_offset, map_data_size - map_data_start_offset, &map_length);
         map_lengths[map_index] = map_length;
-        postprocess_map(map_data + map_data_start_offset, map_data_size - map_data_start_offset, map_lengths + map_index);
         map_data_start_offset =+ map_length * MAP_ENTRY_LENGTH;
         map_index++;
         map_length = 0;
@@ -430,7 +477,7 @@ compute_part1() {
   auto seed_index, seed, min_location, location;
 
   seed_index = 0;
-  min_location = 100000000000;
+  min_location = MAX_INT;
 
   while (seed_index < seed_count) {
     seed = seeds[seed_index];
@@ -460,7 +507,7 @@ compute_part2() {
   extrn src_range_count, ranges_to_locations;
   auto min_location, range_index;
 
-  min_location = 100000000000;
+  min_location = MAX_INT;
   range_index = 0;
 
   memcpy(src_ranges, seeds, seed_count);
