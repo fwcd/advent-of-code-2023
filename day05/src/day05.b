@@ -232,7 +232,7 @@ compute_part1(seeds, seed_count, map_data, map_lengths, map_count) {
   auto seed_index, seed, min_location, location;
 
   seed_index = 0;
-  min_location = 10000;
+  min_location = 100000000000;
 
   while (seed_index < seed_count) {
     seed = seeds[seed_index];
