@@ -444,6 +444,7 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
 
 /* Apply the given map to multiple ranges. */
 map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
+  extrn printf;
   auto src_range_index, total_intersect_range_count, current_intersect_range_count, range_start, range_length, intersect_ranges_offset;
   
   src_range_index = 0;
@@ -548,7 +549,7 @@ compute_part2() {
   range_index = 0;
 
   memcpy(src_ranges, seeds, seed_count);
-  src_range_count = seed_count;
+  src_range_count = seed_count / RANGE_SIZE;
   dest_range_count = 0;
 
   ranges_to_locations(src_ranges, &src_range_count, dest_ranges, RANGES_SIZE, &dest_range_count, map_data, map_lengths, map_count);
