@@ -462,6 +462,10 @@ map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size,
     src_range_index++;
   }
 
+  #ifdef DEBUG_LOGGING
+  printf("Total intersect ranges: %d*n", total_intersect_range_count);
+  #endif
+
   *out_intersect_range_count = total_intersect_range_count;
 }
 
@@ -476,7 +480,7 @@ ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_
     map_length = map_lengths[map_index];
 
     #ifdef DEBUG_LOGGING
-    print_array(src_ranges, *inout_src_range_count);
+    print_array(src_ranges, *inout_src_range_count * RANGE_SIZE);
     printf(" => ...*n");
     #endif
 
@@ -487,8 +491,8 @@ ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_
 
     #ifdef DEBUG_LOGGING
     printf("... => ");
-    print_array(dest_ranges, *inout_dest_range_count);
-    printf("*n");
+    print_array(dest_ranges, *inout_dest_range_count * RANGE_SIZE);
+    printf("*n*n");
     #endif
 
     map_data_offset =+ map_length * MAP_ENTRY_LENGTH;
