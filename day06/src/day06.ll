@@ -15,6 +15,9 @@ declare i32 @printf(ptr, ...)
 declare ptr @fopen(ptr, ptr)
 declare i32 @fscanf(ptr, ptr, ...)
 declare i32 @fclose(ptr)
+declare double @log10(double)
+declare double @ceil(double)
+declare double @pow(double, double)
 
 ; NOTE: We (unsafely) assume that the buffer is large enough and are using
 ; `fscanf`, even though it is generally discouraged for most applications. Since
@@ -113,6 +116,50 @@ end:
   ret i32 %final_part1
 }
 
+define i32 @concat_integers(ptr %array, i32 %count) {
+  %i_ptr = alloca i31
+  store i32 0, ptr %i_ptr
+
+  %result_ptr = alloca i32
+  store i32 0, ptr %result_ptr
+
+  br label %append_integer
+
+append_integer:
+  %i = load i32, ptr %i_ptr
+
+  %value_ptr = getelementptr ptr, ptr %array, i32 %i
+  %value = load i32, ptr %value_ptr
+
+  %value_double = sitofp i32 %value to double
+  %value_log = call double (double) @log10(double %value_double)
+  %value_log_ceil = call double (double) @ceil(double %value_log)
+  %power_of_ten = call double (double, double) @pow(double 10.0, double %value_log_ceil)
+  %power_of_ten_int = fptosi double %power_of_ten to i32
+
+  %result = load i32, ptr %result_ptr
+  %next_result_upper = mul i32 %result, %power_of_ten_int
+  %next_result = add i32 %next_result_upper, %value
+  store i32 %next_result, ptr %result_ptr
+
+  %next_i = add i32 %i, 1
+  store i32 %next_i, ptr %i_ptr
+  %reached_end = icmp sge i32 %next_i, %count
+  br i1 %reached_end, label %end, label %append_integer
+
+end:
+  %final_result = load i32, ptr %result_ptr
+  ret i32 %final_result
+}
+
+define i32 @compute_part2(ptr %times, ptr %distances, i32 %count) {
+  %total_time = call i32 (ptr, i32) @concat_integers(ptr %times, i32 %count)
+  %record_distance = call i32 (ptr, i32) @concat_integers(ptr %distances, i32 %count)
+  call i32 (ptr, ...) @printf(ptr @.debug_fmt, i32 %total_time)
+  call i32 (ptr, ...) @printf(ptr @.debug_fmt, i32 %record_distance)
+  ret i32 0 ; TODO
+}
+
 define void @print_array(ptr %array, i32 %count) {
   %i_ptr = alloca i32
   store i32 0, ptr %i_ptr
@@ -173,6 +220,7 @@ emit_counts_mismatch:
 
 compute_parts:
   %part1 = call i32 (ptr, ptr, i32) @compute_part1(ptr %times, ptr %distances, i32 %time_count)
+  %part2 = call i32 (ptr, ptr, i32) @compute_part2(ptr %times, ptr %distances, i32 %time_count)
   br label %print_parts
 
 print_parts:
