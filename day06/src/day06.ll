@@ -156,9 +156,8 @@ end:
 define i64 @compute_part2(ptr %times, ptr %distances, i64 %count) {
   %total_time = call i64 (ptr, i64) @concat_integers(ptr %times, i64 %count)
   %record_distance = call i64 (ptr, i64) @concat_integers(ptr %distances, i64 %count)
-  call i32 (ptr, ...) @printf(ptr @.debug_fmt, i64 %total_time)
-  call i32 (ptr, ...) @printf(ptr @.debug_fmt, i64 %record_distance)
-  ret i64 0 ; TODO
+  %races = call i64 (i64, i64) @count_successful_races(i64 %total_time, i64 %record_distance)
+  ret i64 %races
 }
 
 define void @print_array(ptr %array, i64 %count) {
@@ -226,7 +225,7 @@ compute_parts:
 
 print_parts:
   call i32 (ptr, ...) @printf(ptr @.part1_fmt, i64 %part1)
-  call i32 (ptr, ...) @printf(ptr @.part2_fmt, i64 0)
+  call i32 (ptr, ...) @printf(ptr @.part2_fmt, i64 %part2)
   br label %end
 
 end:
