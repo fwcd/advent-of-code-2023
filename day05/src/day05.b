@@ -400,7 +400,7 @@ range_intersect(start1, end1, start2, end2, out_intersects, out_start, out_end) 
  */
 map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
   extrn printf, exit;
-  auto range_end, entry_index, dest_range_start, src_range_start, range_length, src_range_end, intersect_start, intersect_end, intersects, intersect_index;
+  auto range_end, entry_index, dest_range_start, src_range_start, src_range_end, intersect_start, intersect_end, intersects, intersect_index;
 
   #ifdef DEBUG_LOGGING
   printf("Source range starts at %d and goes to %d (length %d)*n", range_start, range_start + range_length, range_length);
