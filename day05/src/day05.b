@@ -8,7 +8,7 @@
  * require something more fancy?
  */
 
-/* #define DEBUG_LOGGING */
+#define DEBUG_LOGGING
 
 /* Buffer sizes. */
 #define LINE_SIZE 256
@@ -125,11 +125,68 @@ parse_integers(str, length, out_count, buf, buf_size) {
   return (i);
 }
 
+swap(buf, i, j) {
+  auto tmp;
+
+  tmp = buf[i];
+  buf[i] = buf[j];
+  buf[j] = tmp;
+}
+
+sort_map(map_data, map_length) {
+  extrn printf, print_array;
+  auto i, j, previous_index, current_index;
+
+  #ifdef DEBUG_LOGGING
+  print_array(map_data, map_length * MAP_ENTRY_LENGTH);
+  printf("*n");
+  #endif
+
+  i = 1;
+
+  /* Sort by start of source range using insertion sort. */
+  while (i < map_length) {
+    j = i;
+    while (j > 0) {
+      previous_index = (j - 1) * MAP_ENTRY_LENGTH + 1;
+      current_index  = j       * MAP_ENTRY_LENGTH + 1;
+
+      if (map_data[(j - 1) * MAP_ENTRY_LENGTH + 1] <= map_data[j * MAP_ENTRY_LENGTH + 1]) {
+        break;
+      }
+
+      #ifdef DEBUG_LOGGING
+      printf("Swapping %d (%d) with %d (%d)*n", j - 1, map_data[(j - 1) * MAP_ENTRY_LENGTH + 1], j, map_data[j * MAP_ENTRY_LENGTH + 1]);
+      #endif
+
+      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH,     j * MAP_ENTRY_LENGTH);
+      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH + 1, j * MAP_ENTRY_LENGTH + 1);
+      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH + 2, j * MAP_ENTRY_LENGTH + 2);
+      j--;
+    }
+    i++;
+  }
+
+  #ifdef DEBUG_LOGGING
+  print_array(map_data, map_length * MAP_ENTRY_LENGTH);
+  printf("*n");
+  #endif
+}
+
+gapfill_map(map_data, map_data_size, inout_map_length) {
+  /* TODO */
+}
+
+postprocess_map(map_data, map_data_size, inout_map_length) {
+  sort_map(map_data, *inout_map_length);
+  gapfill_map(map_data, map_data_size, inout_map_length);
+}
+
 line[LINE_SIZE];
 
 read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengths, map_lengths_size, out_map_count) {
   extrn printf, exit, line, read_line, parse_integers;
-  auto state, next_state, line_number, length, eof, map_index, map_length, map_data_offset, entry_length;
+  auto state, next_state, line_number, length, eof, map_index, map_length, map_data_offset, map_data_start_offset, entry_length;
 
   state = PARSE_STATE_SEEDS;
   next_state = state;
@@ -138,6 +195,7 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
   map_index = 0;
   map_length = 0;
   map_data_offset = 0;
+  map_data_start_offset = 0;
 
   while (1) {
     length = read_line(line, LINE_SIZE, &eof);
@@ -168,7 +226,10 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
           printf("Line %d: Map index out of bounds, maximum size is %d!*n", line_number, map_lengths_size);
           exit(1);
         }
-        map_lengths[map_index++] = map_length;
+        map_lengths[map_index] = map_length;
+        postprocess_map(map_data + map_data_start_offset, map_data_size - map_data_start_offset, map_lengths + map_index);
+        map_data_start_offset =+ map_length * MAP_ENTRY_LENGTH;
+        map_index++;
         map_length = 0;
         next_state = PARSE_STATE_MAP_HEADER;
       }
