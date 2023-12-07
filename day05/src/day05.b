@@ -135,7 +135,7 @@ swap(buf, i, j) {
 
 sort_map(map_data, map_length) {
   extrn printf, print_array;
-  auto i, j, previous_index, current_index;
+  auto i, j, k, previous_index, current_index;
 
   #ifdef DEBUG_LOGGING
   print_array(map_data, map_length * MAP_ENTRY_LENGTH);
@@ -159,9 +159,11 @@ sort_map(map_data, map_length) {
       printf("Swapping %d (%d) with %d (%d)*n", j - 1, map_data[(j - 1) * MAP_ENTRY_LENGTH + 1], j, map_data[j * MAP_ENTRY_LENGTH + 1]);
       #endif
 
-      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH,     j * MAP_ENTRY_LENGTH);
-      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH + 1, j * MAP_ENTRY_LENGTH + 1);
-      swap(map_data, (j - 1) * MAP_ENTRY_LENGTH + 2, j * MAP_ENTRY_LENGTH + 2);
+      k = 0;
+      while (k < MAP_ENTRY_LENGTH) {
+        swap(map_data, (j - 1) * MAP_ENTRY_LENGTH + k, j * MAP_ENTRY_LENGTH + k);
+        k++;
+      }
       j--;
     }
     i++;
