@@ -546,10 +546,7 @@ dest_range_count;
 
 compute_part2() {
   extrn src_range_count, ranges_to_locations;
-  auto min_location, range_index;
-
-  min_location = MAX_INT;
-  range_index = 0;
+  auto min_location, range_index, location;
 
   memcpy(src_ranges, seeds, seed_count);
   src_range_count = seed_count / RANGE_SIZE;
@@ -557,7 +554,16 @@ compute_part2() {
 
   ranges_to_locations(src_ranges, &src_range_count, dest_ranges, RANGES_SIZE, &dest_range_count, map_data, map_lengths, map_count);
 
-  /* TODO */
+  min_location = MAX_INT;
+  range_index = 0;
+
+  while (range_index < dest_range_count) {
+    location = dest_ranges[range_index * RANGE_SIZE];
+    min_location = min(min_location, location);
+    range_index++;
+  }
+
+  return (min_location);
 }
 
 main() {
