@@ -8,7 +8,7 @@
  * require something more fancy?
  */
 
-#define DEBUG_LOGGING
+/* #define DEBUG_LOGGING */
 
 /* Buffer sizes. */
 #define LINE_SIZE 256
