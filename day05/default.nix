@@ -32,7 +32,7 @@
         echo "Usage: \$0 <path to input>"
         exit 1
       fi
-      ${b-compiler.outPath}/bin/br "\$(dirname "\$0")/../share/day05.bin" < "\$1"
+      exec ${b-compiler.outPath}/bin/br "\$(dirname "\$0")/../share/day05.bin" < "\$1"
       EOF
 
       chmod +x $out/bin/day05

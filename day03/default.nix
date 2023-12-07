@@ -34,7 +34,7 @@
         echo "File \$1 does not exist!"
         exit 1
       fi
-      FILE_2="\$1" "\$(dirname "\$0")/../libexec/day03-impl"
+      exec env FILE_2="\$1" "\$(dirname "\$0")/../libexec/day03-impl"
       EOF
 
       chmod +x $out/bin/day03
