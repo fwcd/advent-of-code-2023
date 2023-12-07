@@ -51,8 +51,11 @@ define i32 @compute_distance(i32 %total_time, i32 %hold_time) {
 
 define i32 @count_successful_races(i32 %total_time, i32 %record_distance) {
   %hold_time_ptr = alloca i32
+  store i32 0, ptr %hold_time_ptr
+
   %count_ptr = alloca i32
   store i32 0, ptr %count_ptr
+
   br label %count_race
 
 count_race:
@@ -61,7 +64,7 @@ count_race:
   %distance = call i32 (i32, i32) @compute_distance(i32 %total_time, i32 %hold_time)
 
   %beats_record = icmp sgt i32 %distance, %record_distance
-  %count_delta = sext i1 %beats_record to i32
+  %count_delta = select i1 %beats_record, i32 1, i32 0
   %count = load i32, ptr %count_ptr
   %next_count = add i32 %count, %count_delta
   store i32 %next_count, ptr %count_ptr
@@ -78,11 +81,14 @@ end:
 
 define i32 @compute_part1(ptr %times, ptr %distances, i32 %count) {
   %i_ptr = alloca i32
+  store i32 0, ptr %i_ptr
+
   %part1_ptr = alloca i32
   store i32 1, ptr %part1_ptr
-  br label %count_race
 
-count_race:
+  br label %count_races
+
+count_races:
   %i = load i32, ptr %i_ptr
 
   %total_time_ptr = getelementptr ptr, ptr %times, i32 %i
@@ -100,7 +106,7 @@ count_race:
   %next_i = add i32 %i, 1
   store i32 %next_i, ptr %i_ptr
   %reached_end = icmp sge i32 %next_i, %count
-  br i1 %reached_end, label %end, label %count_race
+  br i1 %reached_end, label %end, label %count_races
 
 end:
   %final_part1 = load i32, ptr %part1_ptr
