@@ -52,6 +52,7 @@ define i32 @compute_distance(i32 %total_time, i32 %hold_time) {
 define i32 @count_successful_races(i32 %total_time, i32 %record_distance) {
   %hold_time_ptr = alloca i32
   %count_ptr = alloca i32
+  store i32 0, ptr %count_ptr
   br label %count_race
 
 count_race:
