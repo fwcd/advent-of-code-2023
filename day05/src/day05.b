@@ -15,6 +15,7 @@
 #define SEEDS_SIZE 64
 #define MAP_DATA_SIZE 1024
 #define MAP_LENGTHS_SIZE 16
+#define DEST_RANGES_SIZE 128
 
 /* Parse states. */
 #define PARSE_STATE_SEEDS 1
@@ -27,6 +28,7 @@
 
 /* Domain-specific stuff. */
 #define MAP_ENTRY_LENGTH 3
+#define RANGE_SIZE 2
 
 read_line(str, size, out_eof) {
   extrn getchar;
@@ -188,19 +190,19 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
   *out_map_count = map_index;
 }
 
-apply_map(value, map_data, map_length) {
-  auto entry_index, dest_range_start, source_range_start, range_length, source_range_end;
+map_value(value, map_data, map_length) {
+  auto entry_index, dest_range_start, src_range_start, range_length, src_range_end;
 
   entry_index = 0;
 
   while (entry_index < map_length) {
-    dest_range_start   = map_data[entry_index * MAP_ENTRY_LENGTH];
-    source_range_start = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
-    range_length       = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
+    dest_range_start = map_data[entry_index * MAP_ENTRY_LENGTH];
+    src_range_start  = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
+    range_length     = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
 
-    source_range_end = source_range_start + range_length;
-    if ((value >= source_range_start) & (value < source_range_end)) {
-      return (dest_range_start + value - source_range_start);
+    src_range_end = src_range_start + range_length;
+    if ((value >= src_range_start) & (value < src_range_end)) {
+      return (dest_range_start + value - src_range_start);
     }
 
     entry_index++;
@@ -210,7 +212,7 @@ apply_map(value, map_data, map_length) {
 }
 
 seed_to_location(seed, map_data, map_lengths, map_count) {
-  extrn printf, apply_map;
+  extrn printf, map_value;
   auto value, map_index, map_length, map_data_offset;
 
   value = seed;
@@ -219,12 +221,121 @@ seed_to_location(seed, map_data, map_lengths, map_count) {
 
   while (map_index < map_count) {
     map_length = map_lengths[map_index];
-    value = apply_map(value, map_data + map_data_offset, map_length);
+    value = map_value(value, map_data + map_data_offset, map_length);
     map_data_offset =+ map_length * MAP_ENTRY_LENGTH;
     map_index++;
   }
 
   return (value);
+}
+
+min(x, y) {
+  return (x < y ? x : y);
+}
+
+max(x, y) {
+  return (x > y ? x : y);
+}
+
+memcpy(dest, src, n) {
+  auto i;
+
+  i = 0;
+
+  while (i < n) {
+    dest[i] = src[i];
+    i++;
+  }
+}
+
+range_contains(value, start, end) {
+  return (value >= start & value < end);
+}
+
+range_intersect(start1, end1, start2, end2, out_intersects, out_start, out_end) {
+  if (end2 <= start1 | end1 <= start2) {
+    *out_intersects = 0;
+  } else {
+    *out_intersects = 1;
+    *out_start = max(start1, start2);
+    *out_end = min(end1, end2);
+  }
+}
+
+/*
+ * Applying a map to a range can result in multiple disjoint ranges
+ * in the destination space therefore we pass in a buffer that we
+ * write these ranges to.
+ */
+map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
+  extrn printf, exit;
+  auto range_end, entry_index, dest_range_start, src_range_start, range_length, src_range_end, intersect_start, intersect_end, intersects, intersect_index;
+
+  range_end = range_start + range_length;
+  entry_index = 0;
+  intersect_index = 0;
+
+  while (entry_index < map_length) {
+    dest_range_start = map_data[entry_index * MAP_ENTRY_LENGTH];
+    src_range_start  = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
+    range_length     = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
+
+    src_range_end = src_range_start + range_length;
+    range_intersect(range_start, range_end, src_range_start, src_range_end, &intersects, &intersect_start, &intersect_end);
+    if (intersects) {
+      if ((intersect_index + 1) * RANGE_SIZE > intersect_ranges_size) {
+        printf("Intersect range buffer of size %d is too small.*n", intersect_ranges_size);
+        exit(1);
+      }
+      intersect_ranges[intersect_index * RANGE_SIZE]     = intersect_start;
+      intersect_ranges[intersect_index * RANGE_SIZE + 1] = intersect_end;
+      intersect_index++;
+    }
+
+    entry_index++;
+  }
+
+  *out_intersect_range_count = intersect_index;
+}
+
+map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
+  auto src_range_index, total_intersect_range_count, current_intersect_range_count, range_start, range_length, intersect_ranges_offset;
+  
+  src_range_index = 0;
+  total_intersect_range_count = 0;
+  current_intersect_range_count = 0;
+
+  while (src_range_index < src_range_count) {
+    range_start  = src_ranges[src_range_index * RANGE_SIZE];
+    range_length = src_ranges[src_range_index * RANGE_SIZE + 1];
+
+    intersect_ranges_offset = total_intersect_range_count * RANGE_SIZE;
+    map_range(range_start, range_length, intersect_ranges + intersect_ranges_offset, intersect_ranges_size - intersect_ranges_offset, &current_intersect_range_count, map_data, map_length);
+
+    total_intersect_range_count =+ current_intersect_range_count;
+    src_range_index++;
+  }
+
+  *out_intersect_range_count = total_intersect_range_count;
+}
+
+/*
+ * Destination ranges are stored as a flat buffer using to the following format:
+ * 
+ * | start | length | start | length | ... |
+ */
+dest_ranges[DEST_RANGES_SIZE];
+range_count;
+
+seed_ranges_to_locations(seed_ranges, seed_range_count, map_data, map_lengths, map_count) {
+  auto range_index;
+
+  range_index = 0;
+  memcpy(dest_ranges, seed_ranges, seed_range_count * RANGE_SIZE);
+
+  while (range_index < seed_range_count) {
+    range_index++;
+  }
 }
 
 seeds[SEEDS_SIZE];
@@ -258,6 +369,11 @@ compute_part1() {
   }
 
   return (min_location);
+}
+
+compute_part2() {
+  /* TODO */
+  seed_ranges_to_locations(seeds, seed_count / RANGE_SIZE, map_data, map_lengths, map_count);
 }
 
 main() {
