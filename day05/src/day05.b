@@ -11,9 +11,9 @@
 #define DEBUG_LOGGING
 
 /* Buffer sizes. */
-#define LINE_SIZE 128
+#define LINE_SIZE 256
 #define SEEDS_SIZE 64
-#define MAP_DATA_SIZE 256
+#define MAP_DATA_SIZE 1024
 #define MAP_LENGTHS_SIZE 16
 
 /* Parse states. */
