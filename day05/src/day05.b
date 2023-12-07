@@ -400,7 +400,7 @@ range_intersect(start1, end1, start2, end2, out_intersects, out_start, out_end) 
  */
 map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
   extrn printf, exit;
-  auto range_end, entry_index, dest_range_start, src_range_start, src_range_end, intersect_src_start, intersect_src_end, intersect_dest_start, intersect_length, intersects, intersect_index;
+  auto range_end, entry_index, dest_range_start, src_range_start, src_range_end, intersect_src_start, intersect_src_end, intersect_dest_start, intersect_length, intersects, intersect_index, src_range_length;
 
   #ifdef DEBUG_LOGGING
   printf("  %d to %d (length %d)*n", range_start, range_start + range_length, range_length);
@@ -413,9 +413,9 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
   while (entry_index < map_length) {
     dest_range_start = map_data[entry_index * MAP_ENTRY_LENGTH];
     src_range_start  = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
-    range_length     = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
+    src_range_length = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
 
-    src_range_end = src_range_start + range_length;
+    src_range_end = src_range_start + src_range_length;
     range_intersect(range_start, range_end, src_range_start, src_range_end, &intersects, &intersect_src_start, &intersect_src_end);
     if (intersects) {
       if ((intersect_index + 1) * RANGE_SIZE > intersect_ranges_size) {
@@ -429,7 +429,7 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
       intersect_dest_start = intersect_src_start + dest_range_start - src_range_start;
       intersect_length = intersect_src_end - intersect_src_start;
       #ifdef DEBUG_LOGGING
-      printf("   -> %d to %d (length %d)*n", intersect_dest_start, intersect_dest_start + intersect_length, intersect_length);
+      printf("   -> %d to %d (length %d) since [%d to %d, len %d] intersects [%d to %d, len %d]*n", intersect_dest_start, intersect_dest_start + intersect_length, intersect_length, range_start, range_end, range_length, src_range_start, src_range_end, src_range_end - src_range_start);
       #endif
       intersect_ranges[intersect_index * RANGE_SIZE]     = intersect_dest_start;
       intersect_ranges[intersect_index * RANGE_SIZE + 1] = intersect_length;
