@@ -193,6 +193,64 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
   *out_map_count = map_index;
 }
 
+apply_map(value, map_data, map_length) {
+  auto entry_index, dest_range_start, source_range_start, range_length, source_range_end;
+
+  entry_index = 0;
+
+  while (entry_index < map_length) {
+    dest_range_start   = map_data[entry_index * MAP_ENTRY_LENGTH];
+    source_range_start = map_data[entry_index * MAP_ENTRY_LENGTH + 1];
+    range_length       = map_data[entry_index * MAP_ENTRY_LENGTH + 2];
+
+    source_range_end = source_range_start + range_length;
+    if ((value >= source_range_start) & (value < source_range_end)) {
+      return (dest_range_start + value - source_range_start);
+    }
+
+    entry_index++;
+  }
+
+  return (value);
+}
+
+seed_to_location(seed, map_data, map_lengths, map_count) {
+  extrn printf, apply_map;
+  auto value, map_index, map_length, map_data_offset;
+
+  value = seed;
+  map_index = 0;
+  map_data_offset = 0;
+
+  while (map_index < map_count) {
+    map_length = map_lengths[map_index];
+    value = apply_map(value, map_data + map_data_offset, map_length);
+    map_data_offset =+ map_length * MAP_ENTRY_LENGTH;
+    map_index++;
+  }
+
+  return (value);
+}
+
+compute_part1(seeds, seed_count, map_data, map_lengths, map_count) {
+  extrn printf, seed_to_location;
+  auto seed_index, seed, min_location, location;
+
+  seed_index = 0;
+  min_location = 10000;
+
+  while (seed_index < seed_count) {
+    seed = seeds[seed_index];
+    location = seed_to_location(seed, map_data, map_lengths, map_count);
+    if (location < min_location) {
+      min_location = location;
+    }
+    seed_index++;
+  }
+
+  return (min_location);
+}
+
 seeds[SEEDS_SIZE];
 seed_count;
 
@@ -208,8 +266,8 @@ map_lengths[MAP_LENGTHS_SIZE];
 map_count;
 
 main() {
-  extrn printf, print_array, read_input, line, seeds, seed_count, map_data, map_lengths, map_count;
-  auto i, j, k;
+  extrn printf, print_array, read_input, compute_part1, line, seeds, seed_count, map_data, map_lengths, map_count;
+  auto i, j, k, part1, part2;
 
   read_input(seeds, SEEDS_SIZE, &seed_count, map_data, MAP_DATA_SIZE, map_lengths, MAP_LENGTHS_SIZE, &map_count);
 
@@ -235,4 +293,7 @@ main() {
     i++;
   }
   #endif
+
+  part1 = compute_part1(seeds, seed_count, map_data, map_lengths, map_count);
+  printf("Part 1: %d*n", part1);
 }
