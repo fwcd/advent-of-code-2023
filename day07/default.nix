@@ -13,7 +13,7 @@
 
       cat <<EOF > $out/bin/day07
       #!/bin/bash
-      echo "" | swipl -f "\$(dirname "\$0")/../share/day07.pl" -g main
+      exec swipl -s "\$(dirname "\$0")/../share/day07.pl" -t main --quiet -- "\$0" "\$@"
       EOF
 
       chmod +x $out/bin/day07
