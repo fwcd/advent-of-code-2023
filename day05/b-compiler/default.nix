@@ -10,13 +10,26 @@
       sha256 = "bd1ff5ca12dbfa82ffe966ac248f9c939f4ca5493734f6dc836679aa49a9cb1a";
     };
 
+    nativeBuildInputs = [
+      pkgs.m4
+      pkgs.flex
+      pkgs.bison
+    ];
+
     patches = [
       patches/fix-cerr-endl-typo.patch
       patches/std-cxx-03.patch
+      patches/fix-undeclared-yyscanner-type.patch
     ];
 
     # The tarball does not contain a 'top-level directory', therefore we'll have to do this
     sourceRoot = ".";
+
+    # Enable larger word size and extensions such as the `break` keyword to make
+    # our life a bit easier.
+    configurePhase = ''
+      ./reconfigure --word_size 64 --extensions
+    '';
 
     buildPhase = ''
       make CXX=$CXX

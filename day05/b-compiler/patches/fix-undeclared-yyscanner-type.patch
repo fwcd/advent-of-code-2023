@@ -1,0 +1,35 @@
+diff --git a/parser.y b/parser.y
+index 3231e34..b8c8d36 100644
+--- a/parser.y
++++ b/parser.y
+@@ -8,9 +8,9 @@
+ %define api.pure
+ %locations
+ 
+-%lex-param { yyscan_t yyscanner }
++%lex-param { void *yyscanner }
+ %parse-param { definition **program }
+-%parse-param { yyscan_t yyscanner }
++%parse-param { void *yyscanner }
+ 
+ %union {
+     int          ival;
+diff --git a/parser.y.m4 b/parser.y.m4
+index b310f7e..33c0d31 100644
+--- a/parser.y.m4
++++ b/parser.y.m4
+@@ -8,9 +8,9 @@
+ %`define' api.pure
+ %locations
+ 
+-%lex-param { yyscan_t yyscanner }
++%lex-param { void *yyscanner }
+ %parse-param { definition **program }
+-%parse-param { yyscan_t yyscanner }
++%parse-param { void *yyscanner }
+ 
+ %union {
+     int          ival;
+-- 
+2.42.0
+

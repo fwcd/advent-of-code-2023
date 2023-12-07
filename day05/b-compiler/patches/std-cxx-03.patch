@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 0eae8fa..b7879c1 100644
+index 0eae8fa..3c67a55 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@ CXX = g++
@@ -11,6 +11,16 @@ index 0eae8fa..b7879c1 100644
  
  M4FLAGS = -DCHAR_BITS=8 -DWORD_BITS=16 -DWORD_CHARS=2
  CPPFLAGS = -DCHAR_BITS=8 -DWORD_BITS=16 -DWORD_CHARS=2
--- 
-2.42.0
-
+diff --git a/Makefile.m4 b/Makefile.m4
+index 09841d3..45a3469 100644
+--- a/Makefile.m4
++++ b/Makefile.m4
+@@ -2,7 +2,7 @@ CXX = g++
+ LEX = flex
+ M4 = m4
+ YACC = bison
+-CXXFLAGS = -g -O3 -Wall -Wextra
++CXXFLAGS = -g -O3 -Wall -Wextra -std=c++03
+ 
+ M4FLAGS = -DCHAR_BITS=CHAR_BITS -DWORD_BITS=WORD_BITS -DWORD_CHARS=WORD_CHARS`'ifdef(`B_ENDIAN_BIG',` -DB_ENDIAN_BIG')`'ifdef(`EXTENSIONS',` -DEXTENSIONS')
+ CPPFLAGS = -DCHAR_BITS=CHAR_BITS -DWORD_BITS=WORD_BITS -DWORD_CHARS=WORD_CHARS`'ifdef(`B_ENDIAN_BIG',` -DB_ENDIAN_BIG')`'ifdef(`EXTENSIONS',` -DEXTENSIONS')
