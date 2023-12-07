@@ -2,6 +2,8 @@
 
 # Advent of Code 2023
 
+[![Run](https://github.com/fwcd/advent-of-code-2023/actions/workflows/run.yml/badge.svg)](https://github.com/fwcd/advent-of-code-2023/actions/workflows/run.yml)
+
 My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), written in 25 different programming languages.
 
 - [x] Day 01: [C](day01/src/day01.c)
