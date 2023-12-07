@@ -2,10 +2,16 @@
  * An implementation of day 5 in the B programming language using Smith's
  * B compiler (https://cpjsmith.uk/b).
  * 
- * Initial idea: Store the list of intervals in the target domain (location) and
- * cut them down until we've reached the start domain (seeds). For now we
- * should be good by just applying the mappings though, perhaps part 2 will
- * require something more fancy?
+ * Part 1 idea: Just apply the maps sequentially.
+ *
+ * Part 2 idea: Use interval arithmetic. More specifically,
+ *              - Preprocess the ranges in each map to fill the source space/domain,
+ *                i.e. sort them by their start and then append all of the "gaps".
+ *              - Apply the maps sequentially to the ranges (starting with the seed ranges) by
+ *                intersecting them at every step with the map's ranges. Intersections are
+ *                performed in the source space/domain and then mapped to the destination space.
+ *              - The final set of ranges is the set of possible locations, from which
+ *                we can just take the minimum start.
  */
 
 /* #define DEBUG_LOGGING */
