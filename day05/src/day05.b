@@ -403,7 +403,7 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
   auto range_end, entry_index, dest_range_start, src_range_start, src_range_end, intersect_src_start, intersect_src_end, intersect_dest_start, intersect_length, intersects, intersect_index;
 
   #ifdef DEBUG_LOGGING
-  printf("%d to %d (length %d) maps to...*n", range_start, range_start + range_length, range_length);
+  printf("  %d to %d (length %d)*n", range_start, range_start + range_length, range_length);
   #endif
 
   range_end = range_start + range_length;
@@ -429,7 +429,7 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
       intersect_dest_start = intersect_src_start + dest_range_start - src_range_start;
       intersect_length = intersect_src_end - intersect_src_start;
       #ifdef DEBUG_LOGGING
-      printf(" -> %d to %d (length %d)*n", intersect_dest_start, intersect_dest_start + intersect_length, intersect_length);
+      printf("   -> %d to %d (length %d)*n", intersect_dest_start, intersect_dest_start + intersect_length, intersect_length);
       #endif
       intersect_ranges[intersect_index * RANGE_SIZE]     = intersect_dest_start;
       intersect_ranges[intersect_index * RANGE_SIZE + 1] = intersect_length;
@@ -490,7 +490,6 @@ ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_
     *inout_src_range_count = *inout_dest_range_count;
 
     #ifdef DEBUG_LOGGING
-    printf("... => ");
     print_array(dest_ranges, *inout_dest_range_count * RANGE_SIZE);
     printf("*n*n");
     #endif
