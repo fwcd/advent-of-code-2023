@@ -196,6 +196,13 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
 seeds[SEEDS_SIZE];
 seed_count;
 
+/*
+ * Map data is stored as a flat buffer using to the following format:
+ * 
+ * | 50   | 98   | 2  | 52   | 50  | 48  | 0   | 15   | 37  | ... |
+ * | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | MAP_ENTRY_LENGTH | ... |
+ * | map_length[0] = 2                   | map_length[1] = 3  ... |
+ */
 map_data[MAP_DATA_SIZE];
 map_lengths[MAP_LENGTHS_SIZE];
 map_count;
