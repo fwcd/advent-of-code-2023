@@ -8,6 +8,8 @@
  * require something more fancy?
  */
 
+#define DEBUG_LOGGING
+
 /* Buffer sizes. */
 #define LINE_SIZE 128
 #define SEEDS_SIZE 64
@@ -179,7 +181,10 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
       goto while_end;
     }
 
+    #ifdef DEBUG_LOGGING
     printf("Line %d: State %d -> %d, map index %d, entry index %d*n", line_number, state, next_state, map_index, map_length);
+    #endif
+
     line_number++;
     state = next_state;
   }
@@ -201,6 +206,7 @@ main() {
 
   read_input(seeds, SEEDS_SIZE, &seed_count, map_data, MAP_DATA_SIZE, map_lengths, MAP_LENGTHS_SIZE, &map_count);
 
+  #ifdef DEBUG_LOGGING
   printf("Parsed %d maps*n", map_count);
 
   printf("Seeds: ");
@@ -229,4 +235,5 @@ main() {
     printf("*n");
     i++;
   }
+  #endif
 }
