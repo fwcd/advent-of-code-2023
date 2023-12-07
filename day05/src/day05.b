@@ -220,14 +220,6 @@ main() {
   print_array(seeds, seed_count);
   printf("*n");
 
-  printf("Map lengths: ");
-  print_array(map_lengths, MAP_LENGTHS_SIZE);
-  printf("*n");
-
-  printf("Map data: ");
-  print_array(map_data, MAP_DATA_SIZE);
-  printf("*n");
-
   printf("Maps:*n");
   i = 0;
   k = 0;
