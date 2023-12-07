@@ -21,7 +21,7 @@
       # It it, however, much more convenient to just use GCC/Clang's driver for this,
       # since we won't have to hardcode things like ld-linux, crt etc.
 
-      $CC -o out/day06 out/day06.o
+      $CC -lm -o out/day06 out/day06.o
     '';
 
     installPhase = ''
