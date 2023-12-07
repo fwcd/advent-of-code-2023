@@ -33,6 +33,7 @@
 /* Generic stuff. */
 #define MAX_INT 10000000000
 
+/* Read until the next newline or EOT and return the length of the line. */
 read_line(str, size, out_eof) {
   extrn getchar;
   auto i, c;
@@ -51,6 +52,7 @@ read_line(str, size, out_eof) {
   }
 }
 
+/* Print an array to stdout. */
 print_array(buf, length) {
   extrn printf;
   auto i;
@@ -68,6 +70,7 @@ print_array(buf, length) {
   printf("]");
 }
 
+/* Parse an integer from the given string. */
 parse_integer(str, length, out_integer) {
   extrn printf;
   auto i, c, result;
@@ -89,6 +92,7 @@ parse_integer(str, length, out_integer) {
   return (i);
 }
 
+/* Parse as many spaces as possible from the given string (and return the count). */
 parse_spaces(str, length) {
   auto i, c;
 
@@ -105,6 +109,7 @@ parse_spaces(str, length) {
   return (i);
 }
 
+/* Parse a space-separated list of integers from the given string. */
 parse_integers(str, length, out_count, buf, buf_size) {
   extrn parse_integer, parse_spaces, printf;
   auto i, j, di;
@@ -128,6 +133,7 @@ parse_integers(str, length, out_count, buf, buf_size) {
   return (i);
 }
 
+/* Swap the values at the given indices in the given array. */
 swap(buf, i, j) {
   auto tmp;
 
@@ -178,6 +184,11 @@ sort_map(map_data, map_length) {
   #endif
 }
 
+/*
+ * Append the given range to the given map. Note that this assumes that map_data can
+ * freely be extended, which is generally only the case right during the postprocessing
+ * step (after parsing a map), since we would otherwise overwrite the next map in the buffer.
+ */
 append_range_to_map(dest_range_start, src_range_start, range_length, map_data, map_data_size, inout_map_length) {
   #ifdef DEBUG_LOGGING
   printf("Appending*n");
@@ -233,6 +244,7 @@ postprocess_map(map_data, map_data_size, inout_map_length) {
 
 line[LINE_SIZE];
 
+/* Read, parse and postprocess the input seeds and maps. */
 read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengths, map_lengths_size, out_map_count) {
   extrn printf, exit, line, read_line, parse_integers;
   auto state, next_state, line_number, length, eof, map_index, map_length, map_data_offset, map_data_start_offset, entry_length;
@@ -300,6 +312,7 @@ read_input(seeds, seeds_size, out_seed_count, map_data, map_data_size, map_lengt
   *out_map_count = map_index;
 }
 
+/* Apply the given map to a single value. */
 map_value(value, map_data, map_length) {
   auto entry_index, dest_range_start, src_range_start, range_length, src_range_end;
 
@@ -321,6 +334,7 @@ map_value(value, map_data, map_length) {
   return (value);
 }
 
+/* Find the location for a given seed. */
 seed_to_location(seed, map_data, map_lengths, map_count) {
   extrn printf, map_value;
   auto value, map_index, map_length, map_data_offset;
@@ -339,14 +353,17 @@ seed_to_location(seed, map_data, map_lengths, map_count) {
   return (value);
 }
 
+/* Returns the minimum of the given two values. */
 min(x, y) {
   return (x < y ? x : y);
 }
 
+/* Returns the maximum of the given two values. */
 max(x, y) {
   return (x > y ? x : y);
 }
 
+/* Copies a slice of an array into another. */
 memcpy(dest, src, n) {
   auto i;
 
@@ -358,10 +375,12 @@ memcpy(dest, src, n) {
   }
 }
 
+/* Test whether the given value is in the given range. */
 range_contains(value, start, end) {
   return (value >= start & value < end);
 }
 
+/* Test whether the given two ranges intersect and where. */
 range_intersect(start1, end1, start2, end2, out_intersects, out_start, out_end) {
   if (end2 <= start1 | end1 <= start2) {
     *out_intersects = 0;
@@ -373,6 +392,8 @@ range_intersect(start1, end1, start2, end2, out_intersects, out_start, out_end) 
 }
 
 /*
+ * Apply the given map to a range.
+ *
  * Applying a map to a range can result in multiple disjoint ranges
  * in the destination space therefore we pass in a buffer that we
  * write these ranges to.
@@ -408,6 +429,7 @@ map_range(range_start, range_length, intersect_ranges, intersect_ranges_size, ou
   *out_intersect_range_count = intersect_index;
 }
 
+/* Apply the given map to multiple ranges. */
 map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size, out_intersect_range_count, map_data, map_length) {
   auto src_range_index, total_intersect_range_count, current_intersect_range_count, range_start, range_length, intersect_ranges_offset;
   
@@ -429,6 +451,7 @@ map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size,
   *out_intersect_range_count = total_intersect_range_count;
 }
 
+/* Apply all maps sequentially (seeds to locations) to multiple ranges. */
 ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_size, inout_dest_range_count, map_data, map_lengths, map_count) {
   auto map_index, map_length, map_data_offset;
 
