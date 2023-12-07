@@ -1,16 +1,22 @@
-; Declare the string constant as a global constant.
-@.str = private unnamed_addr constant [13 x i8] c"hello world\0A\00"
+; Constants.
+@.usage_str = private unnamed_addr constant [27 x i8] c"Usage: %s <path to input>\0A\00"
+@.part1_str = private unnamed_addr constant [9 x i8] c"Part 1: \00"
+@.part2_str = private unnamed_addr constant [9 x i8] c"Part 2: \00"
 
-; External declaration of the puts function
-declare i32 @puts(ptr nocapture) nounwind
+; External declarations
+declare i32 @printf(ptr noundef, ...)
+declare noalias ptr @fopen(ptr noundef, ptr noundef)
 
-; Definition of main function
-define i32 @main() {
-  ; Call puts function to write out the string to stdout.
-  call i32 @puts(ptr @.str)
+; Main
+define i32 @main(i32 noundef %argc, ptr noundef %argv) {
+  %no_args = icmp eq i32 %argc, 1
+  br i1 %no_args, label %print_usage, label %end
+
+print_usage:
+  %exe_name = load ptr, ptr %argv
+  call i32 (ptr, ...) @printf(ptr @.usage_str, ptr noundef %exe_name)
+  br label %end
+
+end:
   ret i32 0
 }
-
-; Named metadata
-!0 = !{i32 42, null, !"string"}
-!foo = !{!0}
