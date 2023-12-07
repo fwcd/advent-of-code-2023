@@ -13,7 +13,7 @@
 
       cat <<EOF > $out/bin/day07
       #!/bin/bash
-      exec ${pkgs.swiProlog.outPath}/bin/swipl -s "\$(dirname "\$0")/../share/day07.pl" -t main --quiet -- "\$0" "\$@"
+      exec "${pkgs.swiProlog.outPath}/bin/swipl" -s "\$(dirname "\$0")/../share/day07.pl" -t main --quiet -- "\$0" "\$@"
       EOF
 
       chmod +x $out/bin/day07
