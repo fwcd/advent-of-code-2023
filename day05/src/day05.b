@@ -15,7 +15,7 @@
 #define SEEDS_SIZE 64
 #define MAP_DATA_SIZE 1024
 #define MAP_LENGTHS_SIZE 16
-#define DEST_RANGES_SIZE 128
+#define LOCATION_RANGES_SIZE 128
 
 /* Parse states. */
 #define PARSE_STATE_SEEDS 1
@@ -319,22 +319,17 @@ map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size,
   *out_intersect_range_count = total_intersect_range_count;
 }
 
-/*
- * Destination ranges are stored as a flat buffer using to the following format:
- * 
- * | start | length | start | length | ... |
- */
-dest_ranges[DEST_RANGES_SIZE];
-range_count;
+ranges_to_locations_inplace(location_ranges, location_ranges_size, inout_location_range_count, map_data, map_lengths, map_count) {
+  auto map_index, map_length, map_data_offset;
 
-seed_ranges_to_locations(seed_ranges, seed_range_count, map_data, map_lengths, map_count) {
-  auto range_index;
+  map_index = 0;
+  map_data_offset = 0;
 
-  range_index = 0;
-  memcpy(dest_ranges, seed_ranges, seed_range_count * RANGE_SIZE);
-
-  while (range_index < seed_range_count) {
-    range_index++;
+  while (map_index < map_count) {
+    map_length = map_lengths[map_index];
+    /* map_ranges(location_ranges, ); */
+    map_data_offset =+ map_length * MAP_ENTRY_LENGTH;
+    map_index++;
   }
 }
 
@@ -371,9 +366,24 @@ compute_part1() {
   return (min_location);
 }
 
+/*
+ * Location ranges are stored as a flat buffer using to the following format:
+ * 
+ * | start | length | start | length | ... |
+ */
+location_ranges[LOCATION_RANGES_SIZE];
+range_count;
+
 compute_part2() {
+  auto min_location, range_index;
+
+  min_location = 100000000000;
+  range_index = 0;
+
+  memcpy(location_ranges, seeds, seed_count);
+  ranges_to_locations_inplace(location_ranges, seed_count / RANGE_SIZE, map_data, map_lengths, map_count);
+
   /* TODO */
-  seed_ranges_to_locations(seeds, seed_count / RANGE_SIZE, map_data, map_lengths, map_count);
 }
 
 main() {
@@ -407,4 +417,7 @@ main() {
 
   part1 = compute_part1();
   printf("Part 1: %d*n", part1);
+
+  part2 = compute_part2();
+  printf("Part 2: %d*n", part2);
 }
