@@ -48,5 +48,12 @@
     },
     "path": "day06/src/day06.ll",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "prolog",
+      "name": "Prolog"
+    },
+    "path": "day07/src/day07.pl"
   }
 ]
