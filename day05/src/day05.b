@@ -15,7 +15,7 @@
 #define SEEDS_SIZE 64
 #define MAP_DATA_SIZE 1024
 #define MAP_LENGTHS_SIZE 16
-#define LOCATION_RANGES_SIZE 128
+#define RANGES_SIZE 128
 
 /* Parse states. */
 #define PARSE_STATE_SEEDS 1
@@ -319,7 +319,7 @@ map_ranges(src_ranges, src_range_count, intersect_ranges, intersect_ranges_size,
   *out_intersect_range_count = total_intersect_range_count;
 }
 
-ranges_to_locations_inplace(location_ranges, location_ranges_size, inout_location_range_count, map_data, map_lengths, map_count) {
+ranges_to_locations(src_ranges, inout_src_range_count, dest_ranges, dest_ranges_size, inout_dest_range_count, map_data, map_lengths, map_count) {
   auto map_index, map_length, map_data_offset;
 
   map_index = 0;
@@ -327,7 +327,22 @@ ranges_to_locations_inplace(location_ranges, location_ranges_size, inout_locatio
 
   while (map_index < map_count) {
     map_length = map_lengths[map_index];
-    /* map_ranges(location_ranges, ); */
+
+    #ifdef DEBUG_LOGGING
+    print_array(src_ranges, *inout_src_range_count);
+    printf(" -> ");
+    #endif
+
+    map_ranges(src_ranges, *inout_src_range_count, dest_ranges, dest_ranges_size, inout_dest_range_count, map_data, map_length);
+
+    memcpy(src_ranges, dest_ranges, *inout_dest_range_count);
+    *inout_src_range_count = *inout_dest_range_count;
+
+    #ifdef DEBUG_LOGGING
+    print_array(dest_ranges, *inout_dest_range_count);
+    printf("*n");
+    #endif
+
     map_data_offset =+ map_length * MAP_ENTRY_LENGTH;
     map_index++;
   }
@@ -367,21 +382,29 @@ compute_part1() {
 }
 
 /*
- * Location ranges are stored as a flat buffer using to the following format:
+ * Ranges are stored as a flat buffer using to the following format:
  * 
  * | start | length | start | length | ... |
  */
-location_ranges[LOCATION_RANGES_SIZE];
-range_count;
+
+src_ranges[RANGES_SIZE];
+src_range_count;
+
+dest_ranges[RANGES_SIZE];
+dest_range_count;
 
 compute_part2() {
+  extrn src_range_count, ranges_to_locations;
   auto min_location, range_index;
 
   min_location = 100000000000;
   range_index = 0;
 
-  memcpy(location_ranges, seeds, seed_count);
-  ranges_to_locations_inplace(location_ranges, seed_count / RANGE_SIZE, map_data, map_lengths, map_count);
+  memcpy(src_ranges, seeds, seed_count);
+  src_range_count = seed_count;
+  dest_range_count = 0;
+
+  ranges_to_locations(src_ranges, &src_range_count, dest_ranges, RANGES_SIZE, &dest_range_count, map_data, map_lengths, map_count);
 
   /* TODO */
 }
