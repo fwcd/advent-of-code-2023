@@ -25,10 +25,10 @@
     # The tarball does not contain a 'top-level directory', therefore we'll have to do this
     sourceRoot = ".";
 
-    # Enable larger word size and extensions such as the `break` keyword to make
-    # our life a bit easier.
+    # Enable larger 36-bit word size and extensions such as the `break` keyword
+    # to make our life a bit easier.
     configurePhase = ''
-      ./reconfigure --word_size 64 --extensions
+      ./reconfigure --gcos
     '';
 
     buildPhase = ''
