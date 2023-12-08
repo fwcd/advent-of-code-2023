@@ -90,14 +90,17 @@ high_card(Cs, C) :-
   card_value(C, N).
 
 hand_value(Cs, [7])    :- five_of_a_kind(Cs), !.
-hand_value(Cs, [6|Ns]) :- four_of_a_kind(Cs, _), card_values(Cs, Ns), !.
+hand_value(Cs, [6|Ns]) :- four_of_a_kind(Cs, _, _), card_values(Cs, Ns), !.
 hand_value(Cs, [5|Ns]) :- full_house(Cs, _, _), card_values(Cs, Ns), !.
 hand_value(Cs, [4|Ns]) :- three_of_a_kind(Cs, _, _), card_values(Cs, Ns), !.
 hand_value(Cs, [3|Ns]) :- two_pair(Cs, _, _, _), card_values(Cs, Ns), !.
 hand_value(Cs, [2|Ns]) :- one_pair(Cs, _, _), card_values(Cs, Ns), !.
 hand_value(Cs, [1|Ns]) :- high_card(Cs, _), card_values(Cs, Ns), !.
 
-compare_hands(Delta, hand(Cs1, _), hand(Cs2, _)) :- compare(Delta, Cs1, Cs2).
+compare_hands(Delta, hand(Cs1, _), hand(Cs2, _)) :-
+  hand_value(Cs1, V1),
+  hand_value(Cs2, V2),
+  compare(Delta, V1, V2).
 
 sort_hands(Hands, Sorted) :- predsort(compare_hands, Hands, Sorted).
 
