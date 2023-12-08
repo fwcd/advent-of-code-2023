@@ -3,6 +3,10 @@
     name = "advent-of-code-2023-day04";
     src = ./src;
 
+    buildInputs = [
+      pkgs.coreutils # for realpath
+    ];
+
     installPhase = ''
       mkdir -p $out/{bin,share}
       cp day04.nix $out/share
