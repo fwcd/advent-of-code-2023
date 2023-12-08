@@ -29,6 +29,10 @@ maximum([X|Xs], Acc, Out) :-
 
 maximum([X|Xs], Out) :- maximum(Xs, X, Out).
 
+all_equal([]) :- !.
+all_equal([_]) :- !.
+all_equal([X,X|Xs]) :- all_equal([X|Xs]).
+
 % +-------+
 % | Hands |
 % +-------+
@@ -50,25 +54,40 @@ card_value(0'2,  2) :- !. % ' Dummy quote to fix syntax highlighting
 card_values([], []).
 card_values([C|Cs], [N|Ns]) :- card_value(C, N), card_values(Cs, Ns).
 
-five_of_a_kind([C, C, C, C, C]).
+five_of_a_kind([C,C,C,C,C]).
 
-four_of_a_kind(Cs, C) :- freq(C, 4, Cs).
+four_of_a_kind(Cs, C1, C2) :-
+  select(C2, Cs, [C1,C1,C1,C1]).
 
-full_house(Cs, C1, C2) :- freq(C1, 3, Cs), freq(C2, 2, Cs).
-
-three_of_a_kind(Cs, C) :- freq(C, 3, Cs).
-
-% TODO: Remove duplicates?
-two_pair(Cs, C1, C2) :-
-  freqs(Cs, Freqs),
+full_house(Cs, C1, C2) :-
   select(C1, Cs, Rest),
-  select(C2, Rest, _),
-  member((C1, 2), Freqs),
-  member((C2, 2), Freqs).
+  select(C1, Rest, Rest2),
+  select(C1, Rest2, [C2,C2]),
+  !.
 
-one_pair(Cs, C) :- freq(C, 2, Cs).
+three_of_a_kind(Cs, C, Rest3) :-
+  select(C, Cs, Rest),
+  select(C, Rest, Rest2),
+  select(C, Rest2, Rest3).
 
-high_card(Cs, C) :- card_values(Cs, Ns), maximum(Ns, N), card_value(C, N).
+two_pair(Cs, C1, C2, Rest4) :-
+  select(C1, Cs, Rest),
+  select(C1, Rest, Rest2),
+  select(C2, Rest2, Rest3),
+  select(C2, Rest3, Rest4).
+
+one_pair(Cs, C, Rest2) :-
+  select(C, Cs, Rest),
+  select(C, Rest, Rest2).
+
+high_card(Cs, C) :-
+  card_values(Cs, Ns),
+  maximum(Ns, N),
+  card_value(C, N).
+
+hand_value(Cs, [5])   :- five_of_a_kind(Cs).
+hand_value(Cs, [4,N]) :- four_of_a_kind(Cs, C), card_value(C, N).
+% TODO
 
 % +---------------------------+
 % | DCG for parsing the input |
