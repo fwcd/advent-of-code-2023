@@ -41,22 +41,24 @@ enumerate([X|Xs], Index, [(Index,X)|Out]) :- Next is Index + 1, enumerate(Xs, Ne
 % | Hands |
 % +-------+
 
-card_value(0'A, 14) :- !.
-card_value(0'K, 13) :- !.
-card_value(0'Q, 12) :- !.
-card_value(0'J, 11) :- !.
-card_value(0'T, 10) :- !.
-card_value(0'9,  9) :- !.
-card_value(0'8,  8) :- !.
-card_value(0'7,  7) :- !.
-card_value(0'6,  6) :- !.
-card_value(0'5,  5) :- !.
-card_value(0'4,  4) :- !.
-card_value(0'3,  3) :- !.
-card_value(0'2,  2) :- !. % ' Dummy quote to fix syntax highlighting
+card_value1(0'A, 14).
+card_value1(0'K, 13).
+card_value1(0'Q, 12).
+card_value1(0'J, 11).
+card_value1(0'T, 10).
+card_value1(0'9,  9).
+card_value1(0'8,  8).
+card_value1(0'7,  7).
+card_value1(0'6,  6).
+card_value1(0'5,  5).
+card_value1(0'4,  4).
+card_value1(0'3,  3).
+card_value1(0'2,  2).
 
-card_values([], []).
-card_values([C|Cs], [N|Ns]) :- card_value(C, N), card_values(Cs, Ns).
+card_value2(0'J, 1) :- !.
+card_value2(C,   N) :- card_value1(C, N).
+
+is_card(C) :- card_value1(C, _).
 
 five_of_a_kind([C,C,C,C,C]).
 
@@ -89,23 +91,50 @@ high_card(Cs, C) :-
   maximum(Ns, N),
   card_value(C, N).
 
-hand_value(Cs, [7])    :- five_of_a_kind(Cs), !.
-hand_value(Cs, [6|Ns]) :- four_of_a_kind(Cs, _, _), card_values(Cs, Ns), !.
-hand_value(Cs, [5|Ns]) :- full_house(Cs, _, _), card_values(Cs, Ns), !.
-hand_value(Cs, [4|Ns]) :- three_of_a_kind(Cs, _, _), card_values(Cs, Ns), !.
-hand_value(Cs, [3|Ns]) :- two_pair(Cs, _, _, _), card_values(Cs, Ns), !.
-hand_value(Cs, [2|Ns]) :- one_pair(Cs, _, _), card_values(Cs, Ns), !.
-hand_value(Cs, [1|Ns]) :- high_card(Cs, _), card_values(Cs, Ns), !.
+hand_type(Cs, 7) :- five_of_a_kind(Cs), !.
+hand_type(Cs, 6) :- four_of_a_kind(Cs, _, _), !.
+hand_type(Cs, 5) :- full_house(Cs, _, _), !.
+hand_type(Cs, 4) :- three_of_a_kind(Cs, _, _), !.
+hand_type(Cs, 3) :- two_pair(Cs, _, _, _), !.
+hand_type(Cs, 2) :- one_pair(Cs, _, _), !.
+hand_type(Cs, 1) :- high_card(Cs, _), !.
 
-compare_hands(Delta, hand(Cs1, _), hand(Cs2, _)) :-
-  hand_value(Cs1, V1),
-  hand_value(Cs2, V2),
+% TODO: Abstract over the two card_value functions, can we do partial predicates?
+
+hand_value1(Cs, [T|Ns]) :-
+  hand_type(Cs, T),
+  maplist(card_value1, Cs, Ns).
+
+compare_hands1(Delta, hand(Cs1, _), hand(Cs2, _)) :-
+  hand_value1(Cs1, V1),
+  hand_value1(Cs2, V2),
   compare(Delta, V1, V2).
 
-sort_hands(Hands, Sorted) :- predsort(compare_hands, Hands, Sorted).
+rank_hands1(Hands, Ranked) :-
+  predsort(compare_hands1, Hands, Sorted),
+  enumerate(Sorted, 1, Ranked).
 
-rank_hands(Hands, Ranked) :-
-  sort_hands(Hands, Sorted),
+instantiate_joker(0'J, C) :- !, is_card(C). % ' Fix syntax highlighting
+instantiate_joker(C, C).
+
+instantiate_jokers(Cs, Cs2) :- maplist(instantiate_joker, Cs, Cs2).
+
+hand_value2_candidate(Cs, [T|Ns]) :-
+  instantiate_jokers(Cs, Cs2),
+  hand_type(Cs2, T),
+  maplist(card_value2, Cs2, Ns).
+
+hand_value2(Cs, MaxV) :-
+  findall(V, hand_value2_candidate(Cs, V), Vs),
+  maximum(Vs, MaxV).
+
+compare_hands2(Delta, hand(Cs1, _), hand(Cs2, _)) :-
+  hand_value2(Cs1, V1),
+  hand_value2(Cs2, V2),
+  compare(Delta, V1, V2).
+
+rank_hands2(Hands, Ranked) :-
+  predsort(compare_hands2, Hands, Sorted),
   enumerate(Sorted, 1, Ranked).
 
 total_winnings([], Total, Total) :- !.
@@ -141,8 +170,12 @@ main :-
     Args = [] -> write('Usage: '), write(Cmd), writeln(' <path to input>');
     Args = [InputPath|_] ->
       read_input(InputPath, Hands),
-      rank_hands(Hands, Ranked),
-      total_winnings(Ranked, Total),
-      writeln(Ranked),
-      write('Part 1: '), write(Total), nl
+
+      rank_hands1(Hands, Ranked1),
+      total_winnings(Ranked1, Total1),
+      write('Part 1: '), write(Total1), nl,
+
+      rank_hands2(Hands, Ranked2),
+      total_winnings(Ranked2, Total2),
+      write('Part 2: '), write(Total2), nl
   ).
