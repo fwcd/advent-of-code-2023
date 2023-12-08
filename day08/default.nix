@@ -6,7 +6,8 @@
     buildInputs = if pkgs.stdenv.isDarwin then [
       pkgs.darwin.apple_sdk.frameworks.Foundation
     ] else [
-      # TODO
+      pkgs.clang
+      pkgs.gnustep.base
     ];
 
     buildPhase = ''
