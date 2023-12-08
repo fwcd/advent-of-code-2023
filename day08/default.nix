@@ -12,7 +12,7 @@
 
     buildPhase = ''
       mkdir -p out
-      clang -framework Foundation -o out/day08 day08.m
+      clang -fobjc-arc -framework Foundation -o out/day08 day08.m
     '';
 
     installPhase = ''
