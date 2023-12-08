@@ -37,7 +37,7 @@ enumerate([], _, []) :- !.
 enumerate([X|Xs], Index, [(Index,X)|Out]) :- Next is Index + 1, enumerate(Xs, Next, Out), !.
 
 % +-------+
-% | Hands |
+% | Cards |
 % +-------+
 
 card_value1(0'A, 14).
@@ -58,6 +58,10 @@ card_value2(0'J, 1) :- !.
 card_value2(C,   N) :- card_value1(C, N).
 
 is_card(C) :- card_value1(C, _).
+
+% +-------+
+% | Hands |
+% +-------+
 
 five_of_a_kind([C,C,C,C,C]).
 
@@ -85,8 +89,6 @@ one_pair(Cs, C, Rest2) :-
   select(C, Cs, Rest),
   select(C, Rest, Rest2).
 
-% TODO: Abstract over the two card_value functions, can we do partial predicates?
-
 high_card(CV, Cs, C) :-
   maplist(CV, Cs, Ns),
   maximum(Ns, N),
@@ -109,11 +111,7 @@ compare_hands1(Delta, hand(Cs1, _), hand(Cs2, _)) :-
   hand_value1(Cs2, V2),
   compare(Delta, V1, V2).
 
-rank_hands1(Hands, Ranked) :-
-  predsort(compare_hands1, Hands, Sorted),
-  enumerate(Sorted, 1, Ranked).
-
-instantiate_joker(0'J, C) :- !, is_card(C). % ' Fix syntax highlighting
+instantiate_joker(0'J, C) :- !, is_card(C).
 instantiate_joker(C, C).
 
 instantiate_jokers(Cs, Cs2) :- maplist(instantiate_joker, Cs, Cs2).
@@ -132,9 +130,13 @@ compare_hands2(Delta, hand(Cs1, _), hand(Cs2, _)) :-
   hand_value2(Cs2, V2),
   compare(Delta, V1, V2).
 
-rank_hands2(Hands, Ranked) :-
-  predsort(compare_hands2, Hands, Sorted),
+rank_hands(CH, Hands, Ranked) :-
+  predsort(CH, Hands, Sorted),
   enumerate(Sorted, 1, Ranked).
+
+% +-------+
+% | Parts |
+% +-------+
 
 total_winnings([], Total, Total) :- !.
 total_winnings([(Rank,hand(_,Bid))|Rest], Acc, Total) :-
@@ -142,6 +144,10 @@ total_winnings([(Rank,hand(_,Bid))|Rest], Acc, Total) :-
   total_winnings(Rest, Acc2, Total).
 
 total_winnings(Ranked, Total) :- total_winnings(Ranked, 0, Total).
+
+compute_result(CH, Hands, Result) :-
+  rank_hands(CH, Hands, Ranked),
+  total_winnings(Ranked, Result).
 
 % +---------------------------+
 % | DCG for parsing the input |
@@ -170,11 +176,9 @@ main :-
     Args = [InputPath|_] ->
       read_input(InputPath, Hands),
 
-      rank_hands1(Hands, Ranked1),
-      total_winnings(Ranked1, Total1),
-      write('Part 1: '), write(Total1), nl,
+      compute_result(compare_hands1, Hands, Part1),
+      write('Part 1: '), write(Part1), nl,
 
-      rank_hands2(Hands, Ranked2),
-      total_winnings(Ranked2, Total2),
-      write('Part 2: '), write(Total2), nl
+      compute_result(compare_hands2, Hands, Part2),
+      write('Part 2: '), write(Part2), nl
   ).
