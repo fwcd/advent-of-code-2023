@@ -59,7 +59,7 @@
   },
   {
     "lang": {
-      "codemirror": "clike",
+      "codemirror": "objectivec",
       "name": "Objective-C"
     },
     "path": "day08/src/day08.m"
