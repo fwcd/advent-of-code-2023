@@ -13,6 +13,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 05: [B](day05/src/day05.b) ([readme](day05/README.md))
 - [x] Day 06: [LLVM IR](day06/src/day06.ll)
 - [x] Day 07: [Prolog](day07/src/day07.pl)
+- [ ] Day 08: [Objective-C](day08/src/day08.m)
 
 ## Packaging
 

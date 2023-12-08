@@ -56,5 +56,12 @@
     },
     "path": "day07/src/day07.pl",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "clike",
+      "name": "Objective-C"
+    },
+    "path": "day08/src/day08.m"
   }
 ]
