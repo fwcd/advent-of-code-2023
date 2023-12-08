@@ -121,7 +121,7 @@ instantiate_jokers(Cs, Cs2) :- maplist(instantiate_joker, Cs, Cs2).
 hand_value2_candidate(Cs, [T|Ns]) :-
   instantiate_jokers(Cs, Cs2),
   hand_type(card_value2, Cs2, T),
-  maplist(card_value2, Cs2, Ns).
+  maplist(card_value2, Cs, Ns).
 
 hand_value2(Cs, MaxV) :-
   % Use `order_by` from `library(solution_sequences)`: https://stackoverflow.com/a/42593823/19890279
