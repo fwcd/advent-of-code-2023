@@ -105,6 +105,13 @@ rank_hands(Hands, Ranked) :-
   sort_hands(Hands, Sorted),
   enumerate(Sorted, 1, Ranked).
 
+total_winnings([], Total, Total) :- !.
+total_winnings([(Rank,hand(_,Bid))|Rest], Acc, Total) :-
+  Acc2 is Acc + Rank * Bid,
+  total_winnings(Rest, Acc2, Total).
+
+total_winnings(Ranked, Total) :- total_winnings(Ranked, 0, Total).
+
 % +---------------------------+
 % | DCG for parsing the input |
 % +---------------------------+
@@ -132,5 +139,7 @@ main :-
     Args = [InputPath|_] ->
       read_input(InputPath, Hands),
       rank_hands(Hands, Ranked),
-      writeln(Ranked)
+      total_winnings(Ranked, Total),
+      writeln(Ranked),
+      write('Part 1: '), write(Total), nl
   ).
