@@ -1,4 +1,5 @@
 :- use_module(library(dcg/basics)).
+:- use_module(library(sort)).
 
 % +-----------+
 % | Utilities |
@@ -10,9 +11,9 @@ freqs([C|Cs], Table, Out) :-
   (
     select((C, N), Table, Others),
     M is N + 1,
-    freqs(Cs, [(C, M)|Others], Out),
+    freqs(Cs, [(C,M)|Others], Out),
     !
-  ; freqs(Cs, [(C, 1)|Table], Out)
+  ; freqs(Cs, [(C,1)|Table], Out)
   ).
 
 freqs(Cs, Out) :- freqs(Cs, [], Out).
@@ -32,6 +33,9 @@ maximum([X|Xs], Out) :- maximum(Xs, X, Out).
 all_equal([]) :- !.
 all_equal([_]) :- !.
 all_equal([X,X|Xs]) :- all_equal([X|Xs]).
+
+enumerate([], _, []) :- !.
+enumerate([X|Xs], Index, [(Index,X)|Out]) :- Next is Index + 1, enumerate(Xs, Next, Out), !.
 
 % +-------+
 % | Hands |
@@ -85,9 +89,21 @@ high_card(Cs, C) :-
   maximum(Ns, N),
   card_value(C, N).
 
-hand_value(Cs, [5])   :- five_of_a_kind(Cs).
-hand_value(Cs, [4,N]) :- four_of_a_kind(Cs, C), card_value(C, N).
-% TODO
+hand_value(Cs, [7])    :- five_of_a_kind(Cs), !.
+hand_value(Cs, [6|Ns]) :- four_of_a_kind(Cs, _), card_values(Cs, Ns), !.
+hand_value(Cs, [5|Ns]) :- full_house(Cs, _, _), card_values(Cs, Ns), !.
+hand_value(Cs, [4|Ns]) :- three_of_a_kind(Cs, _, _), card_values(Cs, Ns), !.
+hand_value(Cs, [3|Ns]) :- two_pair(Cs, _, _, _), card_values(Cs, Ns), !.
+hand_value(Cs, [2|Ns]) :- one_pair(Cs, _, _), card_values(Cs, Ns), !.
+hand_value(Cs, [1|Ns]) :- high_card(Cs, _), card_values(Cs, Ns), !.
+
+compare_hands(Delta, hand(Cs1, _), hand(Cs2, _)) :- compare(Delta, Cs1, Cs2).
+
+sort_hands(Hands, Sorted) :- predsort(compare_hands, Hands, Sorted).
+
+rank_hands(Hands, Ranked) :-
+  sort_hands(Hands, Sorted),
+  enumerate(Sorted, 1, Ranked).
 
 % +---------------------------+
 % | DCG for parsing the input |
@@ -106,14 +122,15 @@ dcg_bid(Bid) --> number(Bid).
 % | Main program |
 % +--------------+
 
-read_input(Path, Input) :-
-  phrase_from_file(dcg_hands(Input), Path).
+read_input(Path, Hands) :-
+  phrase_from_file(dcg_hands(Hands), Path).
 
 main :-
   current_prolog_flag(argv, [Cmd|Args]),
   (
     Args = [] -> write('Usage: '), write(Cmd), writeln(' <path to input>');
     Args = [InputPath|_] ->
-      read_input(InputPath, Input),
-      writeln(Input)
+      read_input(InputPath, Hands),
+      rank_hands(Hands, Ranked),
+      writeln(Ranked)
   ).
