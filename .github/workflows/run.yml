@@ -5,12 +5,17 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
-    name: Day ${{ matrix.day }}
+    runs-on: ${{ matrix.os }}
+    name: Day ${{ matrix.day }} (${{ matrix.os }})
 
     strategy:
       matrix:
+        os: ['ubuntu-latest', 'macos-latest']
         day: ['01', '02', '03', '04', '05', '06', '07', '08']
+        exclude:
+        # TODO: Investigate how we could build this with GNUStep
+        - os: 'ubuntu-latest'
+          day: '08'
 
     steps:
     - uses: actions/checkout@v4

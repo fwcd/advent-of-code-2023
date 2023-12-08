@@ -7,7 +7,7 @@
       pkgs.darwin.apple_sdk.frameworks.Foundation
     ] else [
       pkgs.clang
-      pkgs.gnustep.base
+      pkgs.gnustep.base # TODO: Investigate how to make this work on Linux
     ];
 
     buildPhase = ''
