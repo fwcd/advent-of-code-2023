@@ -1,5 +1,4 @@
 :- use_module(library(dcg/basics)).
-:- use_module(library(sort)).
 
 % +-----------+
 % | Utilities |
@@ -86,23 +85,23 @@ one_pair(Cs, C, Rest2) :-
   select(C, Cs, Rest),
   select(C, Rest, Rest2).
 
-high_card(Cs, C) :-
-  card_values(Cs, Ns),
-  maximum(Ns, N),
-  card_value(C, N).
-
-hand_type(Cs, 7) :- five_of_a_kind(Cs), !.
-hand_type(Cs, 6) :- four_of_a_kind(Cs, _, _), !.
-hand_type(Cs, 5) :- full_house(Cs, _, _), !.
-hand_type(Cs, 4) :- three_of_a_kind(Cs, _, _), !.
-hand_type(Cs, 3) :- two_pair(Cs, _, _, _), !.
-hand_type(Cs, 2) :- one_pair(Cs, _, _), !.
-hand_type(Cs, 1) :- high_card(Cs, _), !.
-
 % TODO: Abstract over the two card_value functions, can we do partial predicates?
 
+high_card(CV, Cs, C) :-
+  maplist(CV, Cs, Ns),
+  maximum(Ns, N),
+  call(CV, C, N).
+
+hand_type( _, Cs, 7) :- five_of_a_kind(Cs), !.
+hand_type( _, Cs, 6) :- four_of_a_kind(Cs, _, _), !.
+hand_type( _, Cs, 5) :- full_house(Cs, _, _), !.
+hand_type( _, Cs, 4) :- three_of_a_kind(Cs, _, _), !.
+hand_type( _, Cs, 3) :- two_pair(Cs, _, _, _), !.
+hand_type( _, Cs, 2) :- one_pair(Cs, _, _), !.
+hand_type(CV, Cs, 1) :- high_card(CV, Cs, _), !.
+
 hand_value1(Cs, [T|Ns]) :-
-  hand_type(Cs, T),
+  hand_type(card_value1, Cs, T),
   maplist(card_value1, Cs, Ns).
 
 compare_hands1(Delta, hand(Cs1, _), hand(Cs2, _)) :-
@@ -121,12 +120,12 @@ instantiate_jokers(Cs, Cs2) :- maplist(instantiate_joker, Cs, Cs2).
 
 hand_value2_candidate(Cs, [T|Ns]) :-
   instantiate_jokers(Cs, Cs2),
-  hand_type(Cs2, T),
+  hand_type(card_value2, Cs2, T),
   maplist(card_value2, Cs2, Ns).
 
 hand_value2(Cs, MaxV) :-
-  findall(V, hand_value2_candidate(Cs, V), Vs),
-  maximum(Vs, MaxV).
+  % Use `order_by` from `library(solution_sequences)`: https://stackoverflow.com/a/42593823/19890279
+  findall(V, order_by([desc(V)], hand_value2_candidate(Cs, V)), [MaxV|_]).
 
 compare_hands2(Delta, hand(Cs1, _), hand(Cs2, _)) :-
   hand_value2(Cs1, V1),
