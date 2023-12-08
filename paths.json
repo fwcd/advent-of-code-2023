@@ -54,6 +54,7 @@
       "codemirror": "prolog",
       "name": "Prolog"
     },
-    "path": "day07/src/day07.pl"
+    "path": "day07/src/day07.pl",
+    "completed": true
   }
 ]
