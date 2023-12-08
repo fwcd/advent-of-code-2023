@@ -18,7 +18,7 @@
         echo "Usage: \$0 <path to input>"
         exit 1
       fi
-      exec nix-instantiate --eval --strict --arg inputPath "\"\$(realpath \$1)\"" "\$(dirname "\$0")/../share/day04.nix"
+      exec nix-instantiate --eval --strict --arg inputPath "\"\$(${pkgs.coreutils.outPath}/bin/realpath \$1)\"" "\$(dirname "\$0")/../share/day04.nix"
       EOF
 
       chmod +x $out/bin/day04
