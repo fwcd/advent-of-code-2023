@@ -23,7 +23,10 @@ jobs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
     - name: Build
-      run: nix-build
+      # We have to disable sandboxing to allow derivations to access the network
+      # during builds. This is required e.g. to build day 9's PAKCS with Haskell
+      # Stack, which downloads its own GHC, packages etc.
+      run: nix-build --option sandbox false
       working-directory: 'day${{ matrix.day }}'
     - name: Run with input
       run: 'result/bin/day${{ matrix.day }} resources/input.txt'
