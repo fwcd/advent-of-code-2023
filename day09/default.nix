@@ -11,9 +11,10 @@
     ];
 
     buildPhase = ''
-      # TODO: Cleanup
-      export HOME="$(mktemp -d)"
-      pakcs :load Day09 :save main :quit
+      tmphome="$(mktemp -d)"
+      trap 'rm -rf -- "$tmphome"' EXIT
+
+      HOME="$tmphome" pakcs :load Day09 :save main :quit
     '';
 
     installPhase = ''
