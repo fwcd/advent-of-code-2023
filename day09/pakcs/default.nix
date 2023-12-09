@@ -16,7 +16,7 @@
       pkgs.swiProlog
       pkgs.which
     ] ++ (if pkgs.stdenv.isDarwin then [] else [
-      pkgs.glibc
+      pkgs.glibcLocales
     ]);
 
     nativeBuildInputs = [];
@@ -25,8 +25,8 @@
       # Enable more verbose stack output
       sed -i"" -e 's/\(\$(STACK) install\)/\1 --cabal-verbose/g' frontend/Makefile
 
-      # Patch out readline support (for some reason --noreadline doesn't work)
-      sed -i"" -e "s/set_prolog_flag(readline,readline)/true/g" src/swibasics.pl
+      # Patch out rl_add_history call which seems to be unavailable
+      sed -i"" -e "s/rl_add_history([^)]*)/true/g" src/swibasics.pl
     '';
 
     buildPhase = ''
@@ -36,7 +36,9 @@
         mkdir tmp
         ln -s /usr/bin/security tmp/security
         export PATH="$PWD/tmp:$PATH"
-      '' else ""}
+      '' else ''
+        export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
+      ''}
 
       export LC_ALL=en_US.UTF-8
 
