@@ -22,7 +22,11 @@
     nativeBuildInputs = [];
 
     patchPhase = ''
+      # Enable more verbose stack output
       sed -i"" -e 's/\(\$(STACK) install\)/\1 --cabal-verbose/g' frontend/Makefile
+
+      # Patch out readline support (for some reason --noreadline doesn't work)
+      sed -i"" -e "s/set_prolog_flag(readline,readline)/true/g" src/swibasics.pl
     '';
 
     buildPhase = ''
