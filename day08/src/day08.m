@@ -23,7 +23,7 @@
 
 - (id) initWithRawInput:(NSString *)input {
   NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"(\\w+) = \\((\\w+), (\\w+)\\)" options:0 error:nil];
-  NSTextCheckingResult *match = [regex firstMatchInString:input options:0 range:NSMakeRange(0, [input length])];
+  NSTextCheckingResult *match = [regex firstMatchInString:input options:0 range:NSMakeRange(0, input.length)];
 
   self.name = [input substringWithRange:[match rangeAtIndex:1]];
   self.left = [input substringWithRange:[match rangeAtIndex:2]];
@@ -41,7 +41,7 @@
   self.instructions = lines[0];
 
   NSMutableDictionary<NSString *, Node *> *nodes;
-  for (NSString *line in [lines subarrayWithRange:NSMakeRange(2, [lines count] - 2)]) {
+  for (NSString *line in [lines subarrayWithRange:NSMakeRange(2, lines.count - 2)]) {
     Node *node = [[Node alloc] initWithRawInput:line];
     nodes[node.name] = node;
   }
