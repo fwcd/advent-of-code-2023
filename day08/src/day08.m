@@ -116,11 +116,6 @@ long lcm(long n, long m) {
 
   for (NSString *name in [self namesOfNodesWithSuffix:startSuffix]) {
     int next = [self naiveStepsFromSuffix:name toSuffix:goalSuffix withStepSize:1];
-    NSString *nextNode = [self step:next timesFrom:name withInstructionIndex:0];
-    NSLog(@"%d -> %@", next, nextNode);
-    int next2 = [self naiveStepsFromSuffix:nextNode toSuffix:goalSuffix withStepSize:1];
-    NSString *nextNode2 = [self step:next2 timesFrom:name withInstructionIndex:next];
-    NSLog(@"%d -> %@", next, nextNode);
     cycle = lcm(cycle, next);
   }
 
