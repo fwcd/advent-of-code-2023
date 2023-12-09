@@ -46,23 +46,40 @@
   return self;
 }
 
-- (int) stepsFrom:(NSString *)start to:(NSString *)goal {
+- (int) stepsFrom:(NSSet<NSString *> *)start to:(NSSet<NSString *> *)goal {
   int steps = 0;
-  NSString *current = start;
+  NSSet<NSString *> *current = start;
 
-  while (![current isEqualToString:goal]) {
-    switch ([self.instructions characterAtIndex:(steps % self.instructions.length)]) {
-    case 'L':
-      current = self.nodes[current].left;
-      break;
-    case 'R':
-      current = self.nodes[current].right;
-      break;
+  while (![current isEqual:goal]) {
+    NSMutableSet<NSString *> *next = [[NSMutableSet alloc] init];
+    for (NSString *name in current) {
+      Node *node = self.nodes[name];
+      switch ([self.instructions characterAtIndex:(steps % self.instructions.length)]) {
+      case 'L':
+        [next addObject:node.left];
+        break;
+      case 'R':
+        [next addObject:node.right];
+        break;
+      }
     }
+    current = next;
     steps++;
   }
 
   return steps;
+}
+
+- (NSSet<NSString *> *) namesOfNodesEndingWith:(NSString *)suffix {
+  NSMutableSet<NSString *> *result = [[NSMutableSet alloc] init];
+
+  for (NSString *name in self.nodes.keyEnumerator) {
+    if ([name hasSuffix:suffix]) {
+      [result addObject:name];
+    }
+  }
+
+  return result;
 }
 
 @end
@@ -78,8 +95,11 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  int part1 = [input stepsFrom:@"AAA" to:@"ZZZ"];
+  int part1 = [input stepsFrom:[[NSSet alloc] initWithArray:@[@"AAA"]] to:[[NSSet alloc] initWithArray:@[@"ZZZ"]]];
   NSLog(@"Part 1: %d", part1);
+
+  int part2 = [input stepsFrom:[input namesOfNodesEndingWith:@"A"] to:[input namesOfNodesEndingWith:@"Z"]];
+  NSLog(@"Part 2: %d", part2);
 
   return 0;
 }
