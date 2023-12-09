@@ -8,8 +8,10 @@
     };
 
     buildInputs = [
+      pkgs.gmp
       pkgs.libiconv
       pkgs.libffi
+      pkgs.rlwrap
       pkgs.stack
       pkgs.swiProlog
       pkgs.which
