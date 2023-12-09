@@ -64,5 +64,12 @@
     },
     "path": "day08/src/day08.m",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "haskell",
+      "name": "Curry"
+    },
+    "path": "day09/src/Day09.curry"
   }
 ]
