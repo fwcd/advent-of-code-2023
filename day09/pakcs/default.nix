@@ -20,8 +20,6 @@
     nativeBuildInputs = [];
 
     buildPhase = ''
-      export LC_ALL=en_US.UTF-8
-
       # Hack to make `security` (the Keychain CLI) visible from our Nix build,
       # otherwise Stack will complain.
       ${if pkgs.stdenv.isDarwin then ''
