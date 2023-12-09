@@ -11,6 +11,8 @@
     ];
 
     buildPhase = ''
+      # TODO: Cleanup
+      export HOME="$(mktemp -d)"
       pakcs :load Day09 :save main :quit
     '';
 
