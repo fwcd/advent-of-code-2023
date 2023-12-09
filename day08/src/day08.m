@@ -67,29 +67,9 @@
   }
 }
 
-- (NSString *)nodeAfterCycleFrom:(NSString *)name {
-  NSString *current = name;
-  for (int i = 0; i < self.instructions.length; i++) {
-    current = [self stepFrom:current withInstructionIndex:i];
-  }
-  return current;
-}
-
-- (NSMutableDictionary<NSString *, NSString *> *)cycleMapping {
-  NSMutableDictionary<NSString *, NSString *> *result = [[NSMutableDictionary alloc] init];
-
-  for (NSString *name in self.nodes.keyEnumerator) {
-    result[name] = [self nodeAfterCycleFrom:name];
-  }
-
-  return result;
-}
-
 - (int) stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
   int steps = 0;
   NSMutableArray<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
-
-  NSLog(@"%@", self.cycleMapping);
 
   BOOL (^reachedGoal)() = ^{
     for (NSString *name in current) {
