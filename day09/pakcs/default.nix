@@ -28,8 +28,8 @@
       # Patch out rl_add_history call which seems to be unavailable
       sed -i"" -e 's/rl_add_history([^)]*)/true/g' src/swibasics.pl
 
-      # Patch out CurryHtml module, something with the TemplateHaskell is build
-      # is broken. Since we do not need to generate documentation and the issue
+      # Patch out CurryHtml module, something with the use of TemplateHaskell is
+      # broken. Since we do not need to generate documentation and the issue
       # seems to be hard to debug, we'll patch out this module.
       rm frontend/src/Html/CurryHtml.hs
       sed -i"" -e 's/, Html.CurryHtml//g' frontend/curry-frontend.cabal
