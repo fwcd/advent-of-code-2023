@@ -62,6 +62,7 @@
       "codemirror": "objectivec",
       "name": "Objective-C"
     },
-    "path": "day08/src/day08.m"
+    "path": "day08/src/day08.m",
+    "completed": true
   }
 ]
