@@ -46,31 +46,43 @@
   return self;
 }
 
-- (int) stepsFrom:(NSSet<NSString *> *)start to:(NSSet<NSString *> *)goal {
+- (int) stepsFrom:(NSString *)startSuffix to:(NSString *)goalSuffix {
   int steps = 0;
-  NSSet<NSString *> *current = start;
+  NSMutableSet<NSString *> *current = [self namesOfNodesEndingWith:startSuffix];
 
-  while (![current isEqual:goal]) {
-    NSMutableSet<NSString *> *next = [[NSMutableSet alloc] init];
+  BOOL (^reachedGoal)() = ^{
     for (NSString *name in current) {
+      if (![name hasSuffix:goalSuffix]) {
+        return NO;
+      }
+    }
+    return YES;
+  };
+
+  while (!reachedGoal()) {
+    // We mutate the existing set instead of assigning a new one since the block
+    // captures this particular instance and workarounds generally seem to be
+    // more complex.
+    NSSet<NSString *> *currentCopy = [[NSSet alloc] initWithSet:current];
+    [current removeAllObjects];
+    for (NSString *name in currentCopy) {
       Node *node = self.nodes[name];
       switch ([self.instructions characterAtIndex:(steps % self.instructions.length)]) {
       case 'L':
-        [next addObject:node.left];
+        [current addObject:node.left];
         break;
       case 'R':
-        [next addObject:node.right];
+        [current addObject:node.right];
         break;
       }
     }
-    current = next;
     steps++;
   }
 
   return steps;
 }
 
-- (NSSet<NSString *> *) namesOfNodesEndingWith:(NSString *)suffix {
+- (NSMutableSet<NSString *> *) namesOfNodesEndingWith:(NSString *)suffix {
   NSMutableSet<NSString *> *result = [[NSMutableSet alloc] init];
 
   for (NSString *name in self.nodes.keyEnumerator) {
@@ -95,10 +107,10 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  int part1 = [input stepsFrom:[[NSSet alloc] initWithArray:@[@"AAA"]] to:[[NSSet alloc] initWithArray:@[@"ZZZ"]]];
+  int part1 = [input stepsFrom:@"AAA" to:@"ZZZ"];
   NSLog(@"Part 1: %d", part1);
 
-  int part2 = [input stepsFrom:[input namesOfNodesEndingWith:@"A"] to:[input namesOfNodesEndingWith:@"Z"]];
+  int part2 = [input stepsFrom:@"A" to:@"Z"];
   NSLog(@"Part 2: %d", part2);
 
   return 0;
