@@ -17,7 +17,7 @@
 
 @implementation Node
 
-- (id) initWithRawInput:(NSString *)input {
+- (id)initWithRawInput:(NSString *)input {
   NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"(\\w+) = \\((\\w+), (\\w+)\\)" options:0 error:nil];
   NSTextCheckingResult *match = [regex firstMatchInString:input options:0 range:NSMakeRange(0, input.length)];
 
@@ -32,7 +32,7 @@
 
 @implementation Input
 
-- (id) initWithRawInput:(NSString *)input {
+- (id)initWithRawInput:(NSString *)input {
   NSArray<NSString *> *lines = [input componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
   self.instructions = lines[0];
 
@@ -46,9 +46,50 @@
   return self;
 }
 
-- (int) stepsFrom:(NSString *)startSuffix to:(NSString *)goalSuffix {
+- (NSMutableSet<NSString *> *)namesOfNodesWithSuffix:(NSString *)suffix {
+  NSMutableSet<NSString *> *result = [[NSMutableSet alloc] init];
+
+  for (NSString *name in self.nodes.keyEnumerator) {
+    if ([name hasSuffix:suffix]) {
+      [result addObject:name];
+    }
+  }
+
+  return result;
+}
+
+- (NSString *)nextNodeFrom:(NSString *)name forInstruction:(char)instruction {
+  Node *node = self.nodes[name];
+  switch (instruction) {
+  case 'L': return node.left;
+  case 'R': return node.right;
+  default: return nil;
+  }
+}
+
+- (NSString *)nodeAfterCycleFrom:(NSString *)name {
+  NSString *current = name;
+  for (int i = 0; i < self.instructions.length; i++) {
+    current = [self nextNodeFrom:current forInstruction:[self.instructions characterAtIndex:i]];
+  }
+  return current;
+}
+
+- (NSMutableDictionary<NSString *, NSString *> *)cycleMapping {
+  NSMutableDictionary<NSString *, NSString *> *result = [[NSMutableDictionary alloc] init];
+
+  for (NSString *name in self.nodes.keyEnumerator) {
+    result[name] = [self nodeAfterCycleFrom:name];
+  }
+
+  return result;
+}
+
+- (int) stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
   int steps = 0;
-  NSMutableSet<NSString *> *current = [self namesOfNodesEndingWith:startSuffix];
+  NSMutableSet<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
+
+  NSLog(@"%@", self.cycleMapping);
 
   BOOL (^reachedGoal)() = ^{
     for (NSString *name in current) {
@@ -66,32 +107,13 @@
     NSSet<NSString *> *currentCopy = [[NSSet alloc] initWithSet:current];
     [current removeAllObjects];
     for (NSString *name in currentCopy) {
-      Node *node = self.nodes[name];
-      switch ([self.instructions characterAtIndex:(steps % self.instructions.length)]) {
-      case 'L':
-        [current addObject:node.left];
-        break;
-      case 'R':
-        [current addObject:node.right];
-        break;
-      }
+      char instruction = [self.instructions characterAtIndex:(steps % self.instructions.length)];
+      [current addObject:[self nextNodeFrom:name forInstruction:instruction]];
     }
     steps++;
   }
 
   return steps;
-}
-
-- (NSMutableSet<NSString *> *) namesOfNodesEndingWith:(NSString *)suffix {
-  NSMutableSet<NSString *> *result = [[NSMutableSet alloc] init];
-
-  for (NSString *name in self.nodes.keyEnumerator) {
-    if ([name hasSuffix:suffix]) {
-      [result addObject:name];
-    }
-  }
-
-  return result;
 }
 
 @end
@@ -107,10 +129,10 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  int part1 = [input stepsFrom:@"AAA" to:@"ZZZ"];
+  int part1 = [input stepsFromSuffix:@"AAA" toSuffix:@"ZZZ"];
   NSLog(@"Part 1: %d", part1);
 
-  int part2 = [input stepsFrom:@"A" to:@"Z"];
+  int part2 = [input stepsFromSuffix:@"A" toSuffix:@"Z"];
   NSLog(@"Part 2: %d", part2);
 
   return 0;
