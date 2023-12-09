@@ -26,7 +26,15 @@
       sed -i"" -e 's/\(\$(STACK) install\)/\1 --cabal-verbose/g' frontend/Makefile
 
       # Patch out rl_add_history call which seems to be unavailable
-      sed -i"" -e "s/rl_add_history([^)]*)/true/g" src/swibasics.pl
+      sed -i"" -e 's/rl_add_history([^)]*)/true/g' src/swibasics.pl
+
+      # Patch out CurryHtml module, something with the TemplateHaskell is build
+      # is broken. Since we do not need to generate documentation and the issue
+      # seems to be hard to debug, we'll patch out this module.
+      rm frontend/src/Html/CurryHtml.hs
+      sed -i"" -e 's/, Html.CurryHtml//g' frontend/curry-frontend.cabal
+      sed -i"" -e 's/import Html.CurryHtml .*//g' frontend/src/Modules.hs
+      sed -i"" -e 's/  source2html .*/  error "HTML generation is patched out in this build!"/g' frontend/src/Modules.hs
     '';
 
     buildPhase = ''
