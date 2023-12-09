@@ -58,7 +58,7 @@
     '';
 
     installPhase = ''
-      for dir in bin lib src tools scripts currytools examples; do
+      for dir in bin lib src frontend tools scripts currytools examples; do
         mkdir -p "$out/$dir"
         cp -r "$dir" "$out"
       done
