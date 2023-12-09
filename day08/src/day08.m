@@ -46,8 +46,8 @@
   return self;
 }
 
-- (NSMutableSet<NSString *> *)namesOfNodesWithSuffix:(NSString *)suffix {
-  NSMutableSet<NSString *> *result = [[NSMutableSet alloc] init];
+- (NSMutableArray<NSString *> *)namesOfNodesWithSuffix:(NSString *)suffix {
+  NSMutableArray<NSString *> *result = [[NSMutableArray alloc] init];
 
   for (NSString *name in self.nodes.keyEnumerator) {
     if ([name hasSuffix:suffix]) {
@@ -58,9 +58,9 @@
   return result;
 }
 
-- (NSString *)nextNodeFrom:(NSString *)name forInstruction:(char)instruction {
+- (NSString *)stepFrom:(NSString *)name withInstructionIndex:(int)i {
   Node *node = self.nodes[name];
-  switch (instruction) {
+  switch ([self.instructions characterAtIndex:i]) {
   case 'L': return node.left;
   case 'R': return node.right;
   default: return nil;
@@ -70,7 +70,7 @@
 - (NSString *)nodeAfterCycleFrom:(NSString *)name {
   NSString *current = name;
   for (int i = 0; i < self.instructions.length; i++) {
-    current = [self nextNodeFrom:current forInstruction:[self.instructions characterAtIndex:i]];
+    current = [self stepFrom:current withInstructionIndex:i];
   }
   return current;
 }
@@ -87,7 +87,7 @@
 
 - (int) stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
   int steps = 0;
-  NSMutableSet<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
+  NSMutableArray<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
 
   NSLog(@"%@", self.cycleMapping);
 
@@ -101,14 +101,8 @@
   };
 
   while (!reachedGoal()) {
-    // We mutate the existing set instead of assigning a new one since the block
-    // captures this particular instance and workarounds generally seem to be
-    // more complex.
-    NSSet<NSString *> *currentCopy = [[NSSet alloc] initWithSet:current];
-    [current removeAllObjects];
-    for (NSString *name in currentCopy) {
-      char instruction = [self.instructions characterAtIndex:(steps % self.instructions.length)];
-      [current addObject:[self nextNodeFrom:name forInstruction:instruction]];
+    for (int i = 0; i < current.count; i++) {
+      current[i] = [self stepFrom:current[i] withInstructionIndex:(steps % self.instructions.length)];
     }
     steps++;
   }
