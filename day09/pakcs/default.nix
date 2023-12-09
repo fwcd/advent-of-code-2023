@@ -62,5 +62,7 @@
         mkdir -p "$out/$dir"
         cp -r "$dir" "$out"
       done
+
+      cp pakcsrc.default "$out"
     '';
   }
