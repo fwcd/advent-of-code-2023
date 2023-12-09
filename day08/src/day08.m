@@ -135,7 +135,7 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  long part1 = [input naiveStepsFromSuffix:@"AAA" toSuffix:@"ZZZ" withStepSize:1];
+  long part1 = [input stepsFromSuffix:@"AAA" toSuffix:@"ZZZ"];
   NSLog(@"Part 1: %ld", part1);
 
   long part2 = [input stepsFromSuffix:@"A" toSuffix:@"Z"];
