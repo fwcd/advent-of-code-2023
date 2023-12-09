@@ -19,10 +19,16 @@
 
     nativeBuildInputs = [];
 
+    patchPhase = ''
+      sed -i"" -e 's/\(\$(STACK) install\)/\1 --cabal-verbose/g' frontend/Makefile
+    '';
+
     buildPhase = ''
-      # Hack to make `security` (the Keychain CLI) visible from our Nix build,
-      # otherwise Stack will complain.
       ${if pkgs.stdenv.isDarwin then ''
+        export LC_ALL=en_US.UTF-8
+
+        # Hack to make `security` (the Keychain CLI) visible from our Nix build,
+        # otherwise Stack will complain.
         mkdir tmp
         ln -s /usr/bin/security tmp/security
         export PATH="$PWD/tmp:$PATH"
