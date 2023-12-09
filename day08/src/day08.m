@@ -58,7 +58,7 @@
   return result;
 }
 
-- (NSString *)stepFrom:(NSString *)name withInstructionIndex:(int)i {
+- (NSString *)stepOnceFrom:(NSString *)name withInstructionIndex:(int)i {
   Node *node = self.nodes[name];
   switch ([self.instructions characterAtIndex:i]) {
   case 'L': return node.left;
@@ -67,7 +67,15 @@
   }
 }
 
-- (int) stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
+- (NSString *)step:(int)times timesFrom:(NSString *)name withInstructionIndex:(int)i {
+  NSString *current = name;
+  for (int j = 0; j < (times % self.instructions.length); j++) {
+    current = [self stepOnceFrom:current withInstructionIndex:(i + j) % self.instructions.length];
+  }
+  return current;
+}
+
+- (int)naiveStepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix withStepSize:(int)stepSize fromInstructionIndex:(int)startInstructionIndex {
   int steps = 0;
   NSMutableArray<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
 
@@ -82,12 +90,42 @@
 
   while (!reachedGoal()) {
     for (int i = 0; i < current.count; i++) {
-      current[i] = [self stepFrom:current[i] withInstructionIndex:(steps % self.instructions.length)];
+      current[i] = [self step:stepSize timesFrom:current[i] withInstructionIndex:(startInstructionIndex + steps) % self.instructions.length];
     }
-    steps++;
+    steps += stepSize;
   }
 
   return steps;
+}
+
+- (int)stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
+  int baseSteps = 0;
+  int cycleLength = 1;
+
+  // Idea: Advance each node to a goal (e.g. ...Z) and keep it 'intact', i.e. on a goal node.
+  // 
+  //              ...A  ...A  ...A ...
+  //                 |     |     |
+  //              ...Z     ? \   ?
+  //                 |     |  |
+  //  cycle length n |     |  |
+  //                 |     |  |
+  //              ...Z     ?  | step in multiples of n
+  //                 |     |  |
+  //                 |     |  |
+  //                 |     |  |
+  //              ...Z  ...Z /
+
+  for (NSString *name in [self namesOfNodesWithSuffix:startSuffix]) {
+    NSString *base = [self step:baseSteps timesFrom:name withInstructionIndex:0];
+    baseSteps += [self naiveStepsFromSuffix:base toSuffix:goalSuffix withStepSize:cycleLength fromInstructionIndex:baseSteps];
+
+    NSString *cycleBase = [self step:(baseSteps + 1) timesFrom:name withInstructionIndex:0];
+    cycleLength = 1 + [self naiveStepsFromSuffix:cycleBase toSuffix:goalSuffix withStepSize:cycleLength fromInstructionIndex:baseSteps + 1];
+    baseSteps += cycleLength;
+  }
+
+  return baseSteps - cycleLength;
 }
 
 @end
@@ -103,7 +141,7 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  int part1 = [input stepsFromSuffix:@"AAA" toSuffix:@"ZZZ"];
+  int part1 = [input naiveStepsFromSuffix:@"AAA" toSuffix:@"ZZZ" withStepSize:1 fromInstructionIndex:0];
   NSLog(@"Part 1: %d", part1);
 
   int part2 = [input stepsFromSuffix:@"A" toSuffix:@"Z"];
