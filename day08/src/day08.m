@@ -1,5 +1,13 @@
 #import <Foundation/Foundation.h>
 
+long gcd(long n, long m) {
+  return m == 0 ? n : gcd(m, n % m);
+}
+
+long lcm(long n, long m) {
+  return (n * m) / gcd(n, m);
+}
+
 @interface Node : NSObject
 
 @property(nonatomic, retain) NSString *name;
@@ -69,13 +77,13 @@
 
 - (NSString *)step:(int)times timesFrom:(NSString *)name withInstructionIndex:(int)i {
   NSString *current = name;
-  for (int j = 0; j < (times % self.instructions.length); j++) {
+  for (int j = 0; j < times; j++) {
     current = [self stepOnceFrom:current withInstructionIndex:(i + j) % self.instructions.length];
   }
   return current;
 }
 
-- (int)naiveStepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix withStepSize:(int)stepSize fromInstructionIndex:(int)startInstructionIndex {
+- (int)naiveStepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix withStepSize:(int)stepSize {
   int steps = 0;
   NSMutableArray<NSString *> *current = [self namesOfNodesWithSuffix:startSuffix];
 
@@ -90,7 +98,7 @@
 
   while (!reachedGoal()) {
     for (int i = 0; i < current.count; i++) {
-      current[i] = [self step:stepSize timesFrom:current[i] withInstructionIndex:(startInstructionIndex + steps) % self.instructions.length];
+      current[i] = [self step:stepSize timesFrom:current[i] withInstructionIndex:steps];
     }
     steps += stepSize;
   }
@@ -98,34 +106,25 @@
   return steps;
 }
 
-- (int)stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
-  int baseSteps = 0;
-  int cycleLength = 1;
+- (long)stepsFromSuffix:(NSString *)startSuffix toSuffix:(NSString *)goalSuffix {
+  long cycle = 1;
 
-  // Idea: Advance each node to a goal (e.g. ...Z) and keep it 'intact', i.e. on a goal node.
-  // 
-  //              ...A  ...A  ...A ...
-  //                 |     |     |
-  //              ...Z     ? \   ?
-  //                 |     |  |
-  //  cycle length n |     |  |
-  //                 |     |  |
-  //              ...Z     ?  | step in multiples of n
-  //                 |     |  |
-  //                 |     |  |
-  //                 |     |  |
-  //              ...Z  ...Z /
+  // Apparently, the input is exceedingly nice in that the distance to each
+  // first goal node is exactly the cycle length and on a closed cycle that
+  // never crosses any other goal nodes. My original approach was trying to
+  // solve the general case, which also would have been considerably harder.
 
   for (NSString *name in [self namesOfNodesWithSuffix:startSuffix]) {
-    NSString *base = [self step:baseSteps timesFrom:name withInstructionIndex:0];
-    baseSteps += [self naiveStepsFromSuffix:base toSuffix:goalSuffix withStepSize:cycleLength fromInstructionIndex:baseSteps];
-
-    NSString *cycleBase = [self step:(baseSteps + 1) timesFrom:name withInstructionIndex:0];
-    cycleLength = 1 + [self naiveStepsFromSuffix:cycleBase toSuffix:goalSuffix withStepSize:cycleLength fromInstructionIndex:baseSteps + 1];
-    baseSteps += cycleLength;
+    int next = [self naiveStepsFromSuffix:name toSuffix:goalSuffix withStepSize:1];
+    NSString *nextNode = [self step:next timesFrom:name withInstructionIndex:0];
+    NSLog(@"%d -> %@", next, nextNode);
+    int next2 = [self naiveStepsFromSuffix:nextNode toSuffix:goalSuffix withStepSize:1];
+    NSString *nextNode2 = [self step:next2 timesFrom:name withInstructionIndex:next];
+    NSLog(@"%d -> %@", next, nextNode);
+    cycle = lcm(cycle, next);
   }
 
-  return baseSteps - cycleLength;
+  return cycle;
 }
 
 @end
@@ -141,11 +140,11 @@ int main(void) {
   NSString *rawInput = [NSString stringWithContentsOfFile:inputPath encoding:NSUTF8StringEncoding error:nil];
   Input *input = [[Input alloc] initWithRawInput:rawInput];
 
-  int part1 = [input naiveStepsFromSuffix:@"AAA" toSuffix:@"ZZZ" withStepSize:1 fromInstructionIndex:0];
-  NSLog(@"Part 1: %d", part1);
+  long part1 = [input naiveStepsFromSuffix:@"AAA" toSuffix:@"ZZZ" withStepSize:1];
+  NSLog(@"Part 1: %ld", part1);
 
-  int part2 = [input stepsFromSuffix:@"A" toSuffix:@"Z"];
-  NSLog(@"Part 2: %d", part2);
+  long part2 = [input stepsFromSuffix:@"A" toSuffix:@"Z"];
+  NSLog(@"Part 2: %ld", part2);
 
   return 0;
 }
