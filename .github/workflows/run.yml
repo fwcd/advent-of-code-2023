@@ -16,6 +16,10 @@ jobs:
         # TODO: Investigate how we could build this with GNUStep
         - os: 'ubuntu-latest'
           day: '08'
+        # TODO: Investigate why Curry fails in the post-installation fixup:
+        # https://github.com/fwcd/advent-of-code-2023/actions/runs/7153749665/job/19480549989
+        - os: 'ubuntu-latest'
+          day: '09'
 
     steps:
     - uses: actions/checkout@v4
