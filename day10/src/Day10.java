@@ -107,10 +107,9 @@ public class Day10 {
           visited.add(position);
           for (Vec2 neighbor : (Iterable<Vec2>) position.cardinalNeighbors()::iterator) {
             if (!pipe.positions.contains(neighbor)) {
-              if (!isInBounds(neighbor)) {
-                return Set.of();
+              if (isInBounds(neighbor)) {
+                stack.push(neighbor);
               }
-              stack.push(neighbor);
             }
           }
         }
@@ -134,7 +133,7 @@ public class Day10 {
       return IntStream.range(0, getHeight())
         .mapToObj(y -> IntStream.range(0, getWidth())
           .mapToObj(x -> new Vec2(x, y))
-          .map(pos -> markedPositions.contains(pos) ? "\033[31;1;4mX\033[0m" : Character.toString(get(pos)))
+          .map(pos -> markedPositions.contains(pos) ? "\033[31;1;4m" + get(pos) + "\033[0m" : Character.toString(get(pos)))
           .collect(Collectors.joining()))
         .collect(Collectors.joining("\n"));
     }
@@ -155,6 +154,7 @@ public class Day10 {
     var pipe = maze.dfsPipe(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
 
     System.out.println("Part 1: " + pipe.segments.size() / 2);
+    System.out.println(maze.toString(pipe.positions));
 
     for (int sign : List.of(1, -1)) {
       var inner = maze.dfsAllInner(pipe, sign);
