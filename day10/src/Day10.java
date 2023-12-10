@@ -58,10 +58,6 @@ public class Day10 {
       };
     }
 
-    public Stream<Vec2> getNeighborsInBounds(Vec2 pos) {
-      return Stream.concat(getPipeNeighbors(pos), getInnerNeighbors(pos)).filter(this::isInBounds);
-    }
-
     public Optional<Vec2> locate(char value) {
       for (int y = 0; y < lines.size(); y++) {
         String line = lines.get(y);
@@ -91,14 +87,21 @@ public class Day10 {
           maxDistance = Math.max(node.distance, maxDistance);
 
           if (node.isInner) {
+            System.out.println("Node: " + node.position + ", " + get(node.position));
             innerCount++;
           } else if (!node.tangent.isZero()) {
             Vec2 inwardNormal = node.tangent.rotate90();
-            queue.offer(new BfsNode(node.position.plus(inwardNormal), new Vec2(0, 0), node.distance + 1, /* isInner = */ true));
+            Vec2 neighbor = node.position.plus(inwardNormal);
+            if (get(neighbor) == '.') {
+              System.out.println(node.position + " -> " + neighbor);
+              queue.offer(new BfsNode(neighbor, new Vec2(0, 0), node.distance + 1, /* isInner = */ true));
+            }
           }
 
           int i = 0;
-          for (Vec2 neighbor : (Iterable<Vec2>) getNeighborsInBounds(node.position)::iterator) {
+          Stream<Vec2> neighbors = (node.isInner ? getInnerNeighbors(node.position) : getPipeNeighbors(node.position))
+            .filter(this::isInBounds);
+          for (Vec2 neighbor : (Iterable<Vec2>) neighbors::iterator) {
             Vec2 tangent = neighbor.minus(node.position);
             if (i % 2 != 0) {
               tangent = tangent.negate();
