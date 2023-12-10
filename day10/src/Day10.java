@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 public class Day10 {
   private static record Vec2(int x, int y) {
+    public Vec2 rotate90() { return new Vec2(-y, x); }
+
     public Vec2 offsetX(int dx) { return new Vec2(x + dx, y); }
 
     public Vec2 offsetY(int dy) { return new Vec2(x, y + dy); }
@@ -24,7 +26,7 @@ public class Day10 {
       return lines.get(pos.y).charAt(pos.x);
     }
 
-    public List<Vec2> getNeighbors(Vec2 pos) {
+    public List<Vec2> getPipeNeighbors(Vec2 pos) {
       switch (get(pos)) {
       case '|': return List.of(pos.offsetY(-1), pos.offsetY(1));
       case '-': return List.of(pos.offsetX(-1), pos.offsetX(1));
@@ -32,13 +34,9 @@ public class Day10 {
       case 'J': return List.of(pos.offsetY(-1), pos.offsetX(-1));
       case '7': return List.of(pos.offsetY(1), pos.offsetX(-1));
       case 'F': return List.of(pos.offsetY(1), pos.offsetX(1));
-      case '.':
-        return pos.cardinalNeighbors()
-          .filter(n -> get(n) == '.')
-          .toList();
       case 'S':
         return pos.cardinalNeighbors()
-          .filter(n -> getNeighbors(n).contains(pos))
+          .filter(n -> getPipeNeighbors(n).contains(pos))
           .toList();
       default: return List.of();
       }
@@ -58,7 +56,9 @@ public class Day10 {
 
     private static record BfsNode(Vec2 position, int distance) {}
 
-    public int bfsMaxDistance(Vec2 start) {
+    private static record BfsResult(Set<Vec2> visited, int maxDistance) {}
+
+    public BfsResult bfs(Vec2 start) {
       Deque<BfsNode> queue = new ArrayDeque<>(List.of(new BfsNode(start, 0)));
       Set<Vec2> visited = new HashSet<>();
       int maxDistance = 0;
@@ -68,13 +68,13 @@ public class Day10 {
         if (!visited.contains(node.position)) {
           visited.add(node.position);
           maxDistance = Math.max(node.distance, maxDistance);
-          for (Vec2 neighbor : getNeighbors(node.position)) {
+          for (Vec2 neighbor : getPipeNeighbors(node.position)) {
             queue.offer(new BfsNode(neighbor, node.distance + 1));
           }
         }
       }
 
-      return maxDistance;
+      return new BfsResult(visited, maxDistance);
     }
   }
 
@@ -84,9 +84,10 @@ public class Day10 {
       System.exit(1);
     }
 
-    Maze maze = new Maze(Files.readAllLines(Paths.get(args[0])));
-    int part1 = maze.bfsMaxDistance(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
+    var maze = new Maze(Files.readAllLines(Paths.get(args[0])));
+    var bfsResult = maze.bfs(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
 
+    int part1 = bfsResult.maxDistance;
     System.out.println("Part 1: " + part1);
   }
 }
