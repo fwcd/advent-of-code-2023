@@ -17,7 +17,9 @@ public class Day10 {
   private static record Vec2(int x, int y) {
     public boolean isZero() { return x == 0 && y == 0; }
 
-    public Vec2 rotate90() { return new Vec2(-y, x); }
+    public Vec2 rotateCCW() { return new Vec2(-y, x); }
+
+    public Vec2 rotateCW() { return new Vec2(y, -x); }
     
     public Vec2 scale(int factor) { return new Vec2(x * factor, y * factor); }
 
@@ -93,9 +95,42 @@ public class Day10 {
       return new Pipe(segments, visited);
     }
 
-    public Set<Vec2> dfsInner(Vec2 start, Pipe pipe) {
-      // TODO
-      return Set.of();
+    private Set<Vec2> dfsInner(Vec2 start, Pipe pipe) {
+      if (pipe.positions.contains(start)) {
+        return Set.of();
+      }
+
+      Set<Vec2> visited = new HashSet<>();
+      Deque<Vec2> stack = new ArrayDeque<>(List.of(start));
+
+      while (!stack.isEmpty()) {
+        Vec2 position = stack.pop();
+        if (!visited.contains(position)) {
+          visited.add(position);
+          for (Vec2 neighbor : (Iterable<Vec2>) position.cardinalNeighbors()::iterator) {
+            if (!pipe.positions.contains(neighbor)) {
+              if (!isInBounds(neighbor)) {
+                return Set.of();
+              }
+              stack.push(neighbor);
+            }
+          }
+        }
+      }
+
+      return visited;
+    }
+
+    public Set<Vec2> dfsAllInner(Pipe pipe) {
+      Set<Vec2> visited = new HashSet<>();
+
+      for (PipeSegment segment : pipe.segments) {
+        for (Vec2 normal : List.of(segment.tangent.rotateCCW(), segment.tangent.rotateCW())) {
+          visited.addAll(dfsInner(segment.position.plus(normal), pipe));
+        }
+      }
+      
+      return visited;
     }
 
     public String toString(Set<Vec2> markedPositions) {
@@ -121,7 +156,10 @@ public class Day10 {
 
     var maze = new Maze(Files.readAllLines(Paths.get(args[0])));
     var pipe = maze.dfsPipe(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
+    var inner = maze.dfsAllInner(pipe);
 
+    System.out.println(maze.toString(inner));
     System.out.println("Part 1: " + pipe.segments.size() / 2);
+    System.out.println("Part 2: " + inner.size());
   }
 }
