@@ -93,13 +93,16 @@ public class Day10 {
       return new Pipe(segments, visited);
     }
 
-    private Set<Vec2> dfsInner(Vec2 start, Pipe pipe) {
+    public static record NonPipe(Set<Vec2> positions, boolean hitBounds) {}
+
+    private NonPipe dfsNonPipe(Vec2 start, Pipe pipe) {
       if (pipe.positions.contains(start)) {
-        return Set.of();
+        return new NonPipe(Set.of(), false);
       }
 
       Set<Vec2> visited = new HashSet<>();
       Deque<Vec2> stack = new ArrayDeque<>(List.of(start));
+      boolean hitBounds = false;
 
       while (!stack.isEmpty()) {
         Vec2 position = stack.pop();
@@ -109,24 +112,29 @@ public class Day10 {
             if (!pipe.positions.contains(neighbor)) {
               if (isInBounds(neighbor)) {
                 stack.push(neighbor);
+              } else {
+                hitBounds = true;
               }
             }
           }
         }
       }
 
-      return visited;
+      return new NonPipe(visited, hitBounds);
     }
 
-    public Set<Vec2> dfsAllInner(Pipe pipe, int sign) {
+    public NonPipe dfsAllNonPipe(Pipe pipe, int sign) {
       Set<Vec2> visited = new HashSet<>();
+      boolean hitBounds = false;
 
       for (PipeSegment segment : pipe.segments) {
         Vec2 normal = segment.tangent.rotateCCW().scale(sign);
-        visited.addAll(dfsInner(segment.position.plus(normal), pipe));
+        NonPipe result = dfsNonPipe(segment.position.plus(normal), pipe);
+        visited.addAll(result.positions);
+        hitBounds |= result.hitBounds;
       }
       
-      return visited;
+      return new NonPipe(visited, hitBounds);
     }
 
     public String toString(Set<Vec2> markedPositions) {
@@ -157,9 +165,11 @@ public class Day10 {
     System.out.println(maze.toString(pipe.positions));
 
     for (int sign : List.of(1, -1)) {
-      var inner = maze.dfsAllInner(pipe, sign);
-      System.out.println(maze.toString(inner));
-      System.out.println("Part 2 candidate: " + inner.size());
+      var nonPipe = maze.dfsAllNonPipe(pipe, sign);
+      if (!nonPipe.hitBounds) {
+        System.out.println(maze.toString(nonPipe.positions));
+        System.out.println("Part 2: " + nonPipe.positions.size());
+      }
     }
   }
 }
