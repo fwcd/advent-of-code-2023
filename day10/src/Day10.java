@@ -26,20 +26,28 @@ public class Day10 {
       return lines.get(pos.y).charAt(pos.x);
     }
 
-    public List<Vec2> getPipeNeighbors(Vec2 pos) {
-      switch (get(pos)) {
-      case '|': return List.of(pos.offsetY(-1), pos.offsetY(1));
-      case '-': return List.of(pos.offsetX(-1), pos.offsetX(1));
-      case 'L': return List.of(pos.offsetY(-1), pos.offsetX(1));
-      case 'J': return List.of(pos.offsetY(-1), pos.offsetX(-1));
-      case '7': return List.of(pos.offsetY(1), pos.offsetX(-1));
-      case 'F': return List.of(pos.offsetY(1), pos.offsetX(1));
-      case 'S':
-        return pos.cardinalNeighbors()
-          .filter(n -> getPipeNeighbors(n).contains(pos))
-          .toList();
-      default: return List.of();
-      }
+    public Stream<Vec2> getPipeNeighbors(Vec2 pos) {
+      return switch (get(pos)) {
+        case '|' -> Stream.of(pos.offsetY(-1), pos.offsetY(1));
+        case '-' -> Stream.of(pos.offsetX(-1), pos.offsetX(1));
+        case 'L' -> Stream.of(pos.offsetY(-1), pos.offsetX(1));
+        case 'J' -> Stream.of(pos.offsetY(-1), pos.offsetX(-1));
+        case '7' -> Stream.of(pos.offsetY(1), pos.offsetX(-1));
+        case 'F' -> Stream.of(pos.offsetY(1), pos.offsetX(1));
+        case 'S' -> pos.cardinalNeighbors().filter(n -> getPipeNeighbors(n).anyMatch(pn -> pn.equals(pos)));
+        default -> Stream.empty();
+      };
+    }
+
+    public Stream<Vec2> getInnerNeighbors(Vec2 pos) {
+      return switch (get(pos)) {
+        case '.' -> pos.cardinalNeighbors().filter(n -> get(pos) == '.');
+        default -> Stream.empty();
+      };
+    }
+
+    public Stream<Vec2> getNeighbors(Vec2 pos) {
+      return Stream.concat(getPipeNeighbors(pos), getInnerNeighbors(pos));
     }
 
     public Optional<Vec2> locate(char value) {
@@ -68,9 +76,9 @@ public class Day10 {
         if (!visited.contains(node.position)) {
           visited.add(node.position);
           maxDistance = Math.max(node.distance, maxDistance);
-          for (Vec2 neighbor : getPipeNeighbors(node.position)) {
+          getNeighbors(node.position).forEach(neighbor -> {
             queue.offer(new BfsNode(neighbor, node.distance + 1));
-          }
+          });
         }
       }
 
