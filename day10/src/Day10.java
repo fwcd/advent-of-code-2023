@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 
 public class Day10 {
   private static record Vec2(int x, int y) {
-    public boolean isZero() { return x == 0 && y == 0; }
-
     public Vec2 rotateCCW() { return new Vec2(-y, x); }
 
     public Vec2 rotateCW() { return new Vec2(y, -x); }
@@ -121,13 +119,12 @@ public class Day10 {
       return visited;
     }
 
-    public Set<Vec2> dfsAllInner(Pipe pipe) {
+    public Set<Vec2> dfsAllInner(Pipe pipe, int sign) {
       Set<Vec2> visited = new HashSet<>();
 
       for (PipeSegment segment : pipe.segments) {
-        for (Vec2 normal : List.of(segment.tangent.rotateCCW(), segment.tangent.rotateCW())) {
-          visited.addAll(dfsInner(segment.position.plus(normal), pipe));
-        }
+        Vec2 normal = segment.tangent.rotateCCW().scale(sign);
+        visited.addAll(dfsInner(segment.position.plus(normal), pipe));
       }
       
       return visited;
@@ -156,10 +153,13 @@ public class Day10 {
 
     var maze = new Maze(Files.readAllLines(Paths.get(args[0])));
     var pipe = maze.dfsPipe(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
-    var inner = maze.dfsAllInner(pipe);
 
-    System.out.println(maze.toString(inner));
     System.out.println("Part 1: " + pipe.segments.size() / 2);
-    System.out.println("Part 2: " + inner.size());
+
+    for (int sign : List.of(1, -1)) {
+      var inner = maze.dfsAllInner(pipe, sign);
+      System.out.println(maze.toString(inner));
+      System.out.println("Part 2 candidate: " + inner.size());
+    }
   }
 }
