@@ -15,6 +15,8 @@ public class Day10 {
     public Position offsetX(int dx) { return new Position(x + dx, y); }
 
     public Position offsetY(int dy) { return new Position(x, y + dy); }
+
+    public Stream<Position> cardinalNeighbors() { return Stream.of(offsetY(-1), offsetY(1), offsetX(-1), offsetX(1)); }
   }
 
   public static record Maze(List<String> lines) {
@@ -31,7 +33,7 @@ public class Day10 {
       case '7': return List.of(pos.offsetY(1), pos.offsetX(-1));
       case 'F': return List.of(pos.offsetY(1), pos.offsetX(1));
       case 'S':
-        return Stream.of(pos.offsetY(-1), pos.offsetY(1), pos.offsetX(-1), pos.offsetX(1))
+        return pos.cardinalNeighbors()
           .filter(n -> getNeighbors(n).contains(pos))
           .toList();
       default: return List.of();
