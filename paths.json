@@ -71,5 +71,12 @@
       "name": "Curry"
     },
     "path": "day09/src/Day09.curry"
+  },
+  {
+    "lang": {
+      "codemirror": "java",
+      "name": "Java"
+    },
+    "path": "day10/src/Day10.java"
   }
 ]
