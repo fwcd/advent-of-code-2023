@@ -93,40 +93,24 @@ public class Day10 {
       return new Pipe(segments, visited);
     }
 
-    private Set<Vec2> dfsInner(Vec2 start, Pipe pipe) {
-      if (pipe.positions.contains(start)) {
-        return Set.of();
-      }
-
-      Set<Vec2> visited = new HashSet<>();
-      Deque<Vec2> stack = new ArrayDeque<>(List.of(start));
-
-      while (!stack.isEmpty()) {
-        Vec2 position = stack.pop();
-        if (!visited.contains(position)) {
-          visited.add(position);
-          for (Vec2 neighbor : (Iterable<Vec2>) position.cardinalNeighbors()::iterator) {
-            if (!pipe.positions.contains(neighbor)) {
-              if (isInBounds(neighbor)) {
-                stack.push(neighbor);
-              }
+    public Set<Vec2> findInner(Pipe pipe) {
+      // Use a scanline/polygon filling-style approach
+      Set<Vec2> inner = new HashSet<>();
+      for (int y = 0; y < getHeight(); y++) {
+        boolean isInside = false;
+        for (int x = 0; x < getWidth(); x++) {
+          Vec2 position = new Vec2(x, y);
+          char value = get(position);
+          if (pipe.positions.contains(position)) {
+            if (value != '-' && !(isInside && (value == 'F' || value == 'L')) && !(!isInside && (value == 'J' || value == '7'))) {
+              isInside = !isInside;
             }
+          } else if (isInside) {
+            inner.add(position);
           }
         }
       }
-
-      return visited;
-    }
-
-    public Set<Vec2> dfsAllInner(Pipe pipe, int sign) {
-      Set<Vec2> visited = new HashSet<>();
-
-      for (PipeSegment segment : pipe.segments) {
-        Vec2 normal = segment.tangent.rotateCCW().scale(sign);
-        visited.addAll(dfsInner(segment.position.plus(normal), pipe));
-      }
-      
-      return visited;
+      return inner;
     }
 
     public String toString(Set<Vec2> markedPositions) {
@@ -152,14 +136,10 @@ public class Day10 {
 
     var maze = new Maze(Files.readAllLines(Paths.get(args[0])));
     var pipe = maze.dfsPipe(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
+    var inner = maze.findInner(pipe);
 
+    System.out.println(maze.toString(inner));
     System.out.println("Part 1: " + pipe.segments.size() / 2);
-    System.out.println(maze.toString(pipe.positions));
-
-    for (int sign : List.of(1, -1)) {
-      var inner = maze.dfsAllInner(pipe, sign);
-      System.out.println(maze.toString(inner));
-      System.out.println("Part 2 candidate: " + inner.size());
-    }
+    System.out.println("Part 2: " + inner.size());
   }
 }
