@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 
 public class Day10 {
   private static record Vec2(int x, int y) {
+    public boolean isZero() { return x == 0 && y == 0; }
+
     public Vec2 rotate90() { return new Vec2(-y, x); }
     
     public Vec2 scale(int factor) { return new Vec2(x * factor, y * factor); }
@@ -68,66 +70,32 @@ public class Day10 {
       return Optional.empty();
     }
 
-    private static enum BfsNodeType { START, PIPE, INNER }
+    public static record PipeSegment(Vec2 position, Vec2 tangent) {}
 
-    private static record BfsNode(Vec2 position, Vec2 tangent, int tangentSign, int distance, BfsNodeType type) {}
+    public static record Pipe(List<PipeSegment> segments, Set<Vec2> positions) {}
 
-    public static record BfsResult(Set<Vec2> visited, int maxDistance, Set<Vec2> inner) {}
-
-    public BfsResult bfs(Vec2 start) {
-      Deque<BfsNode> queue = new ArrayDeque<>(List.of(new BfsNode(start, new Vec2(0, 0), 1, 0, BfsNodeType.START)));
+    public Pipe dfsPipe(Vec2 start) {
       Set<Vec2> visited = new HashSet<>();
-      Set<Vec2> innerCandidates = new HashSet<>();
-      int maxDistance = 0;
+      List<PipeSegment> segments = new ArrayList<>();
+      Deque<PipeSegment> stack = new ArrayDeque<>(List.of(new PipeSegment(start, new Vec2(0, 0))));
 
-      while (!queue.isEmpty()) {
-        BfsNode node = queue.poll();
-        if (!visited.contains(node.position)) {
-          visited.add(node.position);
-          maxDistance = Math.max(node.distance, maxDistance);
-
-          switch (node.type) {
-          case BfsNodeType.INNER:
-            innerCandidates.add(node.position);
-            break;
-          case BfsNodeType.PIPE:
-            Vec2 inwardNormal = node.tangent.rotate90();
-            Vec2 neighbor = node.position.plus(inwardNormal);
-            if (get(neighbor) == '.') {
-              queue.offer(new BfsNode(neighbor, new Vec2(0, 0), node.tangentSign, node.distance + 1, BfsNodeType.INNER));
-            }
-            break;
-          default:
-            break;
-          }
-
-          int i = 0;
-          Stream<Vec2> neighbors = (
-            node.type == BfsNodeType.INNER
-              ? node.position.cardinalNeighbors()
-              : getPipeNeighbors(node.position)
-          ).filter(this::isInBounds);
-
-          for (Vec2 neighbor : (Iterable<Vec2>) neighbors::iterator) {
-            int tangentSign = node.tangentSign;
-            if (node.type == BfsNodeType.START && i % 2 == 1) {
-              tangentSign *= -1;
-            }
-            Vec2 tangent = neighbor.minus(node.position).scale(tangentSign);
-            BfsNodeType type = node.type == BfsNodeType.START ? BfsNodeType.PIPE : node.type;
-            if (node.type == BfsNodeType.PIPE && innerCandidates.contains(neighbor)) {
-              innerCandidates.remove(neighbor);
-              visited.remove(neighbor);
-            }
-            queue.offer(new BfsNode(neighbor, tangent, tangentSign, node.distance + 1, type));
-            i++;
+      while (!stack.isEmpty()) {
+        PipeSegment segment = stack.pop();
+        if (!visited.contains(segment.position)) {
+          visited.add(segment.position);
+          segments.add(segment);
+          for (Vec2 neighbor : (Iterable<Vec2>) getPipeNeighbors(segment.position)::iterator) {
+            stack.push(new PipeSegment(neighbor, neighbor.minus(segment.position)));
           }
         }
       }
 
-      System.out.println(toString(innerCandidates));
+      return new Pipe(segments, visited);
+    }
 
-      return new BfsResult(visited, maxDistance, innerCandidates);
+    public Set<Vec2> dfsInner(Vec2 start, Pipe pipe) {
+      // TODO
+      return Set.of();
     }
 
     public String toString(Set<Vec2> markedPositions) {
@@ -152,9 +120,8 @@ public class Day10 {
     }
 
     var maze = new Maze(Files.readAllLines(Paths.get(args[0])));
-    var bfsResult = maze.bfs(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
+    var pipe = maze.dfsPipe(maze.locate('S').orElseThrow(() -> new NoSuchElementException("No start found")));
 
-    System.out.println("Part 1: " + bfsResult.maxDistance);
-    System.out.println("Part 2: " + bfsResult.inner.size());
+    System.out.println("Part 1: " + pipe.segments.size() / 2);
   }
 }
