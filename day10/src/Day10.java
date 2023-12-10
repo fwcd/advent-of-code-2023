@@ -12,11 +12,9 @@ import java.util.stream.Stream;
 
 public class Day10 {
   private static record Vec2(int x, int y) {
-    public boolean isZero() { return x == 0 && y == 0; }
-
     public Vec2 rotate90() { return new Vec2(-y, x); }
     
-    public Vec2 negate() { return new Vec2(-x, -y); }
+    public Vec2 scale(int factor) { return new Vec2(x * factor, y * factor); }
 
     public Vec2 plus(Vec2 rhs) { return new Vec2(x + rhs.x, y + rhs.y); }
 
@@ -35,7 +33,7 @@ public class Day10 {
     }
 
     public char get(Vec2 pos) {
-      return lines.get(pos.y).charAt(pos.x);
+      return isInBounds(pos) ? lines.get(pos.y).charAt(pos.x) : ' ';
     }
 
     public Stream<Vec2> getPipeNeighbors(Vec2 pos) {
@@ -46,14 +44,14 @@ public class Day10 {
         case 'J' -> Stream.of(pos.offsetY(-1), pos.offsetX(-1));
         case '7' -> Stream.of(pos.offsetY(1), pos.offsetX(-1));
         case 'F' -> Stream.of(pos.offsetY(1), pos.offsetX(1));
-        case 'S' -> pos.cardinalNeighbors().filter(n -> isInBounds(n) && getPipeNeighbors(n).anyMatch(pn -> pn.equals(pos)));
+        case 'S' -> pos.cardinalNeighbors().filter(n -> getPipeNeighbors(n).anyMatch(pn -> pn.equals(pos)));
         default -> Stream.empty();
       };
     }
 
     public Stream<Vec2> getInnerNeighbors(Vec2 pos) {
       return switch (get(pos)) {
-        case '.' -> pos.cardinalNeighbors().filter(n -> isInBounds(pos) && get(pos) == '.');
+        case '.' -> pos.cardinalNeighbors().filter(n -> get(n) == '.');
         default -> Stream.empty();
       };
     }
@@ -70,12 +68,14 @@ public class Day10 {
       return Optional.empty();
     }
 
-    private static record BfsNode(Vec2 position, Vec2 tangent, int distance, boolean isInner) {}
+    private static enum BfsNodeType { START, PIPE, INNER }
+
+    private static record BfsNode(Vec2 position, Vec2 tangent, int tangentSign, int distance, BfsNodeType type) {}
 
     private static record BfsResult(Set<Vec2> visited, int maxDistance, int innerCount) {}
 
     public BfsResult bfs(Vec2 start) {
-      Deque<BfsNode> queue = new ArrayDeque<>(List.of(new BfsNode(start, new Vec2(0, 0), 0, /* isInner = */ false)));
+      Deque<BfsNode> queue = new ArrayDeque<>(List.of(new BfsNode(start, new Vec2(0, 0), 1, 0, BfsNodeType.START)));
       Set<Vec2> visited = new HashSet<>();
       int maxDistance = 0;
       int innerCount = 0;
@@ -86,27 +86,36 @@ public class Day10 {
           visited.add(node.position);
           maxDistance = Math.max(node.distance, maxDistance);
 
-          if (node.isInner) {
-            System.out.println("Node: " + node.position + ", " + get(node.position));
+          switch (node.type) {
+          case BfsNodeType.INNER:
             innerCount++;
-          } else if (!node.tangent.isZero()) {
+            break;
+          case BfsNodeType.PIPE:
             Vec2 inwardNormal = node.tangent.rotate90();
             Vec2 neighbor = node.position.plus(inwardNormal);
             if (get(neighbor) == '.') {
-              System.out.println(node.position + " -> " + neighbor);
-              queue.offer(new BfsNode(neighbor, new Vec2(0, 0), node.distance + 1, /* isInner = */ true));
+              queue.offer(new BfsNode(neighbor, new Vec2(0, 0), node.tangentSign, node.distance + 1, BfsNodeType.INNER));
             }
+            break;
+          default:
+            break;
           }
 
           int i = 0;
-          Stream<Vec2> neighbors = (node.isInner ? getInnerNeighbors(node.position) : getPipeNeighbors(node.position))
-            .filter(this::isInBounds);
+          Stream<Vec2> neighbors = (
+            node.type == BfsNodeType.INNER
+              ? getInnerNeighbors(node.position)
+              : getPipeNeighbors(node.position)
+          ).filter(this::isInBounds);
+
           for (Vec2 neighbor : (Iterable<Vec2>) neighbors::iterator) {
-            Vec2 tangent = neighbor.minus(node.position);
-            if (i % 2 != 0) {
-              tangent = tangent.negate();
+            int tangentSign = node.tangentSign;
+            if (node.type == BfsNodeType.START && i % 2 == 0) {
+              tangentSign *= -1;
             }
-            queue.offer(new BfsNode(neighbor, tangent, node.distance + 1, node.isInner));
+            Vec2 tangent = neighbor.minus(node.position).scale(tangentSign);
+            BfsNodeType type = node.type == BfsNodeType.START ? BfsNodeType.PIPE : node.type;
+            queue.offer(new BfsNode(neighbor, tangent, tangentSign, node.distance + 1, type));
             i++;
           }
         }
