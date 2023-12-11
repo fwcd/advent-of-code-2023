@@ -70,7 +70,8 @@
       "codemirror": "haskell",
       "name": "Curry"
     },
-    "path": "day09/src/Day09.curry"
+    "path": "day09/src/Day09.curry",
+    "completed": true
   },
   {
     "lang": {

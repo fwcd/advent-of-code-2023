@@ -14,7 +14,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 06: [LLVM IR](day06/src/day06.ll)
 - [x] Day 07: [Prolog](day07/src/day07.pl)
 - [x] Day 08: [Objective-C](day08/src/day08.m)
-- [ ] Day 09: [Curry](day09/src/Day09.curry)
+- [x] Day 09: [Curry](day09/src/Day09.curry)
 - [x] Day 10: [Java](day10/src/Day10.java)
 
 ## Packaging
