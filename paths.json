@@ -80,5 +80,12 @@
     },
     "path": "day10/src/Day10.java",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "crystal",
+      "name": "Crystal"
+    },
+    "path": "day11/src/day11.cx"
   }
 ]
