@@ -88,5 +88,12 @@
     },
     "path": "day11/src/day11.cr",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "coffeescript",
+      "name": "MoonScript"
+    },
+    "path": "day12/src/day12.moon"
   }
 ]
