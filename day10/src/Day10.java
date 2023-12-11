@@ -15,14 +15,6 @@ import java.util.stream.Stream;
 
 public class Day10 {
   private static record Vec2(int x, int y) {
-    public Vec2 rotateCCW() { return new Vec2(-y, x); }
-
-    public Vec2 rotateCW() { return new Vec2(y, -x); }
-    
-    public Vec2 scale(int factor) { return new Vec2(x * factor, y * factor); }
-
-    public Vec2 plus(Vec2 rhs) { return new Vec2(x + rhs.x, y + rhs.y); }
-
     public Vec2 minus(Vec2 rhs) { return new Vec2(x - rhs.x, y - rhs.y); }
 
     public Vec2 offsetX(int dx) { return new Vec2(x + dx, y); }
