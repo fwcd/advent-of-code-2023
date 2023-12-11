@@ -86,6 +86,6 @@
       "codemirror": "crystal",
       "name": "Crystal"
     },
-    "path": "day11/src/day11.cx"
+    "path": "day11/src/day11.cr"
   }
 ]
