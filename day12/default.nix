@@ -24,7 +24,7 @@
 
       cat <<EOF > $out/bin/day12
       #!/bin/bash
-      exec "${pkgs.luajit.outPath}/bin/luajit" "\$(dirname "\$0")/../share/day12.ljbc"
+      exec "${pkgs.luajit.outPath}/bin/luajit" "\$(dirname "\$0")/../share/day12.ljbc" "\$@"
       EOF
 
       chmod +x $out/bin/day12
