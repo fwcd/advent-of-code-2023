@@ -10,6 +10,9 @@ extrapolate = extrapolate' . reverse
     diffs :: [Int] -> [Int]
     diffs xs = zipWith (-) xs (drop 1 xs)
 
+result :: [[Int]] -> Int
+result = foldr (+) 0 . (extrapolate <$>)
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -20,7 +23,8 @@ main = do
       -- and nondeterminism (which would lead to bogus results and end-of-stream
       -- errors).
       let input = (read <$>) . words <$> (lines $!! raw)
-          next = extrapolate <$> input
-          part1 = foldr (+) 0 next
+          part1 = result input
+          part2 = result $ reverse <$> input
       putStrLn $ "Part 1: " ++ show part1
+      putStrLn $ "Part 2: " ++ show part2
     _ -> putStrLn "Usage: day09 <input>"
