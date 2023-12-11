@@ -45,8 +45,8 @@ public class Day10 {
       return isInBounds(pos) ? lines.get(pos.y).charAt(pos.x) : ' ';
     }
 
-    public Stream<Vec2> getPipeNeighbors(Vec2 pos) {
-      return switch (get(pos)) {
+    public Stream<Vec2> getPipeNeighbors(Vec2 pos, char value) {
+      return switch (value) {
         case '|' -> Stream.of(pos.offsetY(-1), pos.offsetY(1));
         case '-' -> Stream.of(pos.offsetX(-1), pos.offsetX(1));
         case 'L' -> Stream.of(pos.offsetY(-1), pos.offsetX(1));
@@ -56,6 +56,25 @@ public class Day10 {
         case 'S' -> pos.cardinalNeighbors().filter(n -> getPipeNeighbors(n).anyMatch(pn -> pn.equals(pos)));
         default -> Stream.empty();
       };
+    }
+
+    public Stream<Vec2> getPipeNeighbors(Vec2 pos) {
+      return getPipeNeighbors(pos, get(pos));
+    }
+
+    public char getEffectiveValue(Vec2 pos) {
+      char value = get(pos);
+      if (value != 'S') {
+        return value;
+      }
+
+      Set<Vec2> neighbors = getPipeNeighbors(pos).collect(Collectors.toSet());
+      for (char c : "|-LJ7F".toCharArray()) {
+        if (getPipeNeighbors(pos, c).collect(Collectors.toSet()).equals(neighbors)) {
+          return c;
+        }
+      }
+      throw new IllegalStateException("Could not find an effective value for " + pos);
     }
 
     public Optional<Vec2> locate(char value) {
@@ -94,19 +113,26 @@ public class Day10 {
     }
 
     public Set<Vec2> findInner(Pipe pipe) {
-      // Use a scanline/polygon filling-style approach
+      // Use a scanline/polygon filling-style approach, iterating over the
+      // diagonals to avoid parity issues e.g. with horizontal lines.
       Set<Vec2> inner = new HashSet<>();
-      for (int y = 0; y < getHeight(); y++) {
+      int width = getWidth();
+      int height = getHeight();
+      for (int i = 0; i < width + height - 1; i++) {
         boolean isInside = false;
-        for (int x = 0; x < getWidth(); x++) {
+        for (int x = 0; x <= i; x++) {
+          int y = i - x;
           Vec2 position = new Vec2(x, y);
-          char value = get(position);
-          if (pipe.positions.contains(position)) {
-            if (value != '-' && !(isInside && (value == 'F' || value == 'L')) && !(!isInside && (value == 'J' || value == '7'))) {
-              isInside = !isInside;
+          if (isInBounds(position)) {
+            if (pipe.positions.contains(position)) {
+              char value = getEffectiveValue(position);
+              // Skip corners (they would change the parity, i.e. isInside, twice)
+              if (value != 'F' && value != 'J') {
+                isInside = !isInside;
+              }
+            } else if (isInside) {
+              inner.add(position);
             }
-          } else if (isInside) {
-            inner.add(position);
           }
         }
       }
