@@ -42,16 +42,19 @@ def manhattan(pos1, pos2)
   pos1.zip(pos2).map { |ps| (ps[1] - ps[0]).abs }.sum
 end
 
+def solve(positions)
+  positions.map_with_index do |pos1, i|
+    positions[(i + 1)..].map_with_index do |pos2, j|
+      manhattan(pos1, pos2)
+    end.sum
+  end.sum
+end
+
 path = ARGV[0]
 lines = File.read_lines(path)
 
 lines = expand_2d(lines)
 positions = find_galaxies(lines)
-
-part1 = positions.map_with_index do |pos1, i|
-  positions[(i + 1)..].map_with_index do |pos2, j|
-    manhattan(pos1, pos2)
-  end.sum
-end.sum
+part1 = solve(positions)
 
 puts "Part 1: #{part1}"
