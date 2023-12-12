@@ -8,6 +8,12 @@ parse = (line) ->
   lengths = [tonumber rawLength for rawLength in string.gmatch rawLengths, '%d+']
   {pattern, lengths}
 
+sum = (values) -> 
+  result = 0
+  for value in *values
+    result += value
+  result
+
 replace = (str, i, replacement) ->
   "#{string.sub(str, 1, i - 1)}#{replacement}#{string.sub(str, i + 1)}"
 
@@ -37,18 +43,25 @@ isPotentialSolution = (pattern, lengths) ->
       return false
   #reverseLengths == 0
 
-solve = (pattern, lengths, i = 0) ->
+solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
+  if damaged > maxDamaged
+    return 0
   if i <= #pattern
     if string.sub(pattern, i, i) == '?'
-      n = solve (replace pattern, i, '.'), lengths, i + 1
-      m = solve (replace pattern, i, '#'), lengths, i + 1
+      n = solveImpl (replace pattern, i, '.'), lengths, damaged, maxDamaged, i + 1
+      m = solveImpl (replace pattern, i, '#'), lengths, damaged + 1, maxDamaged, i + 1
       n + m
     else
-      solve pattern, lengths, i + 1
-  elseif isPotentialSolution pattern, lengths
+      solveImpl pattern, lengths, damaged, maxDamaged, i + 1
+  elseif damaged == maxDamaged and isPotentialSolution pattern, lengths
     1
   else
     0
+
+solve = (pattern, lengths) ->
+  _, damaged = string.gsub pattern, '#', ''
+  maxDamaged = sum lengths
+  solveImpl pattern, lengths, damaged, maxDamaged, 0
 
 if #arg < 1
   print 'Usage: day12 <input>'
