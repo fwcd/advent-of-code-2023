@@ -1,14 +1,14 @@
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation {
+{ stdenv, luajit, luajitPackages }:
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day12";
     src = ./src;
 
     buildInputs = [
-      pkgs.luajit
+      luajit
     ];
 
     nativeBuildInputs = [
-      pkgs.luajitPackages.moonscript
+      luajitPackages.moonscript
     ];
 
     buildPhase = ''
@@ -24,7 +24,7 @@
 
       cat <<EOF > $out/bin/day12
       #!/bin/bash
-      exec "${pkgs.luajit.outPath}/bin/luajit" "\$(dirname "\$0")/../share/day12.ljbc" "\$@"
+      exec "${luajit.outPath}/bin/luajit" "\$(dirname "\$0")/../share/day12.ljbc" "\$@"
       EOF
 
       chmod +x $out/bin/day12

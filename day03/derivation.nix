@@ -1,10 +1,10 @@
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation {
+{ stdenv, marst }:
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day03";
     src = ./src;
 
     buildInputs = [
-      pkgs.marst
+      marst
     ];
 
     buildPhase = ''

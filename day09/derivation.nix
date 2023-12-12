@@ -1,8 +1,8 @@
 {
-  pkgs ? import <nixpkgs> {},
-  pakcs ? import ./pakcs {}
+  stdenv,
+  pakcs,
 }:
-  pkgs.stdenv.mkDerivation {
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day09";
     src = ./src;
 

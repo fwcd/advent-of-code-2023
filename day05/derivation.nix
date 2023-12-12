@@ -1,8 +1,5 @@
-{
-  pkgs ? import <nixpkgs> {},
-  b-compiler ? import ./b-compiler {}
-}:
-  pkgs.stdenv.mkDerivation {
+{ stdenv, b-compiler }:
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day05";
     src = ./src;
 

@@ -1,13 +1,13 @@
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation {
+{ stdenv, darwin, clang, gnustep }:
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day08";
     src = ./src;
 
-    buildInputs = if pkgs.stdenv.isDarwin then [
-      pkgs.darwin.apple_sdk.frameworks.Foundation
+    buildInputs = if stdenv.isDarwin then [
+      darwin.apple_sdk.frameworks.Foundation
     ] else [
-      pkgs.clang
-      pkgs.gnustep.base # TODO: Investigate how to make this work on Linux
+      clang
+      gnustep.base # TODO: Investigate how to make this work on Linux
     ];
 
     buildPhase = ''

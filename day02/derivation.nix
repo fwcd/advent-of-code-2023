@@ -1,11 +1,11 @@
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation {
+{ stdenv, gmp, gnu-cobol }:
+  stdenv.mkDerivation {
     name = "advent-of-code-2023-day02";
     src = ./src;
 
     buildInputs = [
-      pkgs.gmp
-      (pkgs.gnu-cobol.overrideAttrs (_: { doInstallCheck = false; })).bin
+      gmp
+      (gnu-cobol.overrideAttrs (_: { doInstallCheck = false; })).bin
     ];
 
     buildPhase = ''

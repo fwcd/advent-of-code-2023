@@ -1,19 +1,19 @@
 # This is the B compiler we are using: https://cpjsmith.uk/b
 # It compiles B programs to a bytecode that closely mirrors Ken Thompson's
 # reference machine and ships an interpreter for this bytecode.
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation rec {
+{ stdenv, fetchurl, m4, flex, bison }:
+  stdenv.mkDerivation rec {
     name = "b-compiler";
     version = "1.1";
-    src = pkgs.fetchurl {
+    src = fetchurl {
       url = "https://cpjsmith.uk/downloads/b/b-${version}.tar.gz";
       sha256 = "bd1ff5ca12dbfa82ffe966ac248f9c939f4ca5493734f6dc836679aa49a9cb1a";
     };
 
     nativeBuildInputs = [
-      pkgs.m4
-      pkgs.flex
-      pkgs.bison
+      m4
+      flex
+      bison
     ];
 
     patches = [
