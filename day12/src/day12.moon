@@ -55,8 +55,10 @@ if #arg < 1
   os.exit 1
 
 input = [parse line for line in io.lines arg[1] when line != '']
+part1 = 0
 
 for {pattern, lengths} in *input
   print "Solving #{pattern}"
-  n = solve pattern, lengths
-  print n
+  part1 += solve pattern, lengths
+
+print "Part 1: #{part1}"
