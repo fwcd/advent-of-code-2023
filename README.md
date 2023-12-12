@@ -23,7 +23,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 The programs are packaged with [Nix](https://nixos.org/), a functional package manager for Linux and macOS that focuses on reproducible builds. This makes it easy to build the programs, both locally and CI, without relying on system packages.
 
-To build one of the days, `cd` into the corresponding directory and `nix build` the package. To run it, use `nix run . <path to input>`. For example:
+To build one of the days, `cd` into the corresponding directory and `nix build` the flake. To run it, use `nix run . <path to input>`. For example:
 
 ```sh
 cd day04
@@ -31,7 +31,7 @@ nix run . resources/input.txt
 ```
 
 > [!NOTE]
-> Nix will automatically create a symlink pointing to the built package in the Nix store, from where the binaries can also be executed manually.
+> Nix will automatically create a symlink pointing to the built derivation in the Nix store, from where the binaries can also be executed manually.
 
 Every day is packaged up to take exactly one command-line argument, the input file, and usually includes the demo input from the exercise too.
 
