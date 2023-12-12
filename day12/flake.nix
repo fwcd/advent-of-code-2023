@@ -1,16 +1,18 @@
 {
-  description = "Advent of Code Day 12";
+  description = "Advent of Code - Day 12 solution";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = { self, nixpkgs }:
-    # Helper functions from https://christine.website/blog/nix-flakes-1-2022-02-21/
-    let forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+    let
+      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in {
       packages = forAllSystems (system:
-        let pkgs = import nixpkgs { inherit system; };
+        let
+          pkgs = import nixpkgs { inherit system; };
         in {
           default = pkgs.stdenv.mkDerivation {
             name = "advent-of-code-2023-day12";
