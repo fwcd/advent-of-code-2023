@@ -59,6 +59,7 @@ solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
     0
 
 solve = (pattern, lengths) ->
+  print "Solving #{pattern} with #{#lengths} groups"
   _, damaged = string.gsub pattern, '#', ''
   maxDamaged = sum lengths
   solveImpl pattern, lengths, damaged, maxDamaged, 0
@@ -69,9 +70,14 @@ if #arg < 1
 
 input = [parse line for line in io.lines arg[1] when line != '']
 part1 = 0
+part2 = 0
 
 for {pattern, lengths} in *input
-  print "Solving #{pattern}"
   part1 += solve pattern, lengths
 
+  longPattern = "#{pattern}#{pattern}#{pattern}#{pattern}#{pattern}"
+  longLengths = [length for i = 1, 5 for length in *lengths]
+  -- TODO: part2 += solve longPattern, longLengths
+
 print "Part 1: #{part1}"
+print "Part 2: #{part2}"
