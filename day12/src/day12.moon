@@ -59,6 +59,9 @@ solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
     0
 
 solve = (pattern, lengths) ->
+  -- Multiple (fixed) dots can always be shortened to one, so let's simplify this
+  pattern = string.gsub pattern, '%.+', '.'
+
   print "Solving #{pattern} with #{#lengths} groups"
   _, damaged = string.gsub pattern, '#', ''
   maxDamaged = sum lengths
