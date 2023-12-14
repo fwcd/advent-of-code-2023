@@ -47,6 +47,7 @@ solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
   if damaged > maxDamaged
     return 0
   if i <= #pattern
+    -- TODO/IDEA: Look ahead n '?' and replace
     if string.sub(pattern, i, i) == '?'
       n = solveImpl (replace pattern, i, '.'), lengths, damaged, maxDamaged, i + 1
       m = solveImpl (replace pattern, i, '#'), lengths, damaged + 1, maxDamaged, i + 1
