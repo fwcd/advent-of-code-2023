@@ -75,7 +75,7 @@ part2 = 0
 for {pattern, lengths} in *input
   part1 += solve pattern, lengths
 
-  longPattern = "#{pattern}#{pattern}#{pattern}#{pattern}#{pattern}"
+  longPattern = "#{pattern}?#{pattern}?#{pattern}?#{pattern}?#{pattern}"
   longLengths = [length for i = 1, 5 for length in *lengths]
   -- TODO: part2 += solve longPattern, longLengths
 
