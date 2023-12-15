@@ -138,7 +138,7 @@ memory layout:
 
             <<<<<<<<[-]>[-]>[-]>[-]>>>>> zero cells 16 to 19 (temporaries)
 
-            [- <<<<<<<<+>>>>>>>> <<<<<+>>>>>] move to cells 16 and 19
+            [- <<<<<<<<+>>>+>>>>>] move to cells 16 and 19
 
             <<<< <<<< in cell 16
               [- >>>>>>>>+<<<<<<<<] move back to cell 24
