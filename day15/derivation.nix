@@ -1,10 +1,11 @@
-{ stdenv, bfc }:
+{ stdenv, bfc, clang }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day15";
     src = ./src;
 
-    buildInputs = [
+    nativeBuildInputs = [
       bfc
+      clang
     ];
 
     buildPhase = ''
