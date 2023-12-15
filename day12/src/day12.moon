@@ -51,7 +51,8 @@ isPotentialSolution = (pattern, lengths) ->
 solveImpl = (pattern, lengths, i, path) ->
   if #lengths == 0
     if i > #pattern or prefixLength(pattern, i, '[^#]') == #pattern - i + 1
-      print "Solution: #{string.gsub(pattern, '?', '.')} via #{path}"
+      -- Uncomment to print the solutions
+      -- print "Solution: #{string.gsub(pattern, '?', '.')} via #{path}"
       return 1
     else
       return 0
@@ -89,9 +90,7 @@ solve = (pattern, lengths) ->
   pattern = string.gsub pattern, '%.+', '.'
 
   print "Solving #{pattern} with #{#lengths} groups"
-  solutions = solveImpl pattern, lengths, 1, ''
-  print "  -> #{solutions}"
-  solutions
+  solveImpl pattern, lengths, 1, ''
 
 if #arg < 1
   print 'Usage: day12 <input>'
