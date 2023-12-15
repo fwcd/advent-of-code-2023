@@ -11,14 +11,15 @@
 
     buildPhase = ''
       mkdir out
-      (cd src && bfc day15.bf)
-      mv src/day15 out
+
+      bfc src/part1.bf
+      mv part1 out
     '';
 
     installPhase = ''
       mkdir -p $out/{bin,libexec}
-      cp out/day15 $out/libexec/day15-impl
-      cp scripts/sum $out/libexec/day15-sum
+      cp out/part1 $out/libexec/part1-impl
+      cp scripts/sum $out/libexec
 
       cat <<EOF > $out/bin/day15
       #!/bin/bash
@@ -28,7 +29,7 @@
         exit 1
       fi
       libexec="\$(dirname "\$0")/../libexec"
-      exec "\$libexec/day15-impl" < "\$1" | "\$libexec/day15-sum"
+      echo "Part 1: \$("\$libexec/part1-impl" < "\$1" | "\$libexec/sum")"
       EOF
 
       chmod +x $out/bin/day15

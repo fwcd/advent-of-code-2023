@@ -1,4 +1,4 @@
-An implementation of day 15 in BF tested with Wilfred's bfc compiler
+An implementation of day 15's hash function in BF tested with Wilfred's bfc compiler
 
 Assumes cells to be unsigned bytes that wrap around but may contain arbitrary
 data at startup time

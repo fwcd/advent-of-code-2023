@@ -100,10 +100,15 @@
   null,
   null,
   {
-    "lang": {
-      "codemirror": "brainfuck",
-      "name": "Brainfuck"
-    },
-    "path": "day15/src/day15.bf"
+    "parts": [
+      {
+        "lang": {
+          "codemirror": "brainfuck",
+          "name": "Brainfuck"
+        },
+        "path": "day15/src/part1.bf",
+        "completed": true
+      }
+    ]
   }
 ]
