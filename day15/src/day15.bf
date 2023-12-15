@@ -64,9 +64,8 @@ memory layout:
     idea: copy hash value to cell 11 for multiplication
 
     >>> > in cell 5 (hash value)
-      >>>>>[-]<<<<< zero cell 10
-      >>>>>>[-]<<<<<< zero cell 11
-      [- >>>>>+<<<<< >>>>>>+<<<<<<] copy hash value to cells 10 and 11
+      >>>>>[-]>[-]<<<<<< zero cells 10 and 11
+      [- >>>>>+>+<<<<<<] copy hash value to cells 10 and 11
     <<< <
 
     cell 5 (hash value) is now zero
@@ -119,8 +118,8 @@ memory layout:
         >>>> >>>> >>>> > in cell 13 (the hash value)
           idea: assign cell 13 (last hash value) to cell 5 (hash value)
 
-          <<<<<<<<[-]>>>>>>>> <<<<<<<[-]>>>>>>> zero cell 5 and 6
-          [- <<<<<<<<+>>>>>>>> <<<<<<<+>>>>>>>] copy to cell 5 and 6
+          <<<<<<<<[-]>[-]>>>>>>> zero cell 5 and 6
+          [- <<<<<<<<+>+>>>>>>>] copy to cell 5 and 6
 
           < <<<< << in cell 6
             [- >>>>>>>+<<<<<<< >>>>>>>>>>>>>>>>>>+<<<<<<<<<<<<<<<<<<] move back to cell 13 and add to cell 24
