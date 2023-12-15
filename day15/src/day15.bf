@@ -105,9 +105,11 @@ memory layout:
           < <<<< << in cell 6
             [- >>>>>>>+<<<<<<<] move back to cell 13
           > >>>> >>
-
-          [-] zero cell
         <<<< <<<< <<<< <
+
+        >>>> > in cell 5 (the hash value)
+          [-] zero cell
+        <<<< <
 
         >>>> >>>> >>>> >>>> in cell 16
           [-] zero cell
