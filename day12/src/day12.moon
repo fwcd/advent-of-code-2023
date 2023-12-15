@@ -48,9 +48,7 @@ isPotentialSolution = (pattern, lengths) ->
       return false
   #reverseLengths == 0
 
-solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
-  if damaged > maxDamaged
-    return 0
+solveImpl = (pattern, lengths, i) ->
   if #lengths == 0
     return 1
   nextLength = lengths[1]
@@ -64,37 +62,33 @@ solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
         -- - Pop the length and insert it as a group (i.e. replace nextLength ?s with #)
         --   (only possible if there are nextLength ?s)
         unknowns = prefixLength pattern, i, '?'
-        n = solveImpl (replace pattern, 1, unknowns, '.'), lengths, damaged, maxDamaged, i + 1
+        n = solveImpl (replace pattern, 1, unknowns, '.'), lengths, i + 1
         if unknowns >= nextLength
           group = string.rep('#', nextLength)
-          n += solveImpl (replace pattern, i, nextLength, group), remLengths, damaged + nextLength, maxDamaged, i + nextLength
+          n += solveImpl (replace pattern, i, nextLength, group), remLengths, i + nextLength
         n
       when '#'
         -- We have hit (the start of) a group, now we have to complete it.
         completable = prefixLength pattern, i, '[#?]'
         if completable >= nextLength
           group = string.rep('#', nextLength)
-          solveImpl (replace pattern, i, nextLength, group), remLengths, damaged + nextLength, maxDamaged, i + nextLength
+          solveImpl (replace pattern, i, nextLength, group), remLengths, i + nextLength
         else
           -- If we can't complete the block, this is a dead end
           0
       when '.'
-        solveImpl pattern, lengths, damaged, maxDamaged, i + 1
+        solveImpl pattern, lengths, i + 1
       else
         print "Hit unknown character '#{c}' in '#{pattern}' (i = #{i}, #pattern = #{#pattern})"
-  elseif damaged == maxDamaged and isPotentialSolution pattern, lengths
-    1
   else
-    0
+    1
 
 solve = (pattern, lengths) ->
   -- Multiple (fixed) dots can always be shortened to one, so let's simplify this
   pattern = string.gsub pattern, '%.+', '.'
 
   print "Solving #{pattern} with #{#lengths} groups"
-  _, damaged = string.gsub pattern, '#', ''
-  maxDamaged = sum lengths
-  solveImpl pattern, lengths, damaged, maxDamaged, 1
+  solveImpl pattern, lengths, 1
 
 if #arg < 1
   print 'Usage: day12 <input>'
