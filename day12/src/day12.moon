@@ -48,11 +48,9 @@ isPotentialSolution = (pattern, lengths) ->
       return false
   #reverseLengths == 0
 
-solveImpl = (pattern, lengths, i, path) ->
+solveImpl = (pattern, lengths, i) ->
   if #lengths == 0
     if i > #pattern or prefixLength(pattern, i, '[^#]') == #pattern - i + 1
-      -- Uncomment to print the solutions
-      -- print "Solution: #{string.gsub(pattern, '?', '.')} via #{path}"
       return 1
     else
       return 0
@@ -66,7 +64,7 @@ solveImpl = (pattern, lengths, i, path) ->
 
   if c != '#'
     -- Skip the spot (i.e. replacing this ? with .)
-    solutions += solveImpl pattern, lengths, i + 1, "#{path}."
+    solutions += solveImpl pattern, lengths, i + 1
   if c != '.'
     completable = prefixLength pattern, i, '[#?]'
     -- ...or insert the next group, i.e. replacing nextLength ?s with # if
@@ -81,7 +79,7 @@ solveImpl = (pattern, lengths, i, path) ->
           return 0
       else
         -- The group matches, conceptually place a . thereafter and continue...
-        solutions += solveImpl replace(pattern, i, nextLength, string.rep('#', nextLength)), remLengths, nextI + 1, "#{path}#{nextLength}"
+        solutions += solveImpl pattern, remLengths, nextI + 1
 
   solutions
 
