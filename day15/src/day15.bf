@@ -1,6 +1,14 @@
 An implementation of day 15 in BF tested with Wilfred's bfc compiler
 Assumes cells to be unsigned bytes that wrap around
 
+memory layout:
+ 0: condition (ie zero once we reached a newline)
+ 1: input char
+ 2: zero if input char is a comma
+ 3:   temporary used for 'if not zero' check of 2
+ 4:   temporary used for 'if not zero' check of 2
+16: ASCII space for printing
+
 [-]+ set cell 0 to one
 
 [ while input has not reached newline (cell 0)
