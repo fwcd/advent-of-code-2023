@@ -48,7 +48,26 @@ isPotentialSolution = (pattern, lengths) ->
       return false
   #reverseLengths == 0
 
+memoized = {}
+hit = 0
+miss = 0
+
 solveImpl = (pattern, lengths, i) ->
+  memoize = false
+  local memoizationKey
+
+  if (#pattern - i + 1) < 5
+    memoizationKey = table.concat {string.sub(pattern, i), table.concat(lengths, ',')}, ';'
+    if memoized[memoizationKey]
+      hit += 1
+      return memoized[memoizationKey]
+    miss += 1
+    memoize = true
+    if (hit + miss) % 1000000 == 0
+      print "Hit rate: #{hit / (hit + miss)}"
+      hit = 0
+      miss = 0
+
   if #lengths == 0
     if i > #pattern or prefixLength(pattern, i, '[^#]') == #pattern - i + 1
       return 1
@@ -82,6 +101,9 @@ solveImpl = (pattern, lengths, i) ->
         -- The group matches, conceptually place a . thereafter and continue...
         solutions += solveImpl pattern, remLengths, nextI + 1
 
+  if memoize
+    memoized[memoizationKey] = solutions
+
   solutions
 
 solve = (pattern, lengths) ->
@@ -105,7 +127,7 @@ for {pattern, lengths} in *input
 
   longPattern = "#{pattern}?#{pattern}?#{pattern}?#{pattern}?#{pattern}"
   longLengths = [length for i = 1, 5 for length in *lengths]
-  part2 += solve longPattern, longLengths
+  -- part2 += solve longPattern, longLengths
 
   i += 1
 
