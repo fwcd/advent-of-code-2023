@@ -25,7 +25,7 @@ memory layout:
     , read input char
 
     <[-]> >[-]< zero cells 0 2
-    [- <+> >+< >>>>>+<<<<<] add char to cells 0 2 and 5 (the hash value)
+    [- <+> >+< >>>>+<<<<] add char to cells 0 2 and 5 (the hash value)
 
     idea: copy hash value to cell 11 for multiplication
 
