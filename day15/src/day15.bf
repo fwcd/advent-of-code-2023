@@ -58,16 +58,12 @@ memory layout:
           >>
 
           < in cell 10
-            [- <<<<<+>>>>> >>>+<<<] add hash value to cell 5 and 13
+            [- <<<<<+>>>>>] add hash value to cell 5
           >
         >
 
         - decrement
       ]
-
-      > in cell 13
-        . output for debugging
-      <
     <<< <<<< <<<<
   <
 
@@ -110,17 +106,28 @@ memory layout:
 
     << go back to cell 2
   <<
-  
+
+  idea: copy cell 5 (the hash value) to cell 13 (the last value)
+
+  >>>> > in cell 5 (the hash value)
+    >[-]< >>>>>>>>[-]<<<<<<<< zero cell 6 and 13
+    [- >+< >>>>>>>>+<<<<<<<<] copy to cell 6 and 13
+    
+    > in cell 6
+      [- <+>] move back to cell 5
+    <
+  <<<< <
+
+  >>>> >>>> >>>> > in cell 13 (the hash value)
+    . output value (TODO: ASCII)
+
+    [-] zero cell
+  <<<< <<<< <<<< <
+
   cell 0 contains input char
   ---- ---- -- subtract 10 (ASCII value for \n)
   we rely on the fact that all other chars we are interested in have higher ASCII values
 ]
-
->>>> >>>> >>>> > in cell 13 (the last hash value)
-  . output value (TODO: ASCII)
-
-  [-] zero cell
-<<<< <<<< <<<< <
 
 ++++ ++++ ++ add 10 (ASCII value for \n)
 . print the newline
