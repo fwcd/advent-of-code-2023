@@ -108,6 +108,12 @@
         },
         "path": "day15/src/part1.bf",
         "completed": true
+      },
+      {
+        "lang": {
+          "name": "Brainfix"
+        },
+        "path": "day15/src/part2.bfx"
       }
     ]
   }

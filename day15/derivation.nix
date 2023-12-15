@@ -13,12 +13,11 @@
     buildPhase = ''
       mkdir out
 
-      bfc src/part1.bf
-      mv part1 out
+      cp src/part1.bf out
+      (cd out && bfc part1.bf)
 
-      bfx src/part2.bfx part2.bf
-      bfc part2.bf
-      mv part2 out
+      bfx -o out/part2.bf -I ${brainfix.outPath}/share/bfx/std src/part2.bfx
+      (cd out && bfc part2.bf)
     '';
 
     installPhase = ''

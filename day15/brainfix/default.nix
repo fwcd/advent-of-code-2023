@@ -1,21 +1,23 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, ncurses }:
   stdenv.mkDerivation rec {
     name = "brainfix";
-    version = "0.42";
+    version = "9fe6fa4831389a5bb88dd15461e6434bd31383dc";
     src = fetchurl {
-      url = "https://downloads.sourceforge.net/project/brainfix/bfx_v${version}.tar.gz";
-      sha256 = "ea0abdda03814b4c3bbc1bc34735f16465f7523f187f0bcb8db089a722ff6e51";
+      url = "https://github.com/jorenheit/brainfix/archive/${version}.tar.gz";
+      sha256 = "64fa0e835e307b1e41df4b106e1da8efd4b1dd58fb84d8fcc1dc0f61f4e04136";
     };
 
-    # The tarball does not contain a 'top-level directory', therefore we'll have to do this
-    sourceRoot = ".";
+    buildInputs = [
+      ncurses
+    ];
 
     buildPhase = ''
       make CC=$CXX
     '';
 
     installPhase = ''
-      mkdir -p $out/bin
+      mkdir -p $out/{bin,share/bfx}
       cp bfx $out/bin
+      cp -r std $out/share/bfx
     '';
   }

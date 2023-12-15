@@ -1,0 +1,5 @@
+include "std.bfx"
+
+function main() {
+  println("Hello world!");
+}
