@@ -66,7 +66,9 @@ solve = (pattern, lengths) ->
   print "Solving #{pattern} with #{#lengths} groups"
   _, damaged = string.gsub pattern, '#', ''
   maxDamaged = sum lengths
-  solveImpl pattern, lengths, damaged, maxDamaged, 0
+  solutions = solveImpl pattern, lengths, damaged, maxDamaged, 0
+  print "  -> #{solutions}"
+  solutions
 
 if #arg < 1
   print 'Usage: day12 <input>'
