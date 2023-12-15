@@ -57,22 +57,28 @@ solveImpl = (pattern, lengths, i) ->
     c = string.sub pattern, i, i
     switch c
       when '?'
-        -- We have potentially 2 choices:
-        -- - Skip the spot (i.e. replace this single ? with .)
-        -- - Pop the length and insert it as a group (i.e. replace nextLength ?s with #)
-        --   (only possible if there are nextLength ?s)
-        unknowns = prefixLength pattern, i, '?'
-        n = solveImpl (replace pattern, 1, unknowns, '.'), lengths, i + 1
-        if unknowns >= nextLength
-          group = string.rep('#', nextLength)
-          n += solveImpl (replace pattern, i, nextLength, group), remLengths, i + nextLength
-        n
+        -- We have two choices...
+        completable = prefixLength pattern, i, '[#?]'
+        -- ...either skip the spot (i.e. replacing this ? with .)
+        solutions = solveImpl pattern, lengths, i + 1
+        -- ...or insert the next group, i.e. replacing nextLength ?s with # if
+        -- there are no .s in the way
+        if completable >= nextLength
+          nextI = i + nextLength
+          if string.sub(pattern, nextI, nextI) == '#'
+            -- This would force a too long group, conceptually replace the nextLength ?s with .
+            -- and try matching from the #...
+            solutions += solveImpl pattern, lengths, nextI
+          else
+            -- The group matches, conceptually place a . thereafter and continue...
+            solutions += solveImpl pattern, remLengths, nextI + 1
+        solutions
       when '#'
-        -- We have hit (the start of) a group, now we have to complete it.
+        -- We have hit (the start of) a group, now we have to complete it,
+        -- by popping the length and conceptually replacing nextLength [#?]s with #.
         completable = prefixLength pattern, i, '[#?]'
         if completable >= nextLength
-          group = string.rep('#', nextLength)
-          solveImpl (replace pattern, i, nextLength, group), remLengths, i + nextLength
+          solveImpl pattern, remLengths, i + nextLength + 1
         else
           -- If we can't complete the block, this is a dead end
           0
@@ -81,14 +87,16 @@ solveImpl = (pattern, lengths, i) ->
       else
         print "Hit unknown character '#{c}' in '#{pattern}' (i = #{i}, #pattern = #{#pattern})"
   else
-    1
+    0
 
 solve = (pattern, lengths) ->
   -- Multiple (fixed) dots can always be shortened to one, so let's simplify this
   pattern = string.gsub pattern, '%.+', '.'
 
   print "Solving #{pattern} with #{#lengths} groups"
-  solveImpl pattern, lengths, 1
+  solutions = solveImpl pattern, lengths, 1
+  print "  -> #{solutions}"
+  solutions
 
 if #arg < 1
   print 'Usage: day12 <input>'
