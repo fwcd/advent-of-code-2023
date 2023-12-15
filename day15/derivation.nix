@@ -16,7 +16,11 @@
       cp src/part1.bf out
       (cd out && bfc part1.bf)
 
-      bfx -o out/part2.bf -I ${brainfix.outPath}/share/bfx/std src/part2.bfx
+      # Run the C preprocessor and make sure lines align by
+      # replacing preprocessor directives with empty lines.
+      cat src/part2.bfx | cpp | awk '!/^#/' > out/part2.preprocessed.bfx
+
+      bfx -o out/part2.bf -I ${brainfix.outPath}/share/bfx/std out/part2.preprocessed.bfx
       (cd out && bfc part2.bf)
     '';
 
