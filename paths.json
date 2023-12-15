@@ -94,6 +94,7 @@
       "codemirror": "coffeescript",
       "name": "MoonScript"
     },
-    "path": "day12/src/day12.moon"
+    "path": "day12/src/day12.moon",
+    "completed": true
   }
 ]
