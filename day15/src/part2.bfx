@@ -1,19 +1,56 @@
 include "std.bfx"
 
+const BASE = 10;
+const INT_BYTES = 8;
+
+function normalize_int(&value) {
+  for (let i = 0; i < (INT_BYTES - 1); i++) {
+    while (value[i] >= BASE) {
+      value[i] -= BASE;
+      value[i + 1]++;
+    }
+  }
+}
+
+function zero_int(&value) {
+  for (let i = 0; i < INT_BYTES; i++) {
+    value[i] = 0;
+  }
+}
+
+function print_int(&value) {
+  for (let i = 0; i < INT_BYTES; i++) {
+    printd(value[INT_BYTES - 1 - i]);
+  }
+}
+
+function hash_to_sum(&hash, &sum) {
+  while (hash >= BASE) {
+    sum[0] += BASE;
+    hash -= BASE;
+    normalize_int(sum);
+  }
+  sum[0] += hash;
+  hash = 0;
+  normalize_int(sum);
+}
+
 function main() {
   let c;
   let hash = 0;
+  let [INT_BYTES] sum;
+
+  zero_int(sum);
 
   while (true) {
     c = scanc();
     switch (c) {
-      case ',': {
-        printd(hash);
-        printc(' ');
-        hash = 0;
-      }
+      case ',': hash_to_sum(hash, sum);
       case '\n': break;
       default: hash = (hash + c) * 17;
     }
   }
+
+  hash_to_sum(hash, sum);
+  print_int(sum);
 }
