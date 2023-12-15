@@ -17,10 +17,11 @@ memory layout:
 12:   temporary 17 for the hash computation
 13: last hash value
 14: hash addition loop counter
-15:   temporary 10
+15:   temporary 9
 16:   temporary for comparison
 17:   temporary for comparison
-18:   temporary
+18:   temporary comparison result
+19:   temporary
  |
 23:   temporary
 24: hash sum least significant base 10 digit
@@ -125,10 +126,50 @@ memory layout:
             [- >>>>>>>+<<<<<<< >>>>>>>>>>>>>>>>>>+<<<<<<<<<<<<<<<<<<] move back to cell 13 and add to cell 24
           > >>>> >>
 
+          >> in cell 15
+            [-] zero cell
+            ++++ ++++ + set to 9
+          <<
+
           >>> >>>> >>>> in cell 24 (the hash sum)
             . output value
 
-            idea: if greater than ten
+            idea: if greater than ten ie cell 15
+
+            <<<<<<<<[-]>>>>>>>> zero cell 16 (temporary for comparison)
+            <<<<<<<[-]>>>>>>> zero cell 17 (temporary for comparison)
+            <<<<<<[-]>>>>>> zero cell 18 (temporary comparison result)
+            <<<<<[-]>>>>> zero cell 19 (temporary base 10 digit)
+
+            [- <<<<<<<<+>>>>>>>> <<<<<+>>>>>] move to cells 16 and 19
+
+            <<<< <<<< in cell 16
+              [- >>>>>>>>+<<<<<<<<] move back to cell 24
+
+              >>> in cell 19 (temporary base 10 digit)
+                [
+                  <<< in cell 16
+                    +
+                  >>>
+                  <<<< in cell 15 (temporary 9)
+                    [-
+                      > in cell 16
+                        [-] zero cell
+                        >+< increment cell 17
+                      <
+                    ]
+                  >>>>
+                  <<< in cell 16
+                    [- >>+<<] move/add to cell 18
+                    > in cell 17
+                      [- <<+>>] move/add to cell 15 (temporary 9)
+                    <
+                  >>>
+                  <<<<->>>> decrement cell 15 (temporary 9)
+                  - decrement cell 19
+                ]
+              <<<
+            >>>> >>>>
           <<< <<<< <<<<
         <<<< <<<< <<<< <
 
