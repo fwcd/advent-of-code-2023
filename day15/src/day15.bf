@@ -1,23 +1,27 @@
 An implementation of day 15 in BF tested with Wilfred's bfc compiler
-Assumes cells to be unsigned bytes that wrap around
+
+Assumes cells to be unsigned bytes that wrap around but may contain arbitrary
+data at startup time
 
 memory layout:
  0: condition (ie zero once we reached a newline)
  1: input char
  2: zero if input char is a comma
- 3:   temporary used for 'if not zero' check of 2
- 4:   temporary used for 'if not zero' check of 2
+ 3:   temporary 1 used for 'if not zero' check of cell 2
+ 4:   temporary 0 used for 'if not zero' check of cell 2
+ 5: running hash value
+ 6:   temporary 17 for the hash computation
 16: ASCII space for printing
 
-[-]+ set cell 0 to one
+[-]+ set cell 0 to one (the condition)
+>>>>>[-]<<<<< zero cell 5 (the hash value)
 
 [ while input has not reached newline (cell 0)
   > in cell 1
     , read input char
-    . print input char
 
-    <[-]> >[-]< >>>>>[-]<<<<< zero cells 0 2 and 5
-    [- <+> >+< >>>>>+<<<<<] copy char to cells 0 2 and 5
+    <[-]> >[-]< zero cells 0 2
+    [- <+> >+< >>>>>+<<<<<] add char to cells 0 2 and 5 (the hash value)
   <
 
   >> in cell 2
@@ -40,6 +44,17 @@ memory layout:
       - zero cell
 
       <<< in cell 0
+        >>>> > in cell 5 (the hash value)
+          ++++ ++++ ++++ ++++
+          ++++ ++++ ++++ ++++
+          ++++ ++++ ++++ ++++ add 48 (ASCII value for zero)
+          . output value
+
+          todo: handle multi digits with mod algorithm
+
+          [-] zero cell
+        <<<< <
+
         >>>> >>>> >>>> >>>> in cell 16
           [-] zero cell
           ++++ ++++ ++++ ++++
