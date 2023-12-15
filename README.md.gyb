@@ -4,16 +4,16 @@
   with open('paths.json', 'r') as f:
     days = json.load(f)
   
-  def format_day(day):
-    lang = day['lang']
-    path = day['path']
+  def format_solution(solution):
+    lang = solution['lang']
+    path = solution['path']
     s = f"[{lang['name']}]({path})"
 
-    additional_paths = day.get('additionalPaths', '')
+    additional_paths = solution.get('additionalPaths', '')
     if additional_paths:
       s += f" ({', '.join(f'[{name}]({path})' for name, path in additional_paths.items())})"
 
-    additional_notes = day.get('additionalNotes', '')
+    additional_notes = solution.get('additionalNotes', '')
     if additional_notes:
       s += f' {additional_notes}'
     return s
@@ -28,7 +28,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 % for i, day in enumerate(days):
 %   if day:
-- [${'x' if day.get('completed', False) else ' '}] Day ${f'{i + 1:02}'}: ${format_day(day)}
+- [${'x' if day.get('completed', False) else ' '}] Day ${f'{i + 1:02}'}: ${', '.join(format_solution(part) for part in day.get('parts', [day]))}
 %   end
 % end
 
