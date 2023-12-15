@@ -14,8 +14,13 @@ sum = (values) ->
     result += value
   result
 
-replace = (str, i, replacement) ->
-  "#{string.sub(str, 1, i - 1)}#{replacement}#{string.sub(str, i + 1)}"
+prefixLength = (str, i, repeated) -> 
+  rest = string.sub str, i
+  low, high = string.find rest, "^#{repeated}*"
+  high - low + 1
+
+replace = (str, i, n, replacement) ->
+  "#{string.sub(str, 1, i - 1)}#{replacement}#{string.sub(str, i + n)}"
 
 isPotentialSolution = (pattern, lengths) ->
   length = 0
@@ -46,14 +51,37 @@ isPotentialSolution = (pattern, lengths) ->
 solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
   if damaged > maxDamaged
     return 0
+  if #lengths == 0
+    return 1
+  nextLength = lengths[1]
+  remLengths = [length for length in *lengths[2,]]
   if i <= #pattern
-    -- TODO/IDEA: Look ahead n '?' and replace
-    if string.sub(pattern, i, i) == '?'
-      n = solveImpl (replace pattern, i, '.'), lengths, damaged, maxDamaged, i + 1
-      m = solveImpl (replace pattern, i, '#'), lengths, damaged + 1, maxDamaged, i + 1
-      n + m
-    else
-      solveImpl pattern, lengths, damaged, maxDamaged, i + 1
+    c = string.sub pattern, i, i
+    switch c
+      when '?'
+        -- We have potentially 2 choices:
+        -- - Skip the spot (i.e. replace this single ? with .)
+        -- - Pop the length and insert it as a group (i.e. replace nextLength ?s with #)
+        --   (only possible if there are nextLength ?s)
+        unknowns = prefixLength pattern, i, '?'
+        n = solveImpl (replace pattern, 1, unknowns, '.'), lengths, damaged, maxDamaged, i + 1
+        if unknowns >= nextLength
+          group = string.rep('#', nextLength)
+          n += solveImpl (replace pattern, i, nextLength, group), remLengths, damaged + nextLength, maxDamaged, i + nextLength
+        n
+      when '#'
+        -- We have hit (the start of) a group, now we have to complete it.
+        completable = prefixLength pattern, i, '[#?]'
+        if completable >= nextLength
+          group = string.rep('#', nextLength)
+          solveImpl (replace pattern, i, nextLength, group), remLengths, damaged + nextLength, maxDamaged, i + nextLength
+        else
+          -- If we can't complete the block, this is a dead end
+          0
+      when '.'
+        solveImpl pattern, lengths, damaged, maxDamaged, i + 1
+      else
+        print "Hit unknown character '#{c}' in '#{pattern}' (i = #{i}, #pattern = #{#pattern})"
   elseif damaged == maxDamaged and isPotentialSolution pattern, lengths
     1
   else
@@ -66,7 +94,7 @@ solve = (pattern, lengths) ->
   print "Solving #{pattern} with #{#lengths} groups"
   _, damaged = string.gsub pattern, '#', ''
   maxDamaged = sum lengths
-  solveImpl pattern, lengths, damaged, maxDamaged, 0
+  solveImpl pattern, lengths, damaged, maxDamaged, 1
 
 if #arg < 1
   print 'Usage: day12 <input>'
