@@ -50,8 +50,11 @@ isPotentialSolution = (pattern, lengths) ->
 
 solveImpl = (pattern, lengths, i, path) ->
   if #lengths == 0
-    print "Solution: #{string.gsub(pattern, '?', '.')} via #{path}"
-    return 1
+    if i > #pattern or prefixLength(pattern, i, '[^#]') == #pattern - i + 1
+      print "Solution: #{string.gsub(pattern, '?', '.')} via #{path}"
+      return 1
+    else
+      return 0
   if i > #pattern
     return 0
 
@@ -71,20 +74,10 @@ solveImpl = (pattern, lengths, i, path) ->
       nextI = i + nextLength
       if string.sub(pattern, nextI, nextI) == '#'
         -- This would force a too long group
-        switch c
-          when '?'
-            -- If we were on an unknown, we can continue by matching from the next #
-            -- (conceptually replacing all intermediate ?s with .). We explore
-            -- this only if the skip if longer than 1, otherwise we would have already
-            -- explored this in the 'skip the spot' condition (searching disjoint parts
-            -- of the solution space is required to be able to add them up)
-            skip = prefixLength pattern, i, '[^#]'
-            if skip > 1
-              solutions += solveImpl pattern, lengths, i + skip, "#{path}>(#{skip})"
-          when '#'
-            -- Since this group was already fixed, we are forced to take it, so
-            -- we've hit a dead end.
-            return 0
+        if c == '#'
+          -- Since this group was already fixed, we are forced to take it, so
+          -- we've hit a dead end.
+          return 0
       else
         -- The group matches, conceptually place a . thereafter and continue...
         solutions += solveImpl replace(pattern, i, nextLength, string.rep('#', nextLength)), remLengths, nextI + 1, "#{path}#{nextLength}"
