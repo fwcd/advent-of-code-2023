@@ -1,18 +1,20 @@
-+[ while input has not reached newline (cell 0)
-  [-] set to zero (cell 0)
+[-]+ set cell 0 to one
 
+[ while input has not reached newline (cell 0)
   > in cell 1
     , read input char
     . print input char
-    [-<+>>+<] copy char to cell 0 and 2
+
+    <[-]> >[-]< >>[-]<< zero cells 0 2 and 3
+    [- <+> >+< >>+<<] copy char to cells 0 2 and 3
   <
 
-  >>> in cell 3
-    [-] set to zero
+  >>>> >>>> >>>> in cell 12
+    [-] zero cell
     ++++ ++++ ++++ ++++
     ++++ ++++ ++++ ++++ set value to 32 (ASCII value for space)
     . print the space
-  <<<
+  <<<< <<<< <<<<
   
   input char is in cell 0
   ---- ---- -- subtract 10 (ASCII value for \n)
