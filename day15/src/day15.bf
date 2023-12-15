@@ -16,19 +16,20 @@ memory layout:
 11:   temporary hash value for multiplication
 12:   temporary 17 for the hash computation
 13: last hash value
-14: hash sum least significant base 10 digit
+14: hash addition loop counter
+15: hash sum least significant base 10 digit
  |
-31: hash sum most significant base 10 digit
+32: hash sum most significant base 10 digit
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
 
->>>> >>>> >>>> >> in cell 14
+>>>> >>>> >>>> >>> in cell 15
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
-  [-]> [-]> zero until (exclusively) cell 32
+  [-]> [-] zero until (inclusively) cell 32
 <<<< <<<< <<<< <<<<
 <<<< <<<< <<<< <<<<
 
