@@ -16,17 +16,10 @@ memory layout:
 11:   temporary hash value for multiplication
 12:   temporary 17 for the hash computation
 13: last hash value
-14: hash addition loop counter
-15:   temporary 9
-16:   temporary for comparison
-17:   temporary for comparison
-18:   temporary comparison result
-19:   temporary
+14:   temporary
  |
 23:   temporary
-24: hash sum least significant base 10 digit
- |
-48: hash sum most significant base 10 digit
+24: hash sum
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
@@ -124,51 +117,6 @@ memory layout:
           < <<<< << in cell 6
             [- >>>>>>>+<<<<<<< >>>>>>>>>>>>>>>>>>+<<<<<<<<<<<<<<<<<<] move back to cell 13 and add to cell 24
           > >>>> >>
-
-          >> in cell 15
-            [-] zero cell
-            ++++ ++++ + set to 9
-          <<
-
-          >>> >>>> >>>> in cell 24 (the hash sum)
-            . output value
-
-            idea: test if the base 10 digit is greater than 9 ie cell 15
-
-            <<<<<<<<[-]>[-]>[-]>[-]>>>>> zero cells 16 to 19 (temporaries)
-
-            [- <<<<<<<<+>>>+>>>>>] move to cells 16 and 19
-
-            <<<< <<<< in cell 16
-              [- >>>>>>>>+<<<<<<<<] move back to cell 24
-
-              >>> in cell 19 (temporary base 10 digit)
-                [
-                  <<<< in cell 15 (temporary 9)
-                    >+< increment cell 16
-                    [-
-                      > in cell 16
-                        [-] zero cell
-                        >+< increment cell 17
-                      <
-                    ]
-                    > in cell 16
-                      [- >>+<<] move/add to cell 18
-                      > in cell 17
-                        [- <<+>>] move/add to cell 15 (temporary 9)
-                      <
-                    <
-                    - decrement cell 15 (temporary 9)
-                  >>>>
-                  - decrement cell 19
-                ]
-              <<<
-            >>>> >>>>
-          <<< <<<< <<<<
-
-          >>> >> in cell 18
-            TODO
-          <<< <<
         <<<< <<<< <<<< <
 
         >>>> > in cell 5 (the hash value)
@@ -187,9 +135,9 @@ memory layout:
   we rely on the fact that all other chars we are interested in have higher ASCII values
 ]
 
->>>> >>>> >>>> > in cell 13 (the hash value)
-  . output value (TODO: ASCII)
-<<<< <<<< <<<< <
+>>> >>>> >>>> in cell 24 (the hash sum)
+  . output value
+<<< <<<< <<<<
 
 ++++ ++++ ++ add 10 (ASCII value for \n)
 . print the newline
