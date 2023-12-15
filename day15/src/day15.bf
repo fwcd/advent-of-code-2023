@@ -16,10 +16,30 @@ memory layout:
 11:   temporary hash value for multiplication
 12:   temporary 17 for the hash computation
 13: last hash value
-16: ASCII space for printing
+14: hash sum least significant base 10 digit
+ |
+31: hash sum most significant base 10 digit
+32: ASCII space for printing
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
+
+>>>> >>>> >>>> >> in cell 14
+  [-]> [-]> [-]> [-]>
+  [-]> [-]> [-]> [-]>
+  [-]> [-]> [-]> [-]>
+  [-]> [-]> [-]> [-]>
+  [-]> [-]> zero until (exclusively) cell 32
+<<<< <<<< <<<< <<<<
+<<<< <<<< <<<< <<<<
+
+>>>> >>>> >>>> >>>>
+>>>> >>>> >>>> >>>> in cell 32
+  [-] zero cell
+  ++++ ++++ ++++ ++++
+  ++++ ++++ ++++ ++++ set value to 32 (ASCII value for space)
+<<<< <<<< <<<< <<<<
+<<<< <<<< <<<< <<<<
 
 [ while input has not reached newline (cell 0)
   idea: copy cell 5 (the hash value) to cell 13 (the last value)
@@ -105,17 +125,18 @@ memory layout:
           < <<<< << in cell 6
             [- >>>>>>>+<<<<<<<] move back to cell 13
           > >>>> >>
+
+          TODO: Base 10 addition
         <<<< <<<< <<<< <
 
         >>>> > in cell 5 (the hash value)
           [-] zero cell
         <<<< <
 
-        >>>> >>>> >>>> >>>> in cell 16
-          [-] zero cell
-          ++++ ++++ ++++ ++++
-          ++++ ++++ ++++ ++++ set value to 32 (ASCII value for space)
+        >>>> >>>> >>>> >>>>
+        >>>> >>>> >>>> >>>> in cell 32
           . print the space
+        <<<< <<<< <<<< <<<<
         <<<< <<<< <<<< <<<<
       >>>
 
