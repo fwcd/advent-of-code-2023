@@ -134,7 +134,7 @@ memory layout:
           >>> >>>> >>>> in cell 24 (the hash sum)
             . output value
 
-            idea: if greater than ten ie cell 15
+            idea: test if the base 10 digit is greater than 9 ie cell 15
 
             <<<<<<<<[-]>>>>>>>> zero cell 16 (temporary for comparison)
             <<<<<<<[-]>>>>>>> zero cell 17 (temporary for comparison)
@@ -148,24 +148,22 @@ memory layout:
 
               >>> in cell 19 (temporary base 10 digit)
                 [
-                  <<< in cell 16
-                    +
-                  >>>
                   <<<< in cell 15 (temporary 9)
+                    >+< increment cell 16
                     [-
                       > in cell 16
                         [-] zero cell
                         >+< increment cell 17
                       <
                     ]
-                  >>>>
-                  <<< in cell 16
-                    [- >>+<<] move/add to cell 18
-                    > in cell 17
-                      [- <<+>>] move/add to cell 15 (temporary 9)
+                    > in cell 16
+                      [- >>+<<] move/add to cell 18
+                      > in cell 17
+                        [- <<+>>] move/add to cell 15 (temporary 9)
+                      <
                     <
-                  >>>
-                  <<<<->>>> decrement cell 15 (temporary 9)
+                    - decrement cell 15 (temporary 9)
+                  >>>>
                   - decrement cell 19
                 ]
               <<<
