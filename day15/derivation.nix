@@ -1,7 +1,8 @@
 { stdenv, bfc, clang }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day15";
-    src = ./src;
+    srcs = [./src ./scripts];
+    sourceRoot = ".";
 
     nativeBuildInputs = [
       bfc
@@ -10,12 +11,14 @@
 
     buildPhase = ''
       mkdir out
-      bfc day15.bf
+      (cd src && bfc day15.bf)
+      mv src/day15 out
     '';
 
     installPhase = ''
       mkdir -p $out/{bin,libexec}
-      cp day15 $out/libexec/day15-impl
+      cp out/day15 $out/libexec/day15-impl
+      cp scripts/sum $out/libexec/day15-sum
 
       cat <<EOF > $out/bin/day15
       #!/bin/bash
@@ -24,7 +27,8 @@
         echo "Usage: \$(basename "\$0") <path to input>"
         exit 1
       fi
-      exec "\$(dirname "\$0")/../libexec/day15-impl" < "\$1"
+      libexec="\$(dirname "\$0")/../libexec"
+      exec "\$libexec/day15-impl" < "\$1" | "\$libexec/day15-sum"
       EOF
 
       chmod +x $out/bin/day15
