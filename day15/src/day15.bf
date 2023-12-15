@@ -17,19 +17,28 @@ memory layout:
 12:   temporary 17 for the hash computation
 13: last hash value
 14: hash addition loop counter
-15: hash sum least significant base 10 digit
+15:   temporary 10
+16:   temporary for comparison
+17:   temporary for comparison
+18:   temporary
  |
-32: hash sum most significant base 10 digit
+23:   temporary
+24: hash sum least significant base 10 digit
+ |
+48: hash sum most significant base 10 digit
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
 
->>>> >>>> >>>> >>> in cell 15
+>>>> >>>> >>>> >>>>
+>>>> >>>> in cell 24
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
-  [-]> [-] zero until (inclusively) cell 32
+  [-]> [-]> [-]> [-]>
+  [-]> [-]> [-]> [-] zero until (inclusively) cell 48
+<<<< <<<< <<<< <<<<
 <<<< <<<< <<<< <<<<
 <<<< <<<< <<<< <<<<
 
@@ -113,12 +122,14 @@ memory layout:
           [- <<<<<<<<+>>>>>>>> <<<<<<<+>>>>>>>] copy to cell 5 and 6
 
           < <<<< << in cell 6
-            [- >>>>>>>+<<<<<<< >>>>>>>>+<<<<<<<<] move back to cell 13 and add to cell 14
+            [- >>>>>>>+<<<<<<< >>>>>>>>>>>>>>>>>>+<<<<<<<<<<<<<<<<<<] move back to cell 13 and add to cell 24
           > >>>> >>
 
-          > in cell 14 (the hash sum)
+          >>> >>>> >>>> in cell 24 (the hash sum)
             . output value
-          <
+
+            idea: if greater than ten
+          <<< <<<< <<<<
         <<<< <<<< <<<< <
 
         >>>> > in cell 5 (the hash value)
