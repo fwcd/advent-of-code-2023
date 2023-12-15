@@ -19,7 +19,6 @@ memory layout:
 14: hash sum least significant base 10 digit
  |
 31: hash sum most significant base 10 digit
-32: ASCII space for printing
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
@@ -30,14 +29,6 @@ memory layout:
   [-]> [-]> [-]> [-]>
   [-]> [-]> [-]> [-]>
   [-]> [-]> zero until (exclusively) cell 32
-<<<< <<<< <<<< <<<<
-<<<< <<<< <<<< <<<<
-
->>>> >>>> >>>> >>>>
->>>> >>>> >>>> >>>> in cell 32
-  [-] zero cell
-  ++++ ++++ ++++ ++++
-  ++++ ++++ ++++ ++++ set value to 32 (ASCII value for space)
 <<<< <<<< <<<< <<<<
 <<<< <<<< <<<< <<<<
 
@@ -132,12 +123,6 @@ memory layout:
         >>>> > in cell 5 (the hash value)
           [-] zero cell
         <<<< <
-
-        >>>> >>>> >>>> >>>>
-        >>>> >>>> >>>> >>>> in cell 32
-          . print the space
-        <<<< <<<< <<<< <<<<
-        <<<< <<<< <<<< <<<<
       >>>
 
       > go to cell 4
