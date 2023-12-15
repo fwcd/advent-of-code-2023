@@ -115,18 +115,18 @@ memory layout:
 
       <<< in cell 0
         >>>> >>>> >>>> > in cell 13 (the hash value)
-          . output value (TODO: ASCII)
-
           idea: assign cell 13 (last hash value) to cell 5 (hash value)
 
           <<<<<<<<[-]>>>>>>>> <<<<<<<[-]>>>>>>> zero cell 5 and 6
           [- <<<<<<<<+>>>>>>>> <<<<<<<+>>>>>>>] copy to cell 5 and 6
 
           < <<<< << in cell 6
-            [- >>>>>>>+<<<<<<<] move back to cell 13
+            [- >>>>>>>+<<<<<<< >>>>>>>>+<<<<<<<<] move back to cell 13 and add to cell 14
           > >>>> >>
 
-          TODO: Base 10 addition
+          > in cell 14 (the hash sum)
+            . output value
+          <
         <<<< <<<< <<<< <
 
         >>>> > in cell 5 (the hash value)
