@@ -1,5 +1,19 @@
 include "std.bfx"
 
 function main() {
-  println("Hello world!");
+  let c;
+  let hash = 0;
+
+  while (true) {
+    c = scanc();
+    switch (c) {
+      case ',': {
+        printd(hash);
+        printc(' ');
+        hash = 0;
+      }
+      case '\n': break;
+      default: hash = (hash + c) * 17;
+    }
+  }
 }
