@@ -56,17 +56,12 @@ solveImpl = (pattern, lengths, i) ->
   memoize = false
   local memoizationKey
 
-  if (#pattern - i + 1) < 5
-    memoizationKey = table.concat {string.sub(pattern, i), table.concat(lengths, ',')}, ';'
-    if memoized[memoizationKey]
-      hit += 1
-      return memoized[memoizationKey]
-    miss += 1
-    memoize = true
-    if (hit + miss) % 1000000 == 0
-      print "Hit rate: #{hit / (hit + miss)}"
-      hit = 0
-      miss = 0
+  memoizationKey = table.concat {string.sub(pattern, i), table.concat(lengths, ',')}, ';'
+  if memoized[memoizationKey]
+    hit += 1
+    return memoized[memoizationKey]
+  miss += 1
+  memoize = true
 
   if #lengths == 0
     if i > #pattern or prefixLength(pattern, i, '[^#]') == #pattern - i + 1
@@ -127,7 +122,7 @@ for {pattern, lengths} in *input
 
   longPattern = "#{pattern}?#{pattern}?#{pattern}?#{pattern}?#{pattern}"
   longLengths = [length for i = 1, 5 for length in *lengths]
-  -- part2 += solve longPattern, longLengths
+  part2 += solve longPattern, longLengths
 
   i += 1
 
