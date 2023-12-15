@@ -8,45 +8,10 @@ parse = (line) ->
   lengths = [tonumber rawLength for rawLength in string.gmatch rawLengths, '%d+']
   {pattern, lengths}
 
-sum = (values) -> 
-  result = 0
-  for value in *values
-    result += value
-  result
-
 prefixLength = (str, i, repeated) -> 
   rest = string.sub str, i
   low, high = string.find rest, "^#{repeated}*"
   high - low + 1
-
-replace = (str, i, n, replacement) ->
-  "#{string.sub(str, 1, i - 1)}#{replacement}#{string.sub(str, i + n)}"
-
-isPotentialSolution = (pattern, lengths) ->
-  length = 0
-  reverseLengths = [lengths[#lengths - i] for i = 0, #lengths - 1]
-  popLengthExpected = ->
-    expected = table.remove reverseLengths, #reverseLengths
-    length == expected
-
-  for c in string.gmatch pattern, '.'
-    switch c
-      when '#'
-        length += 1
-      when '.'
-        if length > 0
-          if not popLengthExpected!
-            return false
-        length = 0
-      when '?'
-        -- We accept a superset of all solutions since we'd have to search both
-        -- choices here to accurately continue (which we already do in the
-        -- solver).
-        return true
-  if length > 0
-    if not popLengthExpected!
-      return false
-  #reverseLengths == 0
 
 memoized = {}
 hit = 0
