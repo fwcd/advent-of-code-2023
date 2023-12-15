@@ -22,6 +22,17 @@ memory layout:
 >>>>>[-]<<<<< zero cell 5 (the hash value)
 
 [ while input has not reached newline (cell 0)
+  idea: copy cell 5 (the hash value) to cell 13 (the last value)
+
+  >>>> > in cell 5 (the hash value)
+    >[-]< >>>>>>>>[-]<<<<<<<< zero cell 6 and 13
+    [- >+< >>>>>>>>+<<<<<<<<] copy to cell 6 and 13
+    
+    > in cell 6
+      [- <+>] move back to cell 5
+    <
+  <<<< <
+
   > in cell 1
     , read input char
 
@@ -43,10 +54,6 @@ memory layout:
       ++++ ++++ ++++ ++++ + add 17
 
       idea: multiply into cell 5 (hash value) by repeatedly adding cell 11
-
-      > in cell 13
-        [-] zero cell
-      <
 
       [ while not zero (ie repeat 17 times)
         < in cell 11 (temporary hash value)
@@ -90,6 +97,15 @@ memory layout:
         >>>> >>>> >>>> > in cell 13 (the hash value)
           . output value (TODO: ASCII)
 
+          idea: assign cell 13 (last hash value) to cell 5 (hash value)
+
+          <<<<<<<<[-]>>>>>>>> <<<<<<<[-]>>>>>>> zero cell 5 and 6
+          [- <<<<<<<<+>>>>>>>> <<<<<<<+>>>>>>>] copy to cell 5 and 6
+
+          < <<<< << in cell 6
+            [- >>>>>>>+<<<<<<<] move back to cell 13
+          > >>>> >>
+
           [-] zero cell
         <<<< <<<< <<<< <
 
@@ -107,27 +123,14 @@ memory layout:
     << go back to cell 2
   <<
 
-  idea: copy cell 5 (the hash value) to cell 13 (the last value)
-
-  >>>> > in cell 5 (the hash value)
-    >[-]< >>>>>>>>[-]<<<<<<<< zero cell 6 and 13
-    [- >+< >>>>>>>>+<<<<<<<<] copy to cell 6 and 13
-    
-    > in cell 6
-      [- <+>] move back to cell 5
-    <
-  <<<< <
-
-  >>>> >>>> >>>> > in cell 13 (the hash value)
-    . output value (TODO: ASCII)
-
-    [-] zero cell
-  <<<< <<<< <<<< <
-
   cell 0 contains input char
   ---- ---- -- subtract 10 (ASCII value for \n)
   we rely on the fact that all other chars we are interested in have higher ASCII values
 ]
+
+>>>> >>>> >>>> > in cell 13 (the hash value)
+  . output value (TODO: ASCII)
+<<<< <<<< <<<< <
 
 ++++ ++++ ++ add 10 (ASCII value for \n)
 . print the newline
