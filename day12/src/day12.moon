@@ -50,6 +50,7 @@ isPotentialSolution = (pattern, lengths) ->
 
 solveImpl = (pattern, lengths, i) ->
   if #lengths == 0
+    print "Solution: #{string.gsub(pattern, '?', '.')}"
     return 1
   if i > #pattern
     return 0
@@ -81,7 +82,7 @@ solveImpl = (pattern, lengths, i) ->
             return 0
       else
         -- The group matches, conceptually place a . thereafter and continue...
-        solutions += solveImpl pattern, remLengths, nextI + 1
+        solutions += solveImpl replace(pattern, i, nextLength, string.rep('#', nextLength)), remLengths, nextI + 1
 
   solutions
 
