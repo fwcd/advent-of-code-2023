@@ -37,9 +37,9 @@
       },
       "required": ["name"]
     },
-    "day": {
+    "solution": {
       "type": ["object", "null"],
-      "description": "A day/solution.",
+      "description": "A solution.",
       "properties": {
         "lang": {
           "$ref": "#/definitions/lang"
@@ -78,11 +78,27 @@
           "description": "Additional notes to be added to the README."
         }
       },
-      "required": []
+      "required": ["path"]
     }
   },
   "type": "array",
   "items": {
-    "$ref": "#/definitions/day"
+    "anyOf": [
+      {
+        "$ref": "#/definitions/solution"
+      },
+      {
+        "type": "object",
+        "properties": {
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/solution"
+            }
+          }
+        },
+        "required": ["parts"]
+      }
+    ]
   }
 }
