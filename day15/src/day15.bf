@@ -19,22 +19,9 @@ memory layout:
 14:   temporary
  |
 23:   temporary
-24: hash sum
 
 [-]+ set cell 0 to one (the condition)
 >>>>>[-]<<<<< zero cell 5 (the hash value)
-
->>>> >>>> >>>> >>>>
->>>> >>>> in cell 24
-  [-]> [-]> [-]> [-]>
-  [-]> [-]> [-]> [-]>
-  [-]> [-]> [-]> [-]>
-  [-]> [-]> [-]> [-]>
-  [-]> [-]> [-]> [-]>
-  [-]> [-]> [-]> [-] zero until (inclusively) cell 48
-<<<< <<<< <<<< <<<<
-<<<< <<<< <<<< <<<<
-<<<< <<<< <<<< <<<<
 
 [ while input has not reached newline (cell 0)
   idea: copy cell 5 (the hash value) to cell 13 (the last value)
@@ -109,13 +96,15 @@ memory layout:
 
       <<< in cell 0
         >>>> >>>> >>>> > in cell 13 (the hash value)
+          . output hash
+
           idea: assign cell 13 (last hash value) to cell 5 (hash value)
 
           <<<<<<<<[-]>[-]>>>>>>> zero cell 5 and 6
           [- <<<<<<<<+>+>>>>>>>] copy to cell 5 and 6
 
           < <<<< << in cell 6
-            [- >>>>>>>+<<<<<<< >>>>>>>>>>>>>>>>>>+<<<<<<<<<<<<<<<<<<] move back to cell 13 and add to cell 24
+            [- >>>>>>>+<<<<<<<] move back to cell 13
           > >>>> >>
         <<<< <<<< <<<< <
 
@@ -136,8 +125,6 @@ memory layout:
 ]
 
 >>> >>>> >>>> in cell 24 (the hash sum)
+  ---- ---- -- subtract 10 (last \n)
   . output value
 <<< <<<< <<<<
-
-++++ ++++ ++ add 10 (ASCII value for \n)
-. print the newline
