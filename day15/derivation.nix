@@ -21,9 +21,10 @@
     '';
 
     installPhase = ''
-      mkdir -p $out/{bin,libexec}
+      mkdir -p $out/{bin,libexec,src}
       cp out/part{1,2} $out/libexec
       cp scripts/sum $out/libexec
+      cp src/part1.bf out/part2.bf $out/src
 
       cat <<EOF > $out/bin/day15
       #!/bin/bash
