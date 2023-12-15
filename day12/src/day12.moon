@@ -51,43 +51,39 @@ isPotentialSolution = (pattern, lengths) ->
 solveImpl = (pattern, lengths, i) ->
   if #lengths == 0
     return 1
+  if i > #pattern
+    return 0
+
   nextLength = lengths[1]
   remLengths = [length for length in *lengths[2,]]
-  if i <= #pattern
-    c = string.sub pattern, i, i
-    switch c
-      when '?'
-        -- We have two choices...
-        completable = prefixLength pattern, i, '[#?]'
-        -- ...either skip the spot (i.e. replacing this ? with .)
-        solutions = solveImpl pattern, lengths, i + 1
-        -- ...or insert the next group, i.e. replacing nextLength ?s with # if
-        -- there are no .s in the way
-        if completable >= nextLength
-          nextI = i + nextLength
-          if string.sub(pattern, nextI, nextI) == '#'
-            -- This would force a too long group, conceptually replace the nextLength ?s with .
-            -- and try matching from the #...
+  c = string.sub pattern, i, i
+  solutions = 0
+
+  if c != '#'
+    -- Skip the spot (i.e. replacing this ? with .)
+    solutions += solveImpl pattern, lengths, i + 1
+  if c != '.'
+    completable = prefixLength pattern, i, '[#?]'
+    -- ...or insert the next group, i.e. replacing nextLength ?s with # if
+    -- there are no .s in the way
+    if completable >= nextLength
+      nextI = i + nextLength
+      if string.sub(pattern, nextI, nextI) == '#'
+        -- This would force a too long group
+        switch c
+          when '?'
+            -- If we were on an unknown, we can continue by matching from that #
+            -- (conceptually replacing all intermediate ?s with .)...
             solutions += solveImpl pattern, lengths, nextI
-          else
-            -- The group matches, conceptually place a . thereafter and continue...
-            solutions += solveImpl pattern, remLengths, nextI + 1
-        solutions
-      when '#'
-        -- We have hit (the start of) a group, now we have to complete it,
-        -- by popping the length and conceptually replacing nextLength [#?]s with #.
-        completable = prefixLength pattern, i, '[#?]'
-        if completable >= nextLength
-          solveImpl pattern, remLengths, i + nextLength + 1
-        else
-          -- If we can't complete the block, this is a dead end
-          0
-      when '.'
-        solveImpl pattern, lengths, i + 1
+          when '#'
+            -- Since this group was already fixed, we are forced to take it, so
+            -- we've hit a dead end.
+            return 0
       else
-        print "Hit unknown character '#{c}' in '#{pattern}' (i = #{i}, #pattern = #{#pattern})"
-  else
-    0
+        -- The group matches, conceptually place a . thereafter and continue...
+        solutions += solveImpl pattern, remLengths, nextI + 1
+
+  solutions
 
 solve = (pattern, lengths) ->
   -- Multiple (fixed) dots can always be shortened to one, so let's simplify this
