@@ -136,10 +136,7 @@ memory layout:
 
             idea: test if the base 10 digit is greater than 9 ie cell 15
 
-            <<<<<<<<[-]>>>>>>>> zero cell 16 (temporary for comparison)
-            <<<<<<<[-]>>>>>>> zero cell 17 (temporary for comparison)
-            <<<<<<[-]>>>>>> zero cell 18 (temporary comparison result)
-            <<<<<[-]>>>>> zero cell 19 (temporary base 10 digit)
+            <<<<<<<<[-]>[-]>[-]>[-]>>>>> zero cells 16 to 19 (temporaries)
 
             [- <<<<<<<<+>>>>>>>> <<<<<+>>>>>] move to cells 16 and 19
 
@@ -169,6 +166,10 @@ memory layout:
               <<<
             >>>> >>>>
           <<< <<<< <<<<
+
+          >>> >> in cell 18
+            TODO
+          <<< <<
         <<<< <<<< <<<< <
 
         >>>> > in cell 5 (the hash value)
