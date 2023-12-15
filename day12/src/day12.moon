@@ -87,8 +87,6 @@ solveImpl = (pattern, lengths, i) ->
 solve = (pattern, lengths) ->
   -- Multiple (fixed) dots can always be shortened to one, so let's simplify this
   pattern = string.gsub pattern, '%.+', '.'
-
-  print "Solving #{pattern} with #{#lengths} groups"
   solveImpl pattern, lengths, 1, ''
 
 if #arg < 1
@@ -98,13 +96,18 @@ if #arg < 1
 input = [parse line for line in io.lines arg[1] when line != '']
 part1 = 0
 part2 = 0
+i = 1
 
 for {pattern, lengths} in *input
+  print "[#{i}/#{#input}] Solving #{pattern} with #{#lengths} groups"
+
   part1 += solve pattern, lengths
 
   longPattern = "#{pattern}?#{pattern}?#{pattern}?#{pattern}?#{pattern}"
   longLengths = [length for i = 1, 5 for length in *lengths]
-  -- TODO: part2 += solve longPattern, longLengths
+  part2 += solve longPattern, longLengths
+
+  i += 1
 
 print "Part 1: #{part1}"
 print "Part 2: #{part2}"
