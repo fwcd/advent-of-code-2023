@@ -55,6 +55,7 @@ solveImpl = (pattern, lengths, damaged, maxDamaged, i) ->
     else
       solveImpl pattern, lengths, damaged, maxDamaged, i + 1
   elseif damaged == maxDamaged and isPotentialSolution pattern, lengths
+    print "Solution: #{pattern}"
     1
   else
     0
