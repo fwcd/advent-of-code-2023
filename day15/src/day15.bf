@@ -15,6 +15,7 @@ memory layout:
 10:   temporary for copying stuff around
 11:   temporary hash value for multiplication
 12:   temporary 17 for the hash computation
+13: last hash value
 16: ASCII space for printing
 
 [-]+ set cell 0 to one (the condition)
@@ -43,6 +44,10 @@ memory layout:
 
       idea: multiply into cell 5 (hash value) by repeatedly adding cell 11
 
+      > in cell 13
+        [-] zero cell
+      <
+
       [ while not zero (ie repeat 17 times)
         < in cell 11 (temporary hash value)
           <<[-]>> <[-]> zero cell 9 and 10
@@ -53,12 +58,16 @@ memory layout:
           >>
 
           < in cell 10
-            [- <<<<<+>>>>>] add hash value to cell 5
+            [- <<<<<+>>>>> >>>+<<<] add hash value to cell 5 and 13
           >
         >
 
         - decrement
       ]
+
+      > in cell 13
+        . output for debugging
+      <
     <<< <<<< <<<<
   <
 
@@ -82,16 +91,11 @@ memory layout:
       - zero cell
 
       <<< in cell 0
-        >>>> > in cell 5 (the hash value)
-          ++++ ++++ ++++ ++++
-          ++++ ++++ ++++ ++++
-          ++++ ++++ ++++ ++++ add 48 (ASCII value for zero)
-          . output value
-
-          todo: handle multi digits with mod algorithm
+        >>>> >>>> >>>> > in cell 13 (the hash value)
+          . output value (TODO: ASCII)
 
           [-] zero cell
-        <<<< <
+        <<<< <<<< <<<< <
 
         >>>> >>>> >>>> >>>> in cell 16
           [-] zero cell
@@ -111,6 +115,12 @@ memory layout:
   ---- ---- -- subtract 10 (ASCII value for \n)
   we rely on the fact that all other chars we are interested in have higher ASCII values
 ]
+
+>>>> >>>> >>>> > in cell 13 (the last hash value)
+  . output value (TODO: ASCII)
+
+  [-] zero cell
+<<<< <<<< <<<< <
 
 ++++ ++++ ++ add 10 (ASCII value for \n)
 . print the newline
