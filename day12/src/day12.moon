@@ -63,8 +63,9 @@ solveImpl = (pattern, lengths, i) ->
   solutions = 0
 
   if c != '#'
-    -- Skip the spot (i.e. replacing this ? with .)
-    solutions += solveImpl pattern, lengths, i + 1
+    -- Skip forward (i.e. replacing this ? with .)
+    skip = 1 + prefixLength(pattern, i + 1, '%.')
+    solutions += solveImpl pattern, lengths, i + skip
   if c != '.'
     completable = prefixLength pattern, i, '[#?]'
     -- ...or insert the next group, i.e. replacing nextLength ?s with # if
