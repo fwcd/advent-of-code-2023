@@ -14,7 +14,9 @@
         let
           pkgs = import nixpkgs { inherit system; };
         in {
-          default = pkgs.callPackage ./derivation.nix {};
+          default = pkgs.callPackage ./derivation.nix {
+            brainfix = pkgs.callPackage ./brainfix {};
+          };
         }
       );
 
