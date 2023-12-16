@@ -66,58 +66,58 @@ function print_box_array(&array) {
   printc(']');
 }
 
-struct BoxArrays {
-  [struct BoxArray] array0,
-  [struct BoxArray] array1,
-  [struct BoxArray] array2,
-  [struct BoxArray] array3,
-  [struct BoxArray] array4,
-  [struct BoxArray] array5,
-  [struct BoxArray] array6;
+struct BoxMatrix {
+  [struct BoxArray] row0,
+  [struct BoxArray] row1,
+  [struct BoxArray] row2,
+  [struct BoxArray] row3,
+  [struct BoxArray] row4,
+  [struct BoxArray] row5,
+  [struct BoxArray] row6;
 };
 
-function box_arrays_zero(&arrays) {
-  box_array_zero(arrays.array0);
-  box_array_zero(arrays.array1);
-  box_array_zero(arrays.array2);
-  box_array_zero(arrays.array3);
-  box_array_zero(arrays.array4);
-  box_array_zero(arrays.array5);
-  box_array_zero(arrays.array6);
+function box_matrix_zero(&matrix) {
+  box_array_zero(matrix.row0);
+  box_array_zero(matrix.row1);
+  box_array_zero(matrix.row2);
+  box_array_zero(matrix.row3);
+  box_array_zero(matrix.row4);
+  box_array_zero(matrix.row5);
+  box_array_zero(matrix.row6);
 }
 
-function box_arrays_get(&arrays, i, j, &out) {
+function box_matrix_get(&matrix, i, j, &out) {
   switch (i) {
-    case 0: box_array_get(arrays.array0, j, out);
-    case 1: box_array_get(arrays.array1, j, out);
-    case 2: box_array_get(arrays.array2, j, out);
-    case 3: box_array_get(arrays.array3, j, out);
-    case 4: box_array_get(arrays.array4, j, out);
-    case 5: box_array_get(arrays.array5, j, out);
-    case 6: box_array_get(arrays.array6, j, out);
+    case 0: box_array_get(matrix.row0, j, out);
+    case 1: box_array_get(matrix.row1, j, out);
+    case 2: box_array_get(matrix.row2, j, out);
+    case 3: box_array_get(matrix.row3, j, out);
+    case 4: box_array_get(matrix.row4, j, out);
+    case 5: box_array_get(matrix.row5, j, out);
+    case 6: box_array_get(matrix.row6, j, out);
   }
 }
 
-function box_arrays_set(&arrays, i, j, value) {
+function box_matrix_set(&matrix, i, j, value) {
   switch (i) {
-    case 0: box_array_set(arrays.array0, j, value);
-    case 1: box_array_set(arrays.array1, j, value);
-    case 2: box_array_set(arrays.array2, j, value);
-    case 3: box_array_set(arrays.array3, j, value);
-    case 4: box_array_set(arrays.array4, j, value);
-    case 5: box_array_set(arrays.array5, j, value);
-    case 6: box_array_set(arrays.array6, j, value);
+    case 0: box_array_set(matrix.row0, j, value);
+    case 1: box_array_set(matrix.row1, j, value);
+    case 2: box_array_set(matrix.row2, j, value);
+    case 3: box_array_set(matrix.row3, j, value);
+    case 4: box_array_set(matrix.row4, j, value);
+    case 5: box_array_set(matrix.row5, j, value);
+    case 6: box_array_set(matrix.row6, j, value);
   }
 }
 
-function print_box_arrays(&arrays) {
-  print_box_array(arrays.array0); printc('\n');
-  print_box_array(arrays.array1); printc('\n');
-  print_box_array(arrays.array2); printc('\n');
-  print_box_array(arrays.array3); printc('\n');
-  print_box_array(arrays.array4); printc('\n');
-  print_box_array(arrays.array5); printc('\n');
-  print_box_array(arrays.array6); printc('\n');
+function print_box_matrix(&matrix) {
+  print_box_array(matrix.row0); printc('\n');
+  print_box_array(matrix.row1); printc('\n');
+  print_box_array(matrix.row2); printc('\n');
+  print_box_array(matrix.row3); printc('\n');
+  print_box_array(matrix.row4); printc('\n');
+  print_box_array(matrix.row5); printc('\n');
+  print_box_array(matrix.row6); printc('\n');
 }
 
 function main() {
@@ -126,15 +126,15 @@ function main() {
   let [INT_BYTES] sum;
 
   let [struct BoxArray] box_sizes;
-  let [struct BoxArrays] box_names;
-  let [struct BoxArrays] box_lenses;
+  let [struct BoxMatrix] box_names;
+  let [struct BoxMatrix] box_lenses;
 
   for (let i = 1; i < 4; i++) {
-    box_arrays_set(box_lenses, i, i, i * 2);
+    box_matrix_set(box_lenses, i, i, i * 2);
   }
 
-  println("Box arrays:");
-  print_box_arrays(box_lenses);
+  println("Box matrix:");
+  print_box_matrix(box_lenses);
 
   while (true) {
     c = scanc();
