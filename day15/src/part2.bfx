@@ -1,10 +1,10 @@
 include "std.bfx"
 
 const BASE = 10;
-const INT_BYTES = 8;
+const WORD_BYTES = 8;
 
-function normalize_int(&value) {
-  for (let i = 0; i < (INT_BYTES - 1); i++) {
+function normalize_word(&value) {
+  for (let i = 0; i < (WORD_BYTES - 1); i++) {
     while (value[i] >= BASE) {
       value[i] -= BASE;
       value[i + 1]++;
@@ -12,9 +12,9 @@ function normalize_int(&value) {
   }
 }
 
-function print_int(&value) {
-  for (let i = 0; i < INT_BYTES; i++) {
-    printd(value[INT_BYTES - 1 - i]);
+function print_word(&value) {
+  for (let i = 0; i < WORD_BYTES; i++) {
+    printd(value[WORD_BYTES - 1 - i]);
   }
 }
 
@@ -22,11 +22,11 @@ function hash_to_sum(&hash, &sum) {
   while (hash >= BASE) {
     sum[0] += BASE;
     hash -= BASE;
-    normalize_int(sum);
+    normalize_word(sum);
   }
   sum[0] += hash;
   hash = 0;
-  normalize_int(sum);
+  normalize_word(sum);
 }
 
 struct BoxArray {
@@ -123,18 +123,12 @@ function print_box_matrix(&matrix) {
 function main() {
   let c;
   let hash = 0;
-  let [INT_BYTES] sum;
+  let [WORD_BYTES] sum;
+  let [WORD_BYTES] name;
 
   let [struct BoxArray] box_sizes;
   let [struct BoxMatrix] box_names;
-  let [struct BoxMatrix] box_lenses;
-
-  for (let i = 1; i < 4; i++) {
-    box_matrix_set(box_lenses, i, i, i * 2);
-  }
-
-  println("Box matrix:");
-  print_box_matrix(box_lenses);
+  let [struct BoxMatrix] box_focal_lengths;
 
   while (true) {
     c = scanc();
@@ -146,5 +140,5 @@ function main() {
   }
 
   hash_to_sum(hash, sum);
-  print_int(sum);
+  print_word(sum);
 }
