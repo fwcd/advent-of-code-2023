@@ -120,11 +120,19 @@ function print_box_matrix(&matrix) {
   print_box_array(matrix.row6); printc('\n');
 }
 
+const PARSE_STATE_NAME = 0;
+const PARSE_STATE_FOCAL_LENGTH = 1;
+
 function main() {
   let c;
+
+  let parse_state = PARSE_STATE_NAME;
+  let [WORD_BYTES] name;
+  let name_index = 0;
+  let focal_length = 0;
+
   let hash = 0;
   let [WORD_BYTES] sum;
-  let [WORD_BYTES] name;
 
   let [struct BoxArray] box_sizes;
   let [struct BoxMatrix] box_names;
@@ -133,12 +141,27 @@ function main() {
   while (true) {
     c = scanc();
     switch (c) {
-      case ',': hash_to_sum(hash, sum);
       case '\n': break;
-      default: hash = (hash + c) * 17;
+      case ',': {
+        for (let i = 0; i < name_index; i++) {
+          printc(name[i]);
+        }
+        printc(',');
+        parse_state = PARSE_STATE_NAME;
+        focal_length = 0;
+        name_index = 0;
+      }
+      case '-': parse_state = PARSE_STATE_FOCAL_LENGTH;
+      case '=': parse_state = PARSE_STATE_FOCAL_LENGTH;
+      default: {
+        if (parse_state == PARSE_STATE_NAME) {
+          name[name_index] = c;
+          name_index++;
+        }
+        hash = (hash + c) * 17;
+      }
     }
   }
 
-  hash_to_sum(hash, sum);
   print_word(sum);
 }
