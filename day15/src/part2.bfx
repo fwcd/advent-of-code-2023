@@ -152,6 +152,7 @@ function main() {
         printc('\n');
         parse_state = PARSE_STATE_NAME;
         name_index = 0;
+        hash = 0;
       }
       default: {
         if (c == '-' || c == '=') {
@@ -162,11 +163,11 @@ function main() {
             case PARSE_STATE_NAME: {
               name[name_index] = c;
               name_index++;
+              hash = (hash + c) * 17;
             }
             case PARSE_STATE_FOCAL_LENGTH: focal_length = c - '0';
           }
         }
-        hash = (hash + c) * 17;
       }
     }
   }
