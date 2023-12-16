@@ -4,9 +4,12 @@
     srcs = [./src ./scripts];
     sourceRoot = ".";
 
+    buildInputs = [
+      brainfix
+    ];
+
     nativeBuildInputs = [
       bfc
-      brainfix
       clang
     ];
 
@@ -21,14 +24,14 @@
       cat src/part2.bfx | cpp | awk '!/^#/' > out/part2.preprocessed.bfx
 
       bfx -o out/part2.bf -I ${brainfix.outPath}/share/bfx/std out/part2.preprocessed.bfx
-      (cd out && bfc part2.bf)
     '';
 
     installPhase = ''
-      mkdir -p $out/{bin,libexec,src}
-      cp out/part{1,2} $out/libexec
+      mkdir -p $out/{bin,libexec,share,src}
+      cp out/part1 $out/libexec
       cp scripts/sum $out/libexec
-      cp src/part1.bf out/part2.bf out/part2.preprocessed.bfx $out/src
+      cp out/part2.bf $out/share
+      cp src/part1.bf out/part2.preprocessed.bfx $out/src
 
       cat <<EOF > $out/bin/day15
       #!/bin/bash
@@ -38,9 +41,10 @@
         exit 1
       fi
       libexec="\$(dirname "\$0")/../libexec"
+      share="\$(dirname "\$0")/../share"
 
       echo "Part 1: \$("\$libexec/part1" < "\$1" | "\$libexec/sum")"
-      echo "Part 2: \$("\$libexec/part2" < "\$1")"
+      echo "Part 2: \$("${brainfix.outPath}/bin/bfint" "\$share/part2.bf" < "\$1")"
       EOF
 
       chmod +x $out/bin/day15
