@@ -123,8 +123,3 @@ memory layout:
   ---- ---- -- subtract 10 (ASCII value for \n)
   we rely on the fact that all other chars we are interested in have higher ASCII values
 ]
-
->>> >>>> >>>> in cell 24 (the hash sum)
-  ---- ---- -- subtract 10 (last \n)
-  . output value
-<<< <<<< <<<<
