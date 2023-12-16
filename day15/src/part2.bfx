@@ -113,6 +113,40 @@ function print_box_matrix(&matrix) {
   print_box_array(matrix.row8); printc('\n');
 }
 
+struct BoxMatrix3D {
+  [struct BoxMatrix] matrix0,
+  [struct BoxMatrix] matrix1,
+  [struct BoxMatrix] matrix2,
+  [struct BoxMatrix] matrix3,
+  [struct BoxMatrix] matrix4,
+  [struct BoxMatrix] matrix5,
+  [struct BoxMatrix] matrix6;
+};
+
+function box_matrix3d_get(&matrix, i, j, k, &out) {
+  switch (i) {
+    case 0: box_matrix_get(matrix.matrix0, j, k, out);
+    case 1: box_matrix_get(matrix.matrix1, j, k, out);
+    case 2: box_matrix_get(matrix.matrix2, j, k, out);
+    case 3: box_matrix_get(matrix.matrix3, j, k, out);
+    case 4: box_matrix_get(matrix.matrix4, j, k, out);
+    case 5: box_matrix_get(matrix.matrix5, j, k, out);
+    case 6: box_matrix_get(matrix.matrix6, j, k, out);
+  }
+}
+
+function box_matrix3d_set(&matrix, i, j, k, value) {
+  switch (i) {
+    case 0: box_matrix_set(matrix.matrix0, j, k, value);
+    case 1: box_matrix_set(matrix.matrix1, j, k, value);
+    case 2: box_matrix_set(matrix.matrix2, j, k, value);
+    case 3: box_matrix_set(matrix.matrix3, j, k, value);
+    case 4: box_matrix_set(matrix.matrix4, j, k, value);
+    case 5: box_matrix_set(matrix.matrix5, j, k, value);
+    case 6: box_matrix_set(matrix.matrix6, j, k, value);
+  }
+}
+
 const PARSE_STATE_NAME = 0;
 const PARSE_STATE_FOCAL_LENGTH = 1;
 
@@ -128,7 +162,7 @@ function main() {
   let [WORD_BYTES] sum;
 
   let [struct BoxArray] box_sizes;
-  let [struct BoxMatrix] box_lens_names;
+  let [struct BoxMatrix3D] box_lens_names;
   let [struct BoxMatrix] box_lens_focal_lengths;
 
   while (true) {
@@ -143,6 +177,34 @@ function main() {
         prints(" at ");
         printd(hash);
         printc('\n');
+
+        if (focal_length == 0) {
+          // We've got a dash, delete the lens
+        } else {
+          // Search for the lens
+          let found_lens = 0;
+          let size = 0;
+          box_array_get(box_sizes, hash, size);
+          for (let j = 0; j < size; j++) {
+            for (let k = 0; k < name_index; k++) {
+              let other_c;
+              box_matrix3d_get(box_lens_names, k, j, hash, other_c);
+              if (name[c] == other_c) {
+                box_matrix_set(box_lens_focal_lengths, j, hash, focal_length);
+                found_lens = 1;
+              }
+            }
+          }
+          if (!found_lens) {
+            // Append the lens
+            box_array_set(box_sizes, hash, size + 1);
+            box_matrix_set(box_lens_focal_lengths, size, hash, focal_length);
+            for (let k = 0; k < name_index; k++) {
+              box_matrix3d_set(box_lens_names, k, size, hash, name[c]);
+            }
+          }
+        }
+
         parse_state = PARSE_STATE_NAME;
         name_index = 0;
         hash = 0;
