@@ -34,11 +34,6 @@ struct BoxArray {
   [128] high;
 };
 
-function box_array_zero(&array) {
-  zero(array.low);
-  zero(array.high);
-}
-
 function box_array_get(&array, i, &out) {
   if (i < 128) {
     out = array.low[i];
@@ -74,17 +69,9 @@ struct BoxMatrix {
   [struct BoxArray] row4,
   [struct BoxArray] row5,
   [struct BoxArray] row6;
+  [struct BoxArray] row7;
+  [struct BoxArray] row8;
 };
-
-function box_matrix_zero(&matrix) {
-  box_array_zero(matrix.row0);
-  box_array_zero(matrix.row1);
-  box_array_zero(matrix.row2);
-  box_array_zero(matrix.row3);
-  box_array_zero(matrix.row4);
-  box_array_zero(matrix.row5);
-  box_array_zero(matrix.row6);
-}
 
 function box_matrix_get(&matrix, i, j, &out) {
   switch (i) {
@@ -95,6 +82,8 @@ function box_matrix_get(&matrix, i, j, &out) {
     case 4: box_array_get(matrix.row4, j, out);
     case 5: box_array_get(matrix.row5, j, out);
     case 6: box_array_get(matrix.row6, j, out);
+    case 7: box_array_get(matrix.row7, j, out);
+    case 8: box_array_get(matrix.row8, j, out);
   }
 }
 
@@ -107,6 +96,8 @@ function box_matrix_set(&matrix, i, j, value) {
     case 4: box_array_set(matrix.row4, j, value);
     case 5: box_array_set(matrix.row5, j, value);
     case 6: box_array_set(matrix.row6, j, value);
+    case 7: box_array_set(matrix.row7, j, value);
+    case 8: box_array_set(matrix.row8, j, value);
   }
 }
 
@@ -118,6 +109,8 @@ function print_box_matrix(&matrix) {
   print_box_array(matrix.row4); printc('\n');
   print_box_array(matrix.row5); printc('\n');
   print_box_array(matrix.row6); printc('\n');
+  print_box_array(matrix.row7); printc('\n');
+  print_box_array(matrix.row8); printc('\n');
 }
 
 const PARSE_STATE_NAME = 0;
@@ -135,8 +128,8 @@ function main() {
   let [WORD_BYTES] sum;
 
   let [struct BoxArray] box_sizes;
-  let [struct BoxMatrix] box_names;
-  let [struct BoxMatrix] box_focal_lengths;
+  let [struct BoxMatrix] box_lens_names;
+  let [struct BoxMatrix] box_lens_focal_lengths;
 
   while (true) {
     c = scanc();
