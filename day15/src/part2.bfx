@@ -12,12 +12,6 @@ function normalize_int(&value) {
   }
 }
 
-function zero_int(&value) {
-  for (let i = 0; i < INT_BYTES; i++) {
-    value[i] = 0;
-  }
-}
-
 function print_int(&value) {
   for (let i = 0; i < INT_BYTES; i++) {
     printd(value[INT_BYTES - 1 - i]);
@@ -35,13 +29,109 @@ function hash_to_sum(&hash, &sum) {
   normalize_int(sum);
 }
 
+struct BoxArray {
+  [128] low;
+  [128] high;
+};
+
+function box_array_zero(&array) {
+  zero(array.low);
+  zero(array.high);
+}
+
+function box_array_get(&array, i, &out) {
+  if (i < 128) {
+    out = array.low[i];
+  } else {
+    out = array.high[i];
+  }
+}
+
+function box_array_set(&array, i, value) {
+  if (i < 128) {
+    array.low[i] = value;
+  } else {
+    array.high[i] = value;
+  }
+}
+
+function print_box_array(&array) {
+  printc('[');
+  for (let i = 0; i < 128; i++) {
+    printd(array.low[i]);
+    if (i != 127) {
+      printc(' ');
+    }
+  }
+  printc(']');
+}
+
+struct BoxArrays {
+  [struct BoxArray] array0,
+  [struct BoxArray] array1,
+  [struct BoxArray] array2,
+  [struct BoxArray] array3,
+  [struct BoxArray] array4,
+  [struct BoxArray] array5,
+  [struct BoxArray] array6;
+};
+
+function box_arrays_zero(&arrays) {
+  box_array_zero(arrays.array0);
+  box_array_zero(arrays.array1);
+  box_array_zero(arrays.array2);
+  box_array_zero(arrays.array3);
+  box_array_zero(arrays.array4);
+  box_array_zero(arrays.array5);
+  box_array_zero(arrays.array6);
+}
+
+function box_arrays_get(&arrays, i, j, &out) {
+  switch (i) {
+    case 0: box_array_get(arrays.array0, j, out);
+    case 1: box_array_get(arrays.array1, j, out);
+    case 2: box_array_get(arrays.array2, j, out);
+    case 3: box_array_get(arrays.array3, j, out);
+    case 4: box_array_get(arrays.array4, j, out);
+    case 5: box_array_get(arrays.array5, j, out);
+    case 6: box_array_get(arrays.array6, j, out);
+  }
+}
+
+function box_arrays_set(&arrays, i, j, value) {
+  switch (i) {
+    case 0: box_array_get(arrays.array0, j, value);
+    case 1: box_array_get(arrays.array1, j, value);
+    case 2: box_array_get(arrays.array2, j, value);
+    case 3: box_array_get(arrays.array3, j, value);
+    case 4: box_array_get(arrays.array4, j, value);
+    case 5: box_array_get(arrays.array5, j, value);
+    case 6: box_array_get(arrays.array6, j, value);
+  }
+}
+
+function print_box_arrays(&arrays) {
+  print_box_array(arrays.array0); printc('\n');
+  print_box_array(arrays.array1); printc('\n');
+  print_box_array(arrays.array2); printc('\n');
+  print_box_array(arrays.array3); printc('\n');
+  print_box_array(arrays.array4); printc('\n');
+  print_box_array(arrays.array5); printc('\n');
+  print_box_array(arrays.array6); printc('\n');
+}
+
 function main() {
   let c;
   let hash = 0;
   let [INT_BYTES] sum;
 
-  zero_int(sum);
+  let [struct BoxArray] box_sizes;
+  let [struct BoxArrays] box_names;
+  let [struct BoxArrays] box_lenses;
 
+  println("Box arrays:");
+  print_box_arrays(box_lenses);
+  
   while (true) {
     c = scanc();
     switch (c) {
