@@ -143,10 +143,13 @@ function main() {
     switch (c) {
       case '\n': break;
       case ',': {
+        prints("Inserting ");
         for (let i = 0; i < name_index; i++) {
           printc(name[i]);
         }
-        printc(',');
+        prints(" at ");
+        printd(hash);
+        printc('\n');
         parse_state = PARSE_STATE_NAME;
         name_index = 0;
       }
