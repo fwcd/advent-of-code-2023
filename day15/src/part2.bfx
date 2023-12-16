@@ -148,15 +148,20 @@ function main() {
         }
         printc(',');
         parse_state = PARSE_STATE_NAME;
-        focal_length = 0;
         name_index = 0;
       }
-      case '-': parse_state = PARSE_STATE_FOCAL_LENGTH;
-      case '=': parse_state = PARSE_STATE_FOCAL_LENGTH;
       default: {
-        if (parse_state == PARSE_STATE_NAME) {
-          name[name_index] = c;
-          name_index++;
+        if (c == '-' || c == '=') {
+          parse_state = PARSE_STATE_FOCAL_LENGTH;
+          focal_length = 0;
+        } else {
+          switch (parse_state) {
+            case PARSE_STATE_NAME: {
+              name[name_index] = c;
+              name_index++;
+            }
+            case PARSE_STATE_FOCAL_LENGTH: focal_length = c - '0';
+          }
         }
         hash = (hash + c) * 17;
       }
