@@ -100,13 +100,13 @@ function box_arrays_get(&arrays, i, j, &out) {
 
 function box_arrays_set(&arrays, i, j, value) {
   switch (i) {
-    case 0: box_array_get(arrays.array0, j, value);
-    case 1: box_array_get(arrays.array1, j, value);
-    case 2: box_array_get(arrays.array2, j, value);
-    case 3: box_array_get(arrays.array3, j, value);
-    case 4: box_array_get(arrays.array4, j, value);
-    case 5: box_array_get(arrays.array5, j, value);
-    case 6: box_array_get(arrays.array6, j, value);
+    case 0: box_array_set(arrays.array0, j, value);
+    case 1: box_array_set(arrays.array1, j, value);
+    case 2: box_array_set(arrays.array2, j, value);
+    case 3: box_array_set(arrays.array3, j, value);
+    case 4: box_array_set(arrays.array4, j, value);
+    case 5: box_array_set(arrays.array5, j, value);
+    case 6: box_array_set(arrays.array6, j, value);
   }
 }
 
@@ -129,9 +129,13 @@ function main() {
   let [struct BoxArrays] box_names;
   let [struct BoxArrays] box_lenses;
 
+  for (let i = 1; i < 4; i++) {
+    box_arrays_set(box_lenses, i, i, i * 2);
+  }
+
   println("Box arrays:");
   print_box_arrays(box_lenses);
-  
+
   while (true) {
     c = scanc();
     switch (c) {
