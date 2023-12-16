@@ -17,7 +17,7 @@
 
     installPhase = ''
       mkdir -p $out/{bin,share/bfx}
-      cp bfx $out/bin
+      cp {bfint,bfx} $out/bin
       cp -r std $out/share/bfx
     '';
   }
