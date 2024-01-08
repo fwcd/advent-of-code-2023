@@ -114,7 +114,8 @@
           "codemirror": "d",
           "name": "D"
         },
-        "path": "day15/src/part2.d"
+        "path": "day15/src/part2.d",
+        "completed": true
       }
     ]
   }

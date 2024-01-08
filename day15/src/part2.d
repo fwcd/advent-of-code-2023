@@ -1,4 +1,4 @@
-import std.array, std.algorithm, std.conv, std.file, std.stdio, std.string, std.typecons;
+import std.array, std.algorithm, std.conv, std.file, std.range, std.stdio, std.string, std.typecons;
 
 int hash(string s)
 {
@@ -41,7 +41,11 @@ void main(string[] args)
     }
   }
 
-  foreach (box; boxes) {
-    writefln("%(%s,%) %(%d,%)", box.map!(e => e.key), box.map!(e => e.focalLength));
-  }
+  int focusPower = boxes[]
+    .enumerate
+    .map!(ibox => ibox[1].enumerate.map!(ie => (ibox[0] + 1) * (ie[0] + 1) * ie[1].focalLength).sum)
+    .sum
+    .to!int;
+
+  writefln("%d", focusPower);
 }
