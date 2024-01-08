@@ -97,7 +97,13 @@
     "path": "day12/src/day12.moon",
     "completed": true
   },
-  null,
+  {
+    "lang": {
+      "codemirror": "vala",
+      "name": "Vala"
+    },
+    "path": "day13/src/day13.vala"
+  },
   null,
   {
     "parts": [
