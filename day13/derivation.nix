@@ -16,7 +16,7 @@
     buildPhase = ''
       mkdir out
 
-      valac -o out/day13 src/day13.vala
+      valac --pkg gio-2.0 -o out/day13 src/day13.vala
     '';
 
     installPhase = ''
