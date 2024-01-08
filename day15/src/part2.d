@@ -12,6 +12,5 @@ int hash(string s)
 void main(string[] args)
 {
   string[] input = readText(args[1]).strip.split(",");
-  writefln("Got %(%s,%)", input);
-  writefln("Got %(%d,%)", input.map!(hash));
+  writefln("%d", input.map!(hash).sum);
 }
