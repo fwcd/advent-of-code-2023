@@ -22,7 +22,6 @@ void main(string[] args)
         int i = indices[key];
         indices.remove(key);
         boxes[i] = boxes[i].filter!(e => e.key != key).array;
-        writefln("Box %d after removal of %s: %(%s,%)", i, key, boxes[i].map!(e => e.key));
       }
     } else {
       string[] components = lens.split("=");
@@ -36,15 +35,13 @@ void main(string[] args)
         boxes[i][j].focalLength = focalLength;
       } else {
         // Insert lens
-        writefln("Could not find %s in %d, got %d for %s in %(%s,%)", key, i, j, key, boxes[i].map!(e => e.key));
         boxes[i] ~= tuple!("key", "focalLength")(key, focalLength);
-        writefln("Box %d -> %(%s,%)", i, boxes[i].map!(e => e.key));
         indices[key] = i;
       }
     }
   }
 
-  // foreach (box; boxes) {
-  //   writefln("%(%s,%) %(%d,%)", box.map!(e => e.key), box.map!(e => e.focalLength));
-  // }
+  foreach (box; boxes) {
+    writefln("%(%s,%) %(%d,%)", box.map!(e => e.key), box.map!(e => e.focalLength));
+  }
 }
