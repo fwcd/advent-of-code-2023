@@ -35,7 +35,7 @@
       libexec="\$(dirname "\$0")/../libexec"
 
       echo "Part 1: \$("\$libexec/part1" < "\$1" | "\$libexec/sum")"
-      echo "Part 2: \$("\$libexec/part2" < "\$1")"
+      echo "Part 2: \$("\$libexec/part2" "\$1")"
       EOF
 
       chmod +x $out/bin/day15

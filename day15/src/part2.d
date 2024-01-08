@@ -1,6 +1,7 @@
-import std.stdio;
+import std.stdio, std.file;
 
-void main()
+void main(string[] args)
 {
-  writeln("Hello world!");
+  string input = readText(args[1]);
+  writefln("Got %s", input);
 }
