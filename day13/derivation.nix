@@ -1,11 +1,16 @@
-{ stdenv, vala }:
+{ stdenv, glib, pkg-config, vala }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day13";
     src = ./src;
     sourceRoot = ".";
 
     nativeBuildInputs = [
+      pkg-config
       vala
+    ];
+
+    buildInputs = [
+      glib
     ];
 
     buildPhase = ''
