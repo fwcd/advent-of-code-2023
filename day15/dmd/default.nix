@@ -11,12 +11,14 @@
       ;
     };
 
-    installPhase = if stdenv.isDarwin then ''
-      mkdir -p "$out"
-      cp -r osx/{bin,lib} "$out"
-    '' else ''
-      mkdir -p "$out"
-      cp -r linux/bin64 "$out/bin"
-      cp -r linux/lib64 "$out/lib"
+    installPhase = ''
+      mkdir -p $out/{bin,opt}
+      cp -r . $out/opt/dmd
+
+      binpath="$out/opt/dmd/${if stdenv.isDarwin then "osx/bin" else "linux/bin64"}"
+      
+      for e in ddemangle dmd dub rdmd; do
+        ln -s "$binpath/$e" "$out/bin/$e"
+      done
     '';
   }
