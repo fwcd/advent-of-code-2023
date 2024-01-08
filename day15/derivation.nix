@@ -16,14 +16,14 @@
       cp src/part1.bf out
       (cd out && bfc part1.bf)
 
-      dmd -od=out src/part2.d
+      dmd -of=out/part2 src/part2.d
     '';
 
     installPhase = ''
       mkdir -p $out/{bin,libexec,src}
       cp out/part{1,2} $out/libexec
       cp scripts/sum $out/libexec
-      cp src/part1.bf out/part2.bf out/part2.preprocessed.bfx $out/src
+      cp src/part1.bf $out/src
 
       cat <<EOF > $out/bin/day15
       #!/bin/bash
