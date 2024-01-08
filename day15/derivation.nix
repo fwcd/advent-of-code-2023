@@ -16,9 +16,7 @@
       cp src/part1.bf out
       (cd out && bfc part1.bf)
 
-      # Run the C preprocessor and make sure lines align by
-      # replacing preprocessor directives with empty lines.
-      cat src/part2.bfx | cpp | awk '!/^#/' > out/part2.preprocessed.bfx
+      dmd -od=out src/part2.d
     '';
 
     installPhase = ''
