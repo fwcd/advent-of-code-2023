@@ -1,4 +1,4 @@
-{ stdenv, bfc, clang, dmd }:
+{ stdenv, bfc, clang, ldc }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day15";
     srcs = [./src ./scripts];
@@ -7,7 +7,7 @@
     nativeBuildInputs = [
       bfc
       clang
-      dmd
+      ldc
     ];
 
     buildPhase = ''
@@ -16,7 +16,7 @@
       cp src/part1.bf out
       (cd out && bfc part1.bf)
 
-      dmd -of=out/part2 src/part2.d
+      ldc2 -of=out/part2 src/part2.d
     '';
 
     installPhase = ''
