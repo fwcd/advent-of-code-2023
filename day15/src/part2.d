@@ -21,7 +21,7 @@ void main(string[] args)
       if (key in indices) {
         int i = indices[key];
         indices.remove(key);
-        boxes[i].remove!(e => e.key == key);
+        boxes[i] = boxes[i].filter!(e => e.key != key).array;
         writefln("Box %d after removal of %s: %(%s,%)", i, key, boxes[i].map!(e => e.key));
       }
     } else {
