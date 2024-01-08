@@ -111,9 +111,10 @@
       },
       {
         "lang": {
-          "name": "Brainfix"
+          "codemirror": "d",
+          "name": "D"
         },
-        "path": "day15/src/part2.bfx"
+        "path": "day15/src/part2.d"
       }
     ]
   }
