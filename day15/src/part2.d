@@ -1,4 +1,13 @@
-import std.array, std.file, std.stdio;
+import std.array, std.conv, std.file, std.stdio;
+
+int hash(string s)
+{
+  int value = 0;
+  foreach (dchar c; s) {
+    value = ((value + to!int(c)) * 17) % 256;
+  }
+  return value;
+}
 
 void main(string[] args)
 {
