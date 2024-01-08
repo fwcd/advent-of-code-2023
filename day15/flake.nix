@@ -12,7 +12,15 @@
     in {
       packages = forAllSystems (system:
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = import nixpkgs (
+            # We have to use Rosetta on Apple Silicon since the D compiler (dmd)
+            # is unfortunately not available for ARM yet.
+            if system == "aarch64-darwin" then {
+              system = "x86_64-darwin";
+            } else {
+              inherit system;
+            }
+          );
         in {
           default = pkgs.callPackage ./derivation.nix {
             dmd = pkgs.callPackage ./dmd {};
