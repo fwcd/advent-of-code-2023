@@ -1,7 +1,7 @@
-import std.stdio, std.file;
+import std.array, std.file, std.stdio;
 
 void main(string[] args)
 {
-  string input = readText(args[1]);
-  writefln("Got %s", input);
+  string[] input = readText(args[1]).split(",");
+  writefln("Got %(%s,%)", input);
 }
