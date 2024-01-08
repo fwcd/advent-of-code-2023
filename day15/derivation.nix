@@ -1,4 +1,4 @@
-{ stdenv, bfc, brainfix, clang }:
+{ stdenv, bfc, clang, dmd }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day15";
     srcs = [./src ./scripts];
@@ -6,8 +6,8 @@
 
     nativeBuildInputs = [
       bfc
-      brainfix
       clang
+      dmd
     ];
 
     buildPhase = ''
@@ -19,9 +19,6 @@
       # Run the C preprocessor and make sure lines align by
       # replacing preprocessor directives with empty lines.
       cat src/part2.bfx | cpp | awk '!/^#/' > out/part2.preprocessed.bfx
-
-      bfx -o out/part2.bf -I ${brainfix.outPath}/share/bfx/std out/part2.preprocessed.bfx
-      (cd out && bfc part2.bf)
     '';
 
     installPhase = ''
