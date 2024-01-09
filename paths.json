@@ -110,7 +110,8 @@
       "codemirror": "go",
       "name": "Go"
     },
-    "path": "day14/src/day14.go"
+    "path": "day14/src/day14.go",
+    "completed": true
   },
   {
     "parts": [
