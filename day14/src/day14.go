@@ -93,12 +93,14 @@ func tiltCycle(matrix []string) []string {
 func tiltCycles(matrix []string, n int) []string {
 	cycled := matrix
 	visited := make([][]string, 0)
-	for i := 1; i < n; i++ {
+	for i := 0; i < n; i++ {
 		cycled = tiltCycle(cycled)
-		for _, previous := range visited {
+		for j, previous := range visited {
 			if matricesEqual(previous, cycled) {
-				fmt.Println("Period has length", len(visited))
-				return visited[n%len(visited)]
+				// We found the period
+				remaining := n - i - 1
+				periodLength := len(visited) - j
+				return visited[j+remaining%periodLength]
 			}
 		}
 		visited = append(visited, cycled)
