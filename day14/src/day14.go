@@ -26,7 +26,9 @@ func tilt(row string) string {
 		case '.':
 			floor += string(c)
 		case 'O':
-			tilted += string(c) + floor
+			tilted += string(c)
+		case '#':
+			tilted += floor + string(c)
 			floor = ""
 		default:
 			tilted += string(c)
@@ -62,6 +64,6 @@ func main() {
 	}
 
 	fmt.Println(input)
-	fmt.Println(transpose(input)[0])
+	fmt.Println(transpose(input))
 	fmt.Println(tiltMatrix(transpose(input)))
 }
