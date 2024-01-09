@@ -6,6 +6,44 @@ import (
 	"strings"
 )
 
+func transpose(matrix []string) []string {
+	t := make([]string, len(matrix))
+	for j := 0; j < len(matrix[0]); j++ {
+		col := ""
+		for _, row := range matrix {
+			col += string(row[j])
+		}
+		t[j] = col
+	}
+	return t
+}
+
+func tilt(row string) string {
+	tilted := ""
+	floor := ""
+	for _, c := range row {
+		switch c {
+		case '.':
+			floor += string(c)
+		case 'O':
+			tilted += string(c) + floor
+			floor = ""
+		default:
+			tilted += string(c)
+		}
+	}
+	tilted += floor
+	return tilted
+}
+
+func tiltMatrix(matrix []string) []string {
+	tilted := make([]string, len(matrix))
+	for i, row := range matrix {
+		tilted[i] = tilt(row)
+	}
+	return tilted
+}
+
 func main() {
 	args := os.Args
 	if len(args) <= 1 {
@@ -19,5 +57,11 @@ func main() {
 	}
 
 	input := strings.Split(string(data), "\n")
+	for input[len(input)-1] == "" {
+		input = input[:len(input)-1]
+	}
+
 	fmt.Println(input)
+	fmt.Println(transpose(input)[0])
+	fmt.Println(tiltMatrix(transpose(input)))
 }
