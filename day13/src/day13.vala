@@ -18,7 +18,6 @@ bool isSymmetryAxis(string[] matrix, int i) {
       return true;
     }
     if (matrix[j1] != matrix[j2]) {
-      print(@"$j1 -> $(matrix[j1]) != $(matrix[j2]) <- $j2 so not at $i\n");
       return false;
     }
   }
