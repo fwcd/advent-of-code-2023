@@ -18,7 +18,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 10: [Java](day10/src/Day10.java)
 - [x] Day 11: [Crystal](day11/src/day11.cr)
 - [x] Day 12: [MoonScript](day12/src/day12.moon)
-- [ ] Day 13: [Vala](day13/src/day13.vala)
+- [x] Day 13: [Vala](day13/src/day13.vala)
 - [ ] Day 15: [Brainfuck](day15/src/part1.bf), [D](day15/src/part2.d)
 
 ## Packaging
