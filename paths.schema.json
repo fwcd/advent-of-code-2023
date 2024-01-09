@@ -74,40 +74,44 @@
         }
       },
       "required": ["path"]
+    },
+    "day": {
+      "description": "The solutions for a day.",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "completed": {
+              "type": "boolean",
+              "description": "Whether the day has been completed (fully).",
+              "default": false
+            }
+          }
+        },
+        {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/solution"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/solution"
+                  }
+                }
+              },
+              "required": ["parts"]
+            }
+          ]
+        }
+      ]
     }
   },
   "type": "array",
   "items": {
-    "allOf": [
-      {
-        "type": "object",
-        "properties": {
-          "completed": {
-            "type": "boolean",
-            "description": "Whether the day has been completed (fully).",
-            "default": false
-          }
-        }
-      },
-      {
-        "anyOf": [
-          {
-            "$ref": "#/definitions/solution"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "parts": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/solution"
-                }
-              }
-            },
-            "required": ["parts"]
-          }
-        ]
-      }
-    ]
+    "$ref": "#/definitions/day"
   }
 }
