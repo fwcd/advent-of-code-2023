@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -17,6 +18,6 @@ func main() {
 		panic(err)
 	}
 
-	input := string(data)
+	input := strings.Split(string(data), "\n")
 	fmt.Println(input)
 }
