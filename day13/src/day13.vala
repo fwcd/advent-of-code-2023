@@ -10,66 +10,45 @@ string[] transpose(string[] matrix) {
   return t;
 }
 
-bool isSymmetryAxis(string[] matrix, int i) {
+int hammingDistance(string a, string b) {
+  if (a.length != b.length) {
+    return -1;
+  }
+  int distance = 0;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      distance++;
+    }
+  }
+  return distance;
+}
+
+int symmetryCost(string[] matrix, int i) {
+  int cost = 0;
   for (int k = 0; k < matrix.length; k++) {
     int j1 = i - k;
     int j2 = i + k + 1;
     if (j1 < 0 || j1 >= matrix.length || j2 < 0 || j2 >= matrix.length) {
-      return true;
+      break;
     }
-    if (matrix[j1] != matrix[j2]) {
-      return false;
-    }
+    cost += hammingDistance(matrix[j1], matrix[j2]);
   }
-  return true;
+  return cost;
 }
 
-int symmetryAxis(string[] matrix) {
+int symmetryAxis(string[] matrix, int expectedCost) {
   for (int i = 0; i < matrix.length - 1; i++) {
-    if (matrix[i] == matrix[i + 1] && isSymmetryAxis(matrix, i)) {
+    if (symmetryCost(matrix, i) == expectedCost) {
       return i;
     }
   }
   return -1;
 }
 
-int symmetryScore(int h, int v) {
+int symmetryScore(string[] matrix, int expectedCost) {
+  int h = symmetryAxis(matrix, expectedCost);
+  int v = symmetryAxis(transpose(matrix), expectedCost);
   return 100 * (h + 1) + (v + 1);
-}
-
-int part1SymmetryScore(string[] matrix) {
-  int h = symmetryAxis(matrix);
-  int v = symmetryAxis(transpose(matrix));
-  return symmetryScore(h, v);
-}
-
-int part2SymmetryScore(string[] matrix) {
-  int h = symmetryAxis(matrix);
-  int v = symmetryAxis(transpose(matrix));
-  for (int i = 0; i < matrix.length; i++) {
-    string tmp = matrix[i];
-    for (int j = 0; j < matrix[i].length; j++) {
-      matrix[i] = @"$(tmp[:j])$(tmp[j] == '#' ? '.' : '#')$(tmp[j + 1:])";
-      int h2 = symmetryAxis(matrix);
-      int v2 = symmetryAxis(transpose(matrix));
-      if (h2 != h && h2 >= 0) {
-        print(@"h: $h -> $h2 -> score: $(symmetryScore(h2, -1))\n");
-        foreach (string line in matrix) {
-          print(@"$line\n");
-        }
-        return symmetryScore(h2, -1);
-      }
-      if (v2 != v && v2 >= 0) {
-        print(@"v: $v -> $v2 -> score: $(symmetryScore(-1, v2))\n");
-        foreach (string line in matrix) {
-          print(@"$line\n");
-        }
-        return symmetryScore(-1, v2);
-      }
-    }
-    matrix[i] = tmp;
-  }
-  return -1;
 }
 
 int main(string[] args) {
@@ -82,9 +61,8 @@ int main(string[] args) {
   int part2 = 0;
 
   void process(string[] matrix) {
-    part1 += part1SymmetryScore(matrix);
-    part2 += part2SymmetryScore(matrix);
-    print(@"$part2\n");
+    part1 += symmetryScore(matrix, 0);
+    part2 += symmetryScore(matrix, 1);
   }
 
   try {
