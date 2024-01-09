@@ -11,8 +11,7 @@
     buildPhase = ''
       mkdir out cache
 
-      zig build-exe --global-cache-dir cache src/day16.zig
-      mv day16 out
+      zig build-exe --global-cache-dir cache -femit-bin=out/day16 src/day16.zig
     '';
 
     installPhase = ''
