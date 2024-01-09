@@ -9,9 +9,9 @@
     ];
 
     buildPhase = ''
-      mkdir out
+      mkdir out cache
 
-      go build -o out/day14 src/day14.go
+      GOCACHE=$PWD/cache go build -o out/day14 src/day14.go
     '';
 
     installPhase = ''
