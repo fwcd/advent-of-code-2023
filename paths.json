@@ -105,7 +105,13 @@
     "path": "day13/src/day13.vala",
     "completed": true
   },
-  null,
+  {
+    "lang": {
+      "codemirror": "go",
+      "name": "Go"
+    },
+    "path": "day14/src/day14.go"
+  },
   {
     "parts": [
       {
