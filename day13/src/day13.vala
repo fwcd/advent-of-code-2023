@@ -1,9 +1,9 @@
 string[] transpose(string[] matrix) {
   string[] t = {};
-  for (int i = 0; i < matrix[0].length; i++) {
+  for (int j = 0; j < matrix[0].length; j++) {
     var col = new StringBuilder();
     foreach (string row in matrix) {
-      col.append_unichar(row[i]);
+      col.append_unichar(row[j]);
     }
     t += col.str;
   }
