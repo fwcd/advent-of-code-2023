@@ -21,6 +21,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 13: [Vala](day13/src/day13.vala)
 - [x] Day 14: [Go](day14/src/day14.go)
 - [x] Day 15: [Brainfuck](day15/src/part1.bf), [D](day15/src/part2.d)
+- [ ] Day 16: [Zig](day16/src/day16.zig)
 
 ## Packaging
 

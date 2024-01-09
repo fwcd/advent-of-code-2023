@@ -1,0 +1,22 @@
+{ stdenv, zig }:
+  stdenv.mkDerivation {
+    name = "advent-of-code-2023-day16";
+    src = ./src;
+    sourceRoot = ".";
+
+    nativeBuildInputs = [
+      zig
+    ];
+
+    buildPhase = ''
+      mkdir out cache
+
+      zig build-exe --global-cache-dir cache src/day16.zig
+      mv day16 out
+    '';
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp out/day16 $out/bin
+    '';
+  }
