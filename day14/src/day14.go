@@ -18,7 +18,7 @@ func transpose(matrix []string) []string {
 	return t
 }
 
-func tilt(row string) string {
+func tiltRow(row string) string {
 	tilted := ""
 	floor := ""
 	for _, c := range row {
@@ -41,9 +41,27 @@ func tilt(row string) string {
 func tiltMatrix(matrix []string) []string {
 	tilted := make([]string, len(matrix))
 	for i, row := range matrix {
-		tilted[i] = tilt(row)
+		tilted[i] = tiltRow(row)
 	}
 	return tilted
+}
+
+func rowLoad(row string) int {
+	load := 0
+	for i, c := range row {
+		if c == 'O' {
+			load += len(row) - i
+		}
+	}
+	return load
+}
+
+func matrixLoad(matrix []string) int {
+	load := 0
+	for _, row := range matrix {
+		load += rowLoad(row)
+	}
+	return load
 }
 
 func main() {
@@ -63,7 +81,5 @@ func main() {
 		input = input[:len(input)-1]
 	}
 
-	fmt.Println(input)
-	fmt.Println(transpose(input))
-	fmt.Println(tiltMatrix(transpose(input)))
+	fmt.Println("Part 1:", matrixLoad(tiltMatrix(transpose(input))))
 }
