@@ -68,11 +68,6 @@
           "description": "Whether the file is in a binary (i.e. non-text) format.",
           "default": false
         },
-        "completed": {
-          "type": "boolean",
-          "description": "Whether the day has been completed (fully).",
-          "default": false
-        },
         "additionalNotes": {
           "type": "string",
           "description": "Additional notes to be added to the README."
@@ -83,21 +78,35 @@
   },
   "type": "array",
   "items": {
-    "anyOf": [
-      {
-        "$ref": "#/definitions/solution"
-      },
+    "allOf": [
       {
         "type": "object",
         "properties": {
-          "parts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/solution"
-            }
+          "completed": {
+            "type": "boolean",
+            "description": "Whether the day has been completed (fully).",
+            "default": false
           }
-        },
-        "required": ["parts"]
+        }
+      },
+      {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/solution"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "parts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/solution"
+                }
+              }
+            },
+            "required": ["parts"]
+          }
+        ]
       }
     ]
   }

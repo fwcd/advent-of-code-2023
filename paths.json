@@ -120,17 +120,16 @@
           "codemirror": "brainfuck",
           "name": "Brainfuck"
         },
-        "path": "day15/src/part1.bf",
-        "completed": true
+        "path": "day15/src/part1.bf"
       },
       {
         "lang": {
           "codemirror": "d",
           "name": "D"
         },
-        "path": "day15/src/part2.d",
-        "completed": true
+        "path": "day15/src/part2.d"
       }
-    ]
+    ],
+    "completed": true
   }
 ]
