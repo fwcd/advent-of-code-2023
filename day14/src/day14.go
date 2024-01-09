@@ -8,7 +8,7 @@ import (
 
 func transpose(matrix []string) []string {
 	t := make([]string, len(matrix))
-	for j := 0; j < len(matrix[0]); j++ {
+	for j, _ := range matrix[0] {
 		col := ""
 		for _, row := range matrix {
 			col += string(row[j])
@@ -18,7 +18,23 @@ func transpose(matrix []string) []string {
 	return t
 }
 
-func tiltRow(row string) string {
+func reverse(s string) string {
+	r := ""
+	for i, _ := range s {
+		r += string(s[len(s)-1-i])
+	}
+	return r
+}
+
+func flip(matrix []string) []string {
+	flipped := make([]string, len(matrix))
+	for i, row := range matrix {
+		flipped[i] = reverse(row)
+	}
+	return flipped
+}
+
+func tiltRowWest(row string) string {
 	tilted := ""
 	floor := ""
 	for _, c := range row {
@@ -38,15 +54,31 @@ func tiltRow(row string) string {
 	return tilted
 }
 
-func tiltMatrix(matrix []string) []string {
+func tiltWest(matrix []string) []string {
 	tilted := make([]string, len(matrix))
 	for i, row := range matrix {
-		tilted[i] = tiltRow(row)
+		tilted[i] = tiltRowWest(row)
 	}
 	return tilted
 }
 
-func rowLoad(row string) int {
+func tiltEast(matrix []string) []string {
+	return flip(tiltWest(flip(matrix)))
+}
+
+func tiltNorth(matrix []string) []string {
+	return transpose(tiltWest(transpose(matrix)))
+}
+
+func tiltSouth(matrix []string) []string {
+	return transpose(tiltEast(transpose(matrix)))
+}
+
+func tiltCycle(matrix []string) []string {
+	return tiltEast(tiltSouth(tiltWest(tiltNorth(matrix))))
+}
+
+func rowLoadWest(row string) int {
 	load := 0
 	for i, c := range row {
 		if c == 'O' {
@@ -56,12 +88,16 @@ func rowLoad(row string) int {
 	return load
 }
 
-func matrixLoad(matrix []string) int {
+func totalLoadWest(matrix []string) int {
 	load := 0
 	for _, row := range matrix {
-		load += rowLoad(row)
+		load += rowLoadWest(row)
 	}
 	return load
+}
+
+func totalLoadNorth(matrix []string) int {
+	return totalLoadWest(transpose(matrix))
 }
 
 func main() {
@@ -81,5 +117,5 @@ func main() {
 		input = input[:len(input)-1]
 	}
 
-	fmt.Println("Part 1:", matrixLoad(tiltMatrix(transpose(input))))
+	fmt.Println("Part 1:", totalLoadNorth(tiltNorth(input)))
 }
