@@ -6,6 +6,18 @@ import (
 	"strings"
 )
 
+func matricesEqual(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, _ := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func transpose(matrix []string) []string {
 	t := make([]string, len(matrix))
 	for j, _ := range matrix[0] {
@@ -78,6 +90,22 @@ func tiltCycle(matrix []string) []string {
 	return tiltEast(tiltSouth(tiltWest(tiltNorth(matrix))))
 }
 
+func tiltCycles(matrix []string, n int) []string {
+	cycled := matrix
+	visited := make([][]string, 0)
+	for i := 1; i < n; i++ {
+		cycled = tiltCycle(cycled)
+		for _, previous := range visited {
+			if matricesEqual(previous, cycled) {
+				fmt.Println("Period has length", len(visited))
+				return visited[n%len(visited)]
+			}
+		}
+		visited = append(visited, cycled)
+	}
+	return cycled
+}
+
 func rowLoadWest(row string) int {
 	load := 0
 	for i, c := range row {
@@ -118,4 +146,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", totalLoadNorth(tiltNorth(input)))
+	fmt.Println("Part 2:", totalLoadNorth(tiltCycles(input, 1000000000)))
 }
