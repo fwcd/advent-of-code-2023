@@ -95,24 +95,29 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     defer visited.deinit();
     try visited.put(start.pos, {});
 
-    var last = Set(Beam).init(allocator);
-    defer last.deinit();
+    var history = std.ArrayList(Set(Beam)).init(allocator);
+    defer {
+        var i: usize = 0;
+        while (i < history.items.len) : (i += 1) {
+            history.items[i].deinit();
+        }
+        history.deinit();
+    }
 
     var current = Set(Beam).init(allocator);
     defer current.deinit();
     try current.put(start, {});
 
-    // Found through trial 'n error. Not elegant, there are likely more clever
-    // stop conditions (a foolproof one would be to store/check the history of
-    // beam sets, not sure if that's faster though. Since the period could be
-    // longer 1, in our setEquals(last, current) check likely isn't even
-    // useful).
-    for (0..2000) |_| {
-        last.deinit();
-        last = current;
+    outer: while (true) {
+        for (history.items) |previous| {
+            if (setEquals(Beam, previous, current)) {
+                break :outer;
+            }
+        }
+        try history.append(current);
         current = try step(current, matrix);
-        var nextIter = current.keyIterator();
-        while (nextIter.next()) |beam| {
+        var currentIter = current.keyIterator();
+        while (currentIter.next()) |beam| {
             try visited.put(beam.pos, {});
         }
     }
@@ -128,7 +133,12 @@ pub fn main() !u8 {
     }
 
     var matrix = Matrix.init(allocator);
-    defer matrix.deinit();
+    defer {
+        for (matrix.items) |line| {
+            allocator.free(line);
+        }
+        matrix.deinit();
+    }
 
     var buffer: [1024]u8 = undefined;
     var file = try std.fs.cwd().openFile(args[1], .{});
@@ -139,12 +149,6 @@ pub fn main() !u8 {
     while (try reader.readUntilDelimiterOrEof(&buffer, '\n')) |bufLine| {
         const line = try allocator.dupeZ(u8, bufLine);
         try matrix.append(line);
-    }
-
-    defer {
-        for (matrix.items) |line| {
-            allocator.free(line);
-        }
     }
 
     for (matrix.items) |line| {
