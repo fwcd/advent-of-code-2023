@@ -6,12 +6,13 @@ const stdout = std.io.getStdOut().writer();
 const String = []u8;
 const Matrix = std.ArrayList(String);
 const Vec2 = struct { x: i32, y: i32 };
+const Beam = struct { pos: Vec2, dir: Vec2 };
 
 fn Set(comptime T: type) type {
     return std.AutoHashMap(T, void);
 }
 
-fn setsEqual(comptime T: type, a: Set(T), b: Set(T)) bool {
+fn setEquals(comptime T: type, a: Set(T), b: Set(T)) bool {
     var aIter = a.keyIterator();
     while (aIter.next()) |x| {
         if (!b.contains(x.*)) {
@@ -27,36 +28,105 @@ fn setsEqual(comptime T: type, a: Set(T), b: Set(T)) bool {
     return true;
 }
 
-fn step(current: Set(Vec2), matrix: Matrix) Set(Vec2) {
-    _ = matrix;
-    _ = current;
-    var next = Set(Vec2).init(allocator);
+fn vec2Add(a: Vec2, b: Vec2) Vec2 {
+    return .{ .x = a.x + b.x, .y = a.y + b.y };
+}
 
-    // TODO
+fn mirrorForward(v: Vec2) Vec2 {
+    return .{ .x = -v.y, .y = -v.x };
+}
+
+fn mirrorBack(v: Vec2) Vec2 {
+    return .{ .x = v.y, .y = v.x };
+}
+
+fn advance(beam: Beam, dir: Vec2) Beam {
+    return .{ .pos = vec2Add(beam.pos, dir), .dir = dir };
+}
+
+fn advanceInBounds(beam: Beam, dir: Vec2, matrix: Matrix) ?Beam {
+    const nextBeam = advance(beam, dir);
+    const pos = nextBeam.pos;
+    if (pos.y >= 0 and pos.y < matrix.items.len and pos.x >= 0 and pos.x < matrix.items[0].len) {
+        return nextBeam;
+    } else {
+        return null;
+    }
+}
+
+fn matrixAt(pos: Vec2, matrix: Matrix) *u8 {
+    return &matrix.items[@intCast(pos.y)][@intCast(pos.x)];
+}
+
+fn step(current: Set(Beam), matrix: Matrix) !Set(Beam) {
+    var next = Set(Beam).init(allocator);
+
+    var currentIter = current.keyIterator();
+    while (currentIter.next()) |beam| {
+        const field: u8 = matrixAt(beam.pos, matrix).*;
+        if (field == '-' and beam.dir.x == 0) {
+            inline for ([_]i32{ 1, -1 }) |dx| {
+                if (advanceInBounds(beam.*, .{ .x = dx, .y = 0 }, matrix)) |nextBeam| {
+                    try next.put(nextBeam, {});
+                }
+            }
+        } else if (field == '|' and beam.dir.y == 0) {
+            inline for ([_]i32{ 1, -1 }) |dy| {
+                if (advanceInBounds(beam.*, .{ .x = 0, .y = dy }, matrix)) |nextBeam| {
+                    try next.put(nextBeam, {});
+                }
+            }
+        } else {
+            const dir = switch (field) {
+                '/' => mirrorForward(beam.dir),
+                '\\' => mirrorBack(beam.dir),
+                else => beam.dir,
+            };
+            if (advanceInBounds(beam.*, dir, matrix)) |nextBeam| {
+                try next.put(nextBeam, {});
+            }
+        }
+    }
 
     return next;
 }
 
 fn countEnergized(matrix: Matrix) !u32 {
+    const startBeam = .{ .pos = .{ .x = 0, .y = 0 }, .dir = .{ .x = 1, .y = 0 } };
+
     var visited = Set(Vec2).init(allocator);
     defer visited.deinit();
+    try visited.put(startBeam.pos, {});
 
-    var current = Set(Vec2).init(allocator);
-    try current.put(.{ .x = 0, .y = 0 }, {});
+    var last = Set(Beam).init(allocator);
+    defer last.deinit();
 
-    var next = Set(Vec2).init(allocator);
-    while (!setsEqual(Vec2, current, next)) {
-        try stdout.print("Looping @ {d}\n", .{current.count()});
-        current.deinit();
-        current = next;
-        next = step(current, matrix);
-        var nextIter = next.keyIterator();
-        while (nextIter.next()) |pos| {
-            try visited.put(pos.*, {});
+    var current = Set(Beam).init(allocator);
+    defer current.deinit();
+    try current.put(startBeam, {});
+
+    var maxIter: i32 = 2000;
+    while (!setEquals(Beam, last, current) and maxIter >= 0) {
+        last.deinit();
+        last = current;
+        current = try step(current, matrix);
+        // std.log.info("Total: {d}", .{current.count()});
+        var nextIter = current.keyIterator();
+        while (nextIter.next()) |beam| {
+            try visited.put(beam.pos, {});
+            // std.log.info("  ({d}, {d}) > ({d}, {d})", .{ beam.pos.x, beam.pos.y, beam.dir.x, beam.dir.y });
         }
+        maxIter -= 1;
     }
-    next.deinit();
-    current.deinit();
+
+    // DEBUG
+    var visitedIter = visited.keyIterator();
+    while (visitedIter.next()) |pos| {
+        matrixAt(pos.*, matrix).* = '#';
+    }
+    for (matrix.items) |row| {
+        std.log.info("{s}", .{row});
+    }
 
     return visited.count();
 }
