@@ -137,6 +137,7 @@
       "codemirror": "zig",
       "name": "Zig"
     },
-    "path": "day16/src/day16.zig"
+    "path": "day16/src/day16.zig",
+    "completed": true
   }
 ]
