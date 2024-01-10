@@ -13,16 +13,7 @@
 
       cat <<EOF > $out/bin/day17
       #!/bin/bash
-      set -e
-      if [ -z "\$1" ]; then
-        echo "Usage: \$0 <path to input>"
-        exit 1
-      fi
-      if [ ! -f "\$1" ]; then
-        echo "File \$1 does not exist!"
-        exit 1
-      fi
-      exec php "\$(dirname "\$0")/../share/day17.php"
+      exec php "\$(dirname "\$0")/../share/day17.php" "\$@"
       EOF
 
       chmod +x $out/bin/day17
