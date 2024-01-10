@@ -5,5 +5,6 @@ if ($argc <= 1) {
   exit(1);
 }
 
-$input = $argv[1];
-echo "Got $input" . PHP_EOL;
+$raw = file_get_contents($argv[1]);
+$input = preg_split('/\R/', $raw);
+var_dump($input);
