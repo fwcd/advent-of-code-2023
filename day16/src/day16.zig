@@ -27,6 +27,15 @@ fn setEquals(comptime T: type, a: Set(T), b: Set(T)) bool {
     return true;
 }
 
+fn setsContain(comptime T: type, sets: std.ArrayList(Set(T)), expected: Set(T)) bool {
+    for (sets.items) |set| {
+        if (setEquals(T, set, expected)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 fn vec2Add(a: Vec2, b: Vec2) Vec2 {
     return .{ .x = a.x + b.x, .y = a.y + b.y };
 }
@@ -108,12 +117,7 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     defer current.deinit();
     try current.put(start, {});
 
-    outer: while (true) {
-        for (history.items) |previous| {
-            if (setEquals(Beam, previous, current)) {
-                break :outer;
-            }
-        }
+    while (!setsContain(Beam, history, current)) {
         try history.append(current);
         current = try step(current, matrix);
         var currentIter = current.keyIterator();
