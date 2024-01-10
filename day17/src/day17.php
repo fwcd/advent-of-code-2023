@@ -77,7 +77,7 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
         $visited[(string) $pos] = true;
         $path = [...$node->path, $node];
         $total = $node->total + intval($matrix[$pos->y][$pos->x]);
-        $straightLeft = (($dir == $node->dir) ? $maxStraight : $node->straightLeft) - 1;
+        $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
         $next = new Node($pos, $dir, $path, $total, $straightLeft);
         $queue->insert($next, -$total);
       }
