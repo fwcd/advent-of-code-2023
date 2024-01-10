@@ -105,6 +105,11 @@ fn countEnergized(matrix: Matrix) !u32 {
     defer current.deinit();
     try current.put(startBeam, {});
 
+    // Found through trial 'n error. Not elegant, there are likely more clever
+    // stop conditions (a foolproof one would be to store/check the history of
+    // beam sets, not sure if that's faster though. Since the period could be
+    // longer 1, in our setEquals(last, current) check likely isn't even
+    // useful).
     var maxIter: i32 = 2000;
     while (!setEquals(Beam, last, current) and maxIter >= 0) {
         last.deinit();
