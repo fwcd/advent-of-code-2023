@@ -139,5 +139,12 @@
     },
     "path": "day16/src/day16.zig",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "php",
+      "name": "PHP"
+    },
+    "path": "day17/src/day17.php"
   }
 ]
