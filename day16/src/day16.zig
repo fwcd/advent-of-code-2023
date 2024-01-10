@@ -91,19 +91,17 @@ fn step(current: Set(Beam), matrix: Matrix) !Set(Beam) {
     return next;
 }
 
-fn countEnergized(matrix: Matrix) !u32 {
-    const startBeam = .{ .pos = .{ .x = 0, .y = 0 }, .dir = .{ .x = 1, .y = 0 } };
-
+fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     var visited = Set(Vec2).init(allocator);
     defer visited.deinit();
-    try visited.put(startBeam.pos, {});
+    try visited.put(start.pos, {});
 
     var last = Set(Beam).init(allocator);
     defer last.deinit();
 
     var current = Set(Beam).init(allocator);
     defer current.deinit();
-    try current.put(startBeam, {});
+    try current.put(start, {});
 
     // Found through trial 'n error. Not elegant, there are likely more clever
     // stop conditions (a foolproof one would be to store/check the history of
@@ -122,15 +120,6 @@ fn countEnergized(matrix: Matrix) !u32 {
             // std.log.info("  ({d}, {d}) > ({d}, {d})", .{ beam.pos.x, beam.pos.y, beam.dir.x, beam.dir.y });
         }
         maxIter -= 1;
-    }
-
-    // DEBUG
-    var visitedIter = visited.keyIterator();
-    while (visitedIter.next()) |pos| {
-        matrixAt(pos.*, matrix).* = '#';
-    }
-    for (matrix.items) |row| {
-        std.log.info("{s}", .{row});
     }
 
     return visited.count();
@@ -167,7 +156,31 @@ pub fn main() !u8 {
         try stdout.print("{s}\n", .{line});
     }
 
-    try stdout.print("Part 1: {d}\n", .{try countEnergized(matrix)});
+    const part1 = try countEnergized(matrix, .{ .pos = .{ .x = 0, .y = 0 }, .dir = .{ .x = 1, .y = 0 } });
+    try stdout.print("Part 1: {d}\n", .{part1});
+
+    var starts = std.ArrayList(Beam).init(allocator);
+    defer starts.deinit();
+
+    const width = matrix.items[0].len;
+    const height = matrix.items.len;
+
+    for (0..width) |x| {
+        try starts.append(.{ .pos = .{ .x = @intCast(x), .y = 0 }, .dir = .{ .x = 0, .y = 1 } });
+        try starts.append(.{ .pos = .{ .x = @intCast(x), .y = @intCast(height - 1) }, .dir = .{ .x = 0, .y = -1 } });
+    }
+
+    for (0..height) |y| {
+        try starts.append(.{ .pos = .{ .x = 0, .y = @intCast(y) }, .dir = .{ .x = 1, .y = 0 } });
+        try starts.append(.{ .pos = .{ .x = @intCast(width - 1), .y = @intCast(y) }, .dir = .{ .x = -1, .y = 0 } });
+    }
+
+    var part2: u32 = 0;
+    for (starts.items) |start| {
+        std.log.info("Starting at ({d}, {d})", .{ start.pos.x, start.pos.y });
+        part2 = @max(part2, try countEnergized(matrix, start));
+    }
+    try stdout.print("Part 2: {d}\n", .{part2});
 
     return 0;
 }
