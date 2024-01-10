@@ -1,7 +1,6 @@
 const std = @import("std");
 
 const allocator = std.heap.page_allocator;
-const stdout = std.io.getStdOut().writer();
 
 const String = []u8;
 const Matrix = std.ArrayList(String);
@@ -113,11 +112,9 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
         last.deinit();
         last = current;
         current = try step(current, matrix);
-        // std.log.info("Total: {d}", .{current.count()});
         var nextIter = current.keyIterator();
         while (nextIter.next()) |beam| {
             try visited.put(beam.pos, {});
-            // std.log.info("  ({d}, {d}) > ({d}, {d})", .{ beam.pos.x, beam.pos.y, beam.dir.x, beam.dir.y });
         }
         maxIter -= 1;
     }
@@ -128,7 +125,7 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
 pub fn main() !u8 {
     var args = try std.process.argsAlloc(allocator);
     if (args.len <= 1) {
-        try stdout.print("Usage: {s} <path to input>\n", .{args[0]});
+        try std.io.getStdErr().writer().print("Usage: {s} <path to input>\n", .{args[0]});
         return 1;
     }
 
@@ -153,11 +150,11 @@ pub fn main() !u8 {
     }
 
     for (matrix.items) |line| {
-        try stdout.print("{s}\n", .{line});
+        std.log.debug("{s}", .{line});
     }
 
     const part1 = try countEnergized(matrix, .{ .pos = .{ .x = 0, .y = 0 }, .dir = .{ .x = 1, .y = 0 } });
-    try stdout.print("Part 1: {d}\n", .{part1});
+    std.log.info("Part 1: {d}", .{part1});
 
     var starts = std.ArrayList(Beam).init(allocator);
     defer starts.deinit();
@@ -180,7 +177,7 @@ pub fn main() !u8 {
         std.log.info("Starting at ({d}, {d})", .{ start.pos.x, start.pos.y });
         part2 = @max(part2, try countEnergized(matrix, start));
     }
-    try stdout.print("Part 2: {d}\n", .{part2});
+    std.log.info("Part 2: {d}", .{part2});
 
     return 0;
 }
