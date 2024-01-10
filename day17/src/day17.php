@@ -38,22 +38,24 @@ class Vec2 {
 class Node {
   public Vec2 $pos;
   public Vec2 $dir;
+  public array $path;
   public int $total;
   public int $straightLeft;
 
-  function __construct(Vec2 $pos, Vec2 $dir, int $total, int $straightLeft) {
+  function __construct(Vec2 $pos, Vec2 $dir, array $path, int $total, int $straightLeft) {
     $this->pos = $pos;
     $this->dir = $dir;
+    $this->path = $path;
     $this->total = $total;
     $this->straightLeft = $straightLeft;
   }
 }
 
-function shortestPath(array $matrix, int $maxStraight = 3): int {
+function shortestPath(array $matrix, int $maxStraight = 3): Node {
   $visited = [];
   $queue = new \SplPriorityQueue();
   foreach ([new Vec2(1, 0), new Vec2(0, 1)] as $start) {
-    $queue->insert(new Node($start, $start, 0, $maxStraight - 1), 0);
+    $queue->insert(new Node($start, $start, [], 0, $maxStraight - 1), 0);
   }
 
   $width = strlen($matrix[0]);
@@ -63,7 +65,7 @@ function shortestPath(array $matrix, int $maxStraight = 3): int {
   while ($queue->valid()) {
     $node = $queue->extract();
     if ($node->pos == $dest) {
-      return $node->total;
+      return $node;
     }
     $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
     if ($node->straightLeft > 0) {
@@ -73,9 +75,10 @@ function shortestPath(array $matrix, int $maxStraight = 3): int {
       $pos = $node->pos->add($dir);
       if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
         $visited[(string) $pos] = true;
+        $path = [...$node->path, $node];
         $total = $node->total + intval($matrix[$pos->y][$pos->x]);
         $straightLeft = (($dir == $node->dir) ? $maxStraight : $node->straightLeft) - 1;
-        $next = new Node($pos, $dir, $total, $straightLeft);
+        $next = new Node($pos, $dir, $path, $total, $straightLeft);
         $queue->insert($next, -$total);
       }
     }
@@ -87,5 +90,23 @@ function shortestPath(array $matrix, int $maxStraight = 3): int {
 $raw = trim(file_get_contents($argv[1]));
 $input = preg_split('/\R/', $raw);
 
-$part1 = shortestPath($input);
-echo "Part 1: $part1" . PHP_EOL;
+$shortest = shortestPath($input);
+echo "Part 1: $shortest->total" . PHP_EOL;
+
+foreach ($shortest->path as $node) {
+  $c = '?';
+  $pos = $node->pos;
+  $dir = $node->dir;
+  if ($dir == new Vec2(1, 0)) {
+    $c = '>';
+  } elseif ($dir == new Vec2(-1, 0)) {
+    $c = '<';
+  } elseif ($dir == new Vec2(0, 1)) {
+    $c = 'v';
+  } elseif ($dir == new Vec2(0, -1)) {
+    $c = '^';
+  }
+  $input[$pos->y][$pos->x] = $c;
+}
+
+echo join(PHP_EOL, $input) . PHP_EOL;
