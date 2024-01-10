@@ -2,34 +2,34 @@ const std = @import("std");
 
 const allocator = std.heap.page_allocator;
 
+const Map = std.AutoHashMap;
+const List = std.ArrayList;
 const String = []u8;
-const Matrix = std.ArrayList(String);
+const Matrix = List(String);
 const Vec2 = struct { x: i32, y: i32 };
 const Beam = struct { pos: Vec2, dir: Vec2 };
 
 fn Set(comptime T: type) type {
-    return std.AutoHashMap(T, void);
+    return Map(T, void);
 }
 
-fn setEquals(comptime T: type, a: Set(T), b: Set(T)) bool {
-    var aIter = a.keyIterator();
-    while (aIter.next()) |x| {
-        if (!b.contains(x.*)) {
-            return false;
-        }
-    }
-    var bIter = b.keyIterator();
-    while (bIter.next()) |x| {
-        if (!a.contains(x.*)) {
+fn mapContainsAll(comptime K: type, comptime V: type, a: Map(K, V), b: Map(K, V)) bool {
+    var aIter = a.iterator();
+    while (aIter.next()) |e| {
+        if (!b.contains(e.key_ptr.*) or b.get(e.key_ptr.*) != e.value_ptr.*) {
             return false;
         }
     }
     return true;
 }
 
-fn setsContain(comptime T: type, sets: std.ArrayList(Set(T)), expected: Set(T)) bool {
+fn mapEquals(comptime K: type, comptime V: type, a: Map(K, V), b: Map(K, V)) bool {
+    return mapContainsAll(K, V, a, b) and mapContainsAll(K, V, b, a);
+}
+
+fn mapsContain(comptime K: type, comptime V: type, sets: List(Map(K, V)), expected: Map(K, V)) bool {
     for (sets.items) |set| {
-        if (setEquals(T, set, expected)) {
+        if (mapEquals(K, V, set, expected)) {
             return true;
         }
     }
@@ -104,7 +104,7 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     defer visited.deinit();
     try visited.put(start.pos, {});
 
-    var history = std.ArrayList(Set(Beam)).init(allocator);
+    var history = List(Set(Beam)).init(allocator);
     defer {
         var i: usize = 0;
         while (i < history.items.len) : (i += 1) {
@@ -117,7 +117,7 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     defer current.deinit();
     try current.put(start, {});
 
-    while (!setsContain(Beam, history, current)) {
+    while (!mapsContain(Beam, void, history, current)) {
         try history.append(current);
         current = try step(current, matrix);
         var currentIter = current.keyIterator();
@@ -162,7 +162,7 @@ pub fn main() !u8 {
     const part1 = try countEnergized(matrix, .{ .pos = .{ .x = 0, .y = 0 }, .dir = .{ .x = 1, .y = 0 } });
     std.log.info("Part 1: {d}", .{part1});
 
-    var starts = std.ArrayList(Beam).init(allocator);
+    var starts = List(Beam).init(allocator);
     defer starts.deinit();
 
     const width = matrix.items[0].len;
