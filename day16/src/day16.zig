@@ -107,8 +107,7 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
     // beam sets, not sure if that's faster though. Since the period could be
     // longer 1, in our setEquals(last, current) check likely isn't even
     // useful).
-    var maxIter: i32 = 2000;
-    while (!setEquals(Beam, last, current) and maxIter >= 0) {
+    for (0..2000) |_| {
         last.deinit();
         last = current;
         current = try step(current, matrix);
@@ -116,7 +115,6 @@ fn countEnergized(matrix: Matrix, start: Beam) !u32 {
         while (nextIter.next()) |beam| {
             try visited.put(beam.pos, {});
         }
-        maxIter -= 1;
     }
 
     return visited.count();
