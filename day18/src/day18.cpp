@@ -7,6 +7,7 @@
 #include <ios>
 #include <iostream>
 #include <iterator>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <stack>
@@ -69,6 +70,11 @@ struct Vec2 {
 
   Vec2 signum() const {
     return {::signum(x), ::signum(y)};
+  }
+
+  bool isCollinear(Vec2 other1, Vec2 other2) const {
+    return (x == other1.x && x == other2.x)
+        || (y == other1.y && y == other2.y);
   }
 
   std::array<Vec2, 4> neighbors() const {
@@ -155,21 +161,32 @@ struct Polygon {
   /// Triangulates the polygon using ear clipping in O(|vertices|^2).
   std::vector<Triangle> triangulate() const {
     std::vector<Triangle> triangles;
-    std::vector<Vec2> remaining;
+    std::vector<Vec2> remaining = vertices;
 
     std::reverse(remaining.begin(), remaining.end());
 
     // Perform ear clipping
     while (remaining.size() > 3) {
+      // Merge collinear vertices
+      for (int i0 = 0; i0 < remaining.size(); ) {
+        int i1 = (i0 + 1) % remaining.size();
+        int i2 = (i0 + 2) % remaining.size();
+        if (remaining[i0].isCollinear(remaining[i1], remaining[i2])) {
+          remaining.erase(remaining.begin() + i1);
+        } else {
+          i0++;
+        }
+      }
+
       std::cout << "Remaining:" << std::endl;
       for (Vec2 v : remaining) {
         std::cout << "  " << v << std::endl;
       }
+
       // Find convex ear
-      for (int i = 0; i < remaining.size(); i++) {
-        int i0 = i;
-        int i1 = (i + 1) % remaining.size();
-        int i2 = (i + 2) % remaining.size();
+      for (int i0 = 0; i0 < remaining.size(); i0++) {
+        int i1 = (i0 + 1) % remaining.size();
+        int i2 = (i0 + 2) % remaining.size();
 
         Vec2 p0 = remaining[i0];
         Vec2 p1 = remaining[i1];
