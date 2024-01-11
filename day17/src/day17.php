@@ -77,27 +77,35 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
 
   while ($queue->valid()) {
     $node = $queue->extract();
-    if ($node->pos == $dest) {
-      return $node;
-    }
-    $visited[(string) $node->pos] = true;
-    $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
-    if ($node->straightLeft > 0) {
-      array_push($dirs, $node->dir);
-    }
-    foreach ($dirs as $dir) {
-      $pos = $node->pos->add($dir);
-      if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
-        $total = $node->total + intval($matrix[$pos->y][$pos->x]);
-        $path = [...$node->path, $node];
-        $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
-        $next = new Node($pos, $dir, $path, $total, $straightLeft);
-        // FIXME: A* seems to yield a different length on demo2 (362) with the
-        // heuristic than without (363), why? Isn't the heuristic monotonic?
-        // $diff = $dest->sub($pos);
-        // $cost = $total + abs($diff->x) + abs($diff->y);
-        $cost = $total;
-        $queue->insert($next, -$cost);
+    if (!array_key_exists((string) $node->pos, $visited)) {
+      if ($node->pos == $dest) {
+        return $node;
+      }
+      $visited[(string) $node->pos] = true;
+      $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
+      if ($node->straightLeft > 0) {
+        array_push($dirs, $node->dir);
+      }
+      echo "$node->pos ($node->straightLeft left)" . PHP_EOL;
+      foreach ($dirs as $dir) {
+        $pos = $node->pos->add($dir);
+        if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
+          $total = $node->total + intval($matrix[$pos->y][$pos->x]);
+          $path = [...$node->path, $node];
+          $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
+          $next = new Node($pos, $dir, $path, $total, $straightLeft);
+          // FIXME: A* seems to yield a different length on demo2 (362) with the
+          // heuristic than without (363), why? Isn't the heuristic monotonic?
+          $diff = $dest->sub($pos);
+          $cost = $total;
+          $c = $total - $node->total;
+          $h = $cost - $total;
+          // $cost = $total;
+          $queue->insert($next, -$cost);
+          echo "  {$dir->arrow()} $pos (cost $cost = $node->total + $c + $h)" . PHP_EOL;
+        } else {
+          echo "  {$dir->arrow()} $pos <SKIPPED>" . PHP_EOL;
+        }
       }
     }
   }
