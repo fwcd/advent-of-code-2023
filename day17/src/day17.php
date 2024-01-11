@@ -98,9 +98,13 @@ function shortestPath(array $matrix, int $minStraight, int $maxStraight): Node {
         return $node;
       }
       $visited[$node->visitKey()] = true;
-      $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
+      $dirs = [];
       if ($node->straightLeft > 0) {
         array_push($dirs, $node->dir);
+      }
+      if ($maxStraight - $node->straightLeft >= $minStraight) {
+        array_push($dirs, $node->dir->turnLeft());
+        array_push($dirs, $node->dir->turnRight());
       }
       foreach ($dirs as $dir) {
         $pos = $node->pos->add($dir);
@@ -152,8 +156,13 @@ $raw = trim(file_get_contents($filePath));
 $input = preg_split('/\R/', $raw);
 
 $part1Node = shortestPath($input, 1, 3);
-echo "Part 1: $part1Node->total" . PHP_EOL;
-
 if ($dump) {
   echo $part1Node->format($input);
 }
+echo "Part 1: $part1Node->total" . PHP_EOL;
+
+$part2Node = shortestPath($input, 4, 10);
+if ($dump) {
+  echo $part2Node->format($input);
+}
+echo "Part 2: $part2Node->total" . PHP_EOL;
