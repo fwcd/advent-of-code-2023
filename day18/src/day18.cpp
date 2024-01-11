@@ -6,12 +6,14 @@
 #include <functional>
 #include <ios>
 #include <iostream>
+#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
+#include <valarray>
 #include <vector>
 
 template <typename T>
@@ -22,6 +24,8 @@ int signum(T value) {
 struct Vec2 {
   int x;
   int y;
+
+  constexpr Vec2(int x, int y) : x(x), y(y) {}
 
   auto operator<=>(const Vec2 &rhs) const = default;
 
@@ -59,16 +63,20 @@ struct Vec2 {
     return {std::min(x, rhs.x), std::min(y, rhs.y)};
   }
 
+  int cross(Vec2 rhs) const {
+    return x * rhs.y - y * rhs.x;
+  }
+
   Vec2 signum() const {
     return {::signum(x), ::signum(y)};
   }
 
   std::array<Vec2, 4> neighbors() const {
     return {
-      Vec2({x - 1, y}),
-      Vec2({x + 1, y}),
-      Vec2({x, y - 1}),
-      Vec2({x, y + 1}),
+      Vec2(x - 1, y),
+      Vec2(x + 1, y),
+      Vec2(x, y - 1),
+      Vec2(x, y + 1),
     };
   }
 
@@ -92,19 +100,6 @@ template <>
 struct std::hash<Vec2> {
   std::size_t operator()(const Vec2 &vec) const {
     return std::hash<int>()(vec.x) ^ std::hash<int>()(vec.y);
-  }
-};
-
-struct Rect {
-  Vec2 topLeft;
-  Vec2 bottomRight;
-
-  Vec2 center() const {
-    return (topLeft + bottomRight) / 2;
-  }
-
-  Vec2 size() const {
-    return bottomRight - topLeft + Vec2({1, 1});
   }
 };
 
@@ -141,8 +136,79 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
   return os;
 }
 
+struct Triangle {
+  Vec2 a, b, c;
+
+  int signedDoubleArea() const {
+    return (a - b).cross(c - b);
+  }
+};
+
+std::ostream &operator<<(std::ostream &os, const Triangle &tri) {
+  os << tri.a << ", " << tri.b << ", " << tri.c;
+  return os;
+}
+
 struct Polygon {
   std::vector<Vec2> vertices;
+
+  /// Triangulates the polygon using ear clipping in O(|vertices|^2).
+  std::vector<Triangle> triangulate() const {
+    std::vector<Triangle> triangles;
+    std::vector<Vec2> remaining;
+
+    std::reverse(remaining.begin(), remaining.end());
+
+    // Perform ear clipping
+    while (remaining.size() > 3) {
+      std::cout << "Remaining:" << std::endl;
+      for (Vec2 v : remaining) {
+        std::cout << "  " << v << std::endl;
+      }
+      // Find convex ear
+      for (int i = 0; i < remaining.size(); i++) {
+        int i0 = i;
+        int i1 = (i + 1) % remaining.size();
+        int i2 = (i + 2) % remaining.size();
+
+        Vec2 p0 = remaining[i0];
+        Vec2 p1 = remaining[i1];
+        Vec2 p2 = remaining[i2];
+
+        Vec2 d0 = p0 - p1;
+        Vec2 d2 = p2 - p1;
+        bool isConvex = d2.cross(d0) > 0;
+
+        std::cout << "  " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
+
+        if (isConvex) {
+          // Clip it!
+          triangles.push_back({p0, p1, p2});
+          remaining.erase(remaining.begin() + i1);
+          std::cout << "Snip snap" << std::endl;
+          goto continueOuter;
+        }
+      }
+
+      throw new std::runtime_error("No convex ear found!");
+
+      continueOuter:;
+    }
+
+    triangles.push_back({remaining[0], remaining[1], remaining[2]});
+
+    return triangles;
+  }
+
+  /// Computes the area of the polygon via triangulation.
+  int area() const {
+    int doubleArea = 0;
+    std::vector<Triangle> tris = triangulate();
+    for (const Triangle &tri : tris) {
+      doubleArea += std::abs(tri.signedDoubleArea());
+    }
+    return doubleArea / 2;
+  }
 };
 
 std::ostream &operator<<(std::ostream &os, const Polygon &poly) {
@@ -177,8 +243,8 @@ int main(int argc, char *argv[]) {
     pos2 += inst.dir2;
   }
 
-  std::cout << poly1 << std::endl;
-  std::cout << poly2 << std::endl;
+  std::cout << "Part 1: " << poly1.area() << std::endl;
+  std::cout << "Part 2: " << poly2.area() << std::endl;
 
   return 0;
 }
