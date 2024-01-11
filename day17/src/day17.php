@@ -66,9 +66,21 @@ class Node {
   function visitKey(): string {
     return "$this->pos{$this->dir->arrow()}$this->straightLeft";
   }
+
+  function format(array $matrix): string {
+    $formatted = $matrix;
+
+    foreach ([...$this->path, $this] as $node) {
+      $pos = $node->pos;
+      $dir = $node->dir;
+      $formatted[$pos->y][$pos->x] = $dir->arrow();
+    }
+
+    return join(PHP_EOL, $formatted) . PHP_EOL;
+  }
 }
 
-function shortestPath(array $matrix, int $maxStraight = 3): Node {
+function shortestPath(array $matrix, int $minStraight, int $maxStraight): Node {
   $visited = [];
   $queue = new \SplPriorityQueue();
   foreach ([new Vec2(1, 0), new Vec2(0, 1)] as $start) {
@@ -139,17 +151,9 @@ if ($filePath == null) {
 $raw = trim(file_get_contents($filePath));
 $input = preg_split('/\R/', $raw);
 
-$destNode = shortestPath($input);
-echo "Part 1: $destNode->total" . PHP_EOL;
+$part1Node = shortestPath($input, 1, 3);
+echo "Part 1: $part1Node->total" . PHP_EOL;
 
 if ($dump) {
-  $formatted = $input;
-
-  foreach ([...$destNode->path, $destNode] as $node) {
-    $pos = $node->pos;
-    $dir = $node->dir;
-    $formatted[$pos->y][$pos->x] = $dir->arrow();
-  }
-
-  echo join(PHP_EOL, $formatted) . PHP_EOL;
+  echo $part1Node->format($input);
 }
