@@ -1,10 +1,5 @@
 <?php
 
-if ($argc <= 1) {
-  echo "Usage: day17 <path to input>" . PHP_EOL;
-  exit(1);
-}
-
 class Vec2 {
   public int $x;
   public int $y;
@@ -110,16 +105,46 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
   throw new Exception("Destination not found!");
 }
 
-$raw = trim(file_get_contents($argv[1]));
+function printUsage() {
+  echo "Usage: day17 [--dump] <path to input>" . PHP_EOL;
+}
+
+$filePath = null;
+$dump = false;
+
+foreach (array_slice($argv, 1) as $arg) {
+  if ($arg == '--dump') {
+    $dump = true;
+  } else if ($arg == '--help') {
+    printUsage();
+    exit(0);
+  } else if (preg_match('/--\w+/', $arg)) {
+    echo "Unrecognized argument: $arg" . PHP_EOL;
+    exit(1);
+  } else {
+    $filePath = $arg;
+  }
+}
+
+if ($filePath == null) {
+  printUsage();
+  exit(1);
+}
+
+$raw = trim(file_get_contents($filePath));
 $input = preg_split('/\R/', $raw);
 
 $destNode = shortestPath($input);
 echo "Part 1: $destNode->total" . PHP_EOL;
 
-foreach ([...$destNode->path, $destNode] as $node) {
-  $pos = $node->pos;
-  $dir = $node->dir;
-  $input[$pos->y][$pos->x] = $dir->arrow();
-}
+if ($dump) {
+  $formatted = $input;
 
-echo join(PHP_EOL, $input) . PHP_EOL;
+  foreach ([...$destNode->path, $destNode] as $node) {
+    $pos = $node->pos;
+    $dir = $node->dir;
+    $formatted[$pos->y][$pos->x] = $dir->arrow();
+  }
+
+  echo join(PHP_EOL, $formatted) . PHP_EOL;
+}
