@@ -146,10 +146,18 @@ struct Triangle {
   Vec2 a, b, c;
 
   bool contains(Vec2 p) const {
-    // Test if all barycentric coordinates are positive
-    return Triangle({p, b, c}).isFacingUp()
-        && Triangle({a, b, p}).isFacingUp()
-        && Triangle({a, p, c}).isFacingUp();
+    // Compute barycentric coordinates
+    Triangle baryA {p, b, c};
+    Triangle baryB {a, p, c};
+    Triangle baryC {a, b, p};
+    int lamA = baryA.signedDoubleArea();
+    int lamB = baryB.signedDoubleArea();
+    int lamC = baryC.signedDoubleArea();
+    std::cout << "  Testing " << p << ": " << lamA << " and " << lamB << " and " << lamC << std::endl;
+    // If all barycentric coordinates are positive, we definitely contain the point
+    return (lamA > 0 && lamB > 0 && lamC > 0)
+        // If one of the coordinates is zero, we are on the boundary
+        || lamA == 0 || lamB == 0 || lamC == 0;
   }
 
   bool isFacingUp() const {
@@ -213,8 +221,8 @@ struct Polygon {
         if (isConvex) {
           // Check if lies within the polygon by testing if every vertex is in the triangle
           bool intersectsPolygon = false;
-          for (Vec2 other : remaining) {
-            if (tri.contains(other)) {
+          for (int j = 0; j < remaining.size(); j++) {
+            if (j != i0 && j != i1 && j != i2 && tri.contains(remaining[j])) {
               intersectsPolygon = true;
               break;
             }
@@ -284,7 +292,7 @@ int main(int argc, char *argv[]) {
   }
 
   std::cout << "Part 1: " << poly1.area() << std::endl;
-  std::cout << "Part 2: " << poly2.area() << std::endl;
+  // std::cout << "Part 2: " << poly2.area() << std::endl;
 
   return 0;
 }
