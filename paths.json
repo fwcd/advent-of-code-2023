@@ -145,6 +145,7 @@
       "codemirror": "php",
       "name": "PHP"
     },
-    "path": "day17/src/day17.php"
+    "path": "day17/src/day17.php",
+    "completed": true
   }
 ]
