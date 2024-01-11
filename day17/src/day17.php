@@ -26,6 +26,10 @@ class Vec2 {
     return new Vec2($this->x + $rhs->x, $this->y + $rhs->y);
   }
 
+  function sub(Vec2 $rhs): Vec2 {
+    return new Vec2($this->x - $rhs->x, $this->y - $rhs->y);
+  }
+
   function turnLeft(): Vec2 {
     return new Vec2($this->y, -$this->x);
   }
@@ -87,11 +91,12 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
     foreach ($dirs as $dir) {
       $pos = $node->pos->add($dir);
       if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
-        $cost = intval($matrix[$pos->y][$pos->x]);
-        $total = $node->total + $cost;
+        $total = $node->total + intval($matrix[$pos->y][$pos->x]);
+        $diff = $dest->sub($pos);
+        $cost = $total + abs($diff->x) + abs($diff->y);
         $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
         $next = new Node($pos, $dir, $total, $straightLeft);
-        $queue->insert($next, -$total);
+        $queue->insert($next, -$cost);
       }
     }
   }
