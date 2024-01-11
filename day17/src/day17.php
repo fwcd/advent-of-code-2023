@@ -69,7 +69,7 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
   $visited = [];
   $queue = new \SplPriorityQueue();
   foreach ([new Vec2(1, 0), new Vec2(0, 1)] as $start) {
-    $queue->insert(new Node($start, $start, [], 0, $maxStraight - 1), 0);
+    $queue->insert(new Node($start, $start, [], intval($matrix[$start->y][$start->x]), $maxStraight - 1), 0);
   }
 
   $width = strlen($matrix[0]);
