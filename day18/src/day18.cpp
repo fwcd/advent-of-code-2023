@@ -178,10 +178,11 @@ struct Polygon {
         }
       }
 
-      std::cout << "Remaining:" << std::endl;
+      std::cout << "Remaining: ";
       for (Vec2 v : remaining) {
-        std::cout << "  " << v << std::endl;
+        std::cout << v << ",";
       }
+      std::cout << std::endl;
 
       // Find convex ear
       for (int i0 = 0; i0 < remaining.size(); i0++) {
@@ -194,7 +195,7 @@ struct Polygon {
 
         Vec2 d0 = p0 - p1;
         Vec2 d2 = p2 - p1;
-        bool isConvex = d2.cross(d0) > 0;
+        bool isConvex = d0.cross(d2) > 0;
 
         std::cout << "  " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
 
