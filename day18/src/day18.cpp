@@ -145,6 +145,17 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
 struct Triangle {
   Vec2 a, b, c;
 
+  bool contains(Vec2 p) const {
+    // Test if all barycentric coordinates are positive
+    return Triangle({p, b, c}).isFacingUp()
+        && Triangle({a, b, p}).isFacingUp()
+        && Triangle({a, p, c}).isFacingUp();
+  }
+
+  bool isFacingUp() const {
+    return signedDoubleArea() > 0;
+  }
+
   int signedDoubleArea() const {
     return (a - b).cross(c - b);
   }
@@ -188,23 +199,33 @@ struct Polygon {
       for (int i0 = 0; i0 < remaining.size(); i0++) {
         int i1 = (i0 + 1) % remaining.size();
         int i2 = (i0 + 2) % remaining.size();
-
         Vec2 p0 = remaining[i0];
         Vec2 p1 = remaining[i1];
         Vec2 p2 = remaining[i2];
+        Triangle tri {p0, p1, p2};
+        bool isConvex = tri.isFacingUp();
 
         Vec2 d0 = p0 - p1;
         Vec2 d2 = p2 - p1;
-        bool isConvex = d0.cross(d2) > 0;
-
         std::cout << "  " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
 
         if (isConvex) {
-          // Clip it!
-          triangles.push_back({p0, p1, p2});
-          remaining.erase(remaining.begin() + i1);
-          std::cout << "Snip snap" << std::endl;
-          goto continueOuter;
+          // Check if lies within the polygon by testing if every vertex is in the triangle
+          bool intersectsPolygon = false;
+          for (Vec2 other : remaining) {
+            if (tri.contains(other)) {
+              intersectsPolygon = true;
+              break;
+            }
+          }
+
+          if (!intersectsPolygon) {
+            // Clip it!
+            triangles.push_back({p0, p1, p2});
+            remaining.erase(remaining.begin() + i1);
+            std::cout << "Snip snap" << std::endl;
+            goto continueOuter;
+          }
         }
       }
 
