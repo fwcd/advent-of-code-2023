@@ -18,15 +18,15 @@
 #include <vector>
 
 template <typename T>
-int signum(T value) {
+T signum(T value) {
   return value > 0 ? 1 : value < 0 ? -1 : 0;
 }
 
 struct Vec2 {
-  int x;
-  int y;
+  long long x;
+  long long y;
 
-  constexpr Vec2(int x, int y) : x(x), y(y) {}
+  constexpr Vec2(long long x, long long y) : x(x), y(y) {}
 
   auto operator<=>(const Vec2 &rhs) const = default;
 
@@ -38,11 +38,11 @@ struct Vec2 {
     return {x - rhs.x, y - rhs.y};
   }
 
-  Vec2 operator*(int factor) const {
+  Vec2 operator*(long long factor) const {
     return {x * factor, y * factor};
   }
 
-  Vec2 operator/(int divisor) const {
+  Vec2 operator/(long long divisor) const {
     return {x / divisor, y / divisor};
   }
 
@@ -64,7 +64,7 @@ struct Vec2 {
     return {std::min(x, rhs.x), std::min(y, rhs.y)};
   }
 
-  int cross(Vec2 rhs) const {
+  long long cross(Vec2 rhs) const {
     return x * rhs.y - y * rhs.x;
   }
 
@@ -157,7 +157,7 @@ struct Triangle {
     return signedDoubleArea() > 0;
   }
 
-  int signedDoubleArea() const {
+  long long signedDoubleArea() const {
     return (a - b).cross(c - b);
   }
 };
@@ -241,8 +241,8 @@ struct Polygon {
   }
 
   /// Computes the area of the polygon via triangulation.
-  int area() const {
-    int doubleArea = 0;
+  long long area() const {
+    long long doubleArea = 0;
     std::vector<Triangle> tris = triangulate();
     for (const Triangle &tri : tris) {
       doubleArea += std::abs(tri.signedDoubleArea());
