@@ -153,6 +153,7 @@ struct Triangle {
   }
 
   bool isFacingUp() const {
+    // True iff the triangle is wound counter-clockwise
     return signedDoubleArea() > 0;
   }
 
