@@ -52,7 +52,22 @@ struct Vec2 {
   Vec2 signum() const {
     return {::signum(x), ::signum(y)};
   }
+
+  static Vec2 parseDir(char c) {
+    switch (c) {
+    case 'L': return {-1, 0};
+    case 'R': return {1, 0};
+    case 'U': return {0, -1};
+    case 'D': return {0, 1};
+    default: throw std::runtime_error("Could not parse direction");
+    }
+  }
 };
+
+std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
+  os << '(' << vec.x << ", " << vec.y << ')';
+  return os;
+}
 
 struct Rect {
   Vec2 topLeft;
@@ -66,80 +81,69 @@ struct Rect {
 struct Inst {
   Vec2 vec;
   std::string color;
-};
 
-std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
-  os << '(' << vec.x << ", " << vec.y << ')';
-  return os;
-}
+  static Inst parse(const std::string &raw) {
+    std::istringstream iss(raw);
+    std::string rawDir, rawLength, rawColor;
+    std::getline(iss, rawDir, ' ');
+    std::getline(iss, rawLength, ' ');
+    std::getline(iss, rawColor, ' ');
+    return {
+      .vec = Vec2::parseDir(rawDir[0]) * std::stoi(rawLength),
+      .color = rawColor.substr(2, 6),
+    };
+  }
+};
 
 std::ostream &operator<<(std::ostream &os, const Inst &inst) {
   os << inst.vec << " (#" << inst.color << ')';
   return os;
 }
 
-Rect boundingBox(const std::vector<Inst> &insts, Vec2 start = {0, 0}) {
-  Rect bb = { .topLeft = start, .bottomRight = start };
-  Vec2 pos = start;
-  for (const Inst &inst : insts) {
-    bb.topLeft = bb.topLeft.min(pos);
-    bb.bottomRight = bb.bottomRight.max(pos);
-    pos += inst.vec;
+struct Plan {
+  std::vector<Inst> insts;
+  Vec2 start;
+
+  Rect boundingBox() {
+    Rect bb = { .topLeft = start, .bottomRight = start };
+    Vec2 pos = start;
+    for (const Inst &inst : insts) {
+      bb.topLeft = bb.topLeft.min(pos);
+      bb.bottomRight = bb.bottomRight.max(pos);
+      pos += inst.vec;
+    }
+    return bb;
   }
-  return bb;
-}
+};
 
-std::vector<std::string> digTerrain(const std::vector<Inst> &insts, Vec2 start = {0, 0}) {
-  Rect bb = boundingBox(insts);
-  std::vector<std::string> terrain;
+struct Terrain {
+  Plan plan;
+  std::vector<std::string> fields;
 
-  for (int i = 0; i < bb.size().y; i++) {
-    terrain.push_back(std::string(bb.size().x, ' '));
-  }
+  Terrain(Plan plan) : plan(plan) {
+    Rect bb = plan.boundingBox();
 
-  Vec2 pos = start;
-  for (const Inst &inst : insts) {
-    Vec2 next = pos + inst.vec;
-    Vec2 step = inst.vec.signum();
-    while (pos != next) {
-      terrain[pos.y][pos.x] = '#';
-      pos += step;
+    for (int i = 0; i < bb.size().y; i++) {
+      fields.push_back(std::string(bb.size().x, ' '));
+    }
+
+    Vec2 pos = plan.start;
+    for (const Inst &inst : plan.insts) {
+      Vec2 next = pos + inst.vec;
+      Vec2 step = inst.vec.signum();
+      while (pos != next) {
+        fields[pos.y][pos.x] = '#';
+        pos += step;
+      }
     }
   }
+};
 
-  return terrain;
-}
-
-Vec2 parseDir(char c) {
-  switch (c) {
-  case 'L': return {-1, 0};
-  case 'R': return {1, 0};
-  case 'U': return {0, -1};
-  case 'D': return {0, 1};
-  default: throw std::runtime_error("Could not parse direction");
+std::ostream &operator<<(std::ostream &os, const Terrain &terrain) {
+  for (const std::string &row : terrain.fields) {
+    os << row << std::endl;
   }
-}
-
-template<char D>
-std::istream &skip(std::istream &is) {
-  // https://stackoverflow.com/a/14139975
-  char parsed;
-  if (is >> parsed && parsed != D) {
-    is.setstate(std::ios_base::failbit);
-  }
-  return is;
-}
-
-Inst parseInst(const std::string &raw) {
-  std::istringstream iss(raw);
-  std::string rawDir, rawLength, rawColor;
-  std::getline(iss, rawDir, ' ');
-  std::getline(iss, rawLength, ' ');
-  std::getline(iss, rawColor, ' ');
-  return {
-    .vec = parseDir(rawDir[0]) * std::stoi(rawLength),
-    .color = rawColor.substr(2, 6),
-  };
+  return os;
 }
 
 int main(int argc, char *argv[]) {
@@ -154,14 +158,13 @@ int main(int argc, char *argv[]) {
   std::vector<Inst> insts;
 
   for (std::string line; std::getline(file, line);) {
-    insts.push_back(parseInst(line));
+    insts.push_back(Inst::parse(line));
   }
 
-  std::vector<std::string> terrain = digTerrain(insts);
+  Plan plan {insts, {0, 0}};
+  Terrain terrain {plan};
 
-  for (const std::string &row : terrain) {
-    std::cout << row << std::endl;
-  }
+  std::cout << terrain << std::endl;
 
   return 0;
 }
