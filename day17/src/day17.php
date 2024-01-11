@@ -90,7 +90,6 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
       if ($node->straightLeft > 0) {
         array_push($dirs, $node->dir);
       }
-      // echo $node->visitKey() . PHP_EOL;
       foreach ($dirs as $dir) {
         $pos = $node->pos->add($dir);
         if ($pos->inBounds($width, $height)) {
@@ -98,21 +97,11 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
           $path = [...$node->path, $node];
           $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
           $next = new Node($pos, $dir, $path, $total, $straightLeft);
-          // FIXME: A* seems to yield a different length on demo2 (362) with the
-          // heuristic than without (363), why? Isn't the heuristic monotonic?
           $diff = $dest->sub($pos);
           $cost = $total + abs($diff->x) + abs($diff->y);
-          // $c = $total - $node->total;
-          // $h = $cost - $total;
-          // $cost = $total;
           if (!array_key_exists($next->visitKey(), $visited)) {
             $queue->insert($next, -$cost);
-            // echo "  {$dir->arrow()} {$next->visitKey()} (cost $cost = $node->total + $c + $h)" . PHP_EOL;
-          } else {
-            // echo "  {$dir->arrow()} {$next->visitKey()} <SKIPPED, visited>" . PHP_EOL;
           }
-        } else {
-          // echo "  {$dir->arrow()} $pos <SKIPPED, out of bounds>" . PHP_EOL;
         }
       }
     }
