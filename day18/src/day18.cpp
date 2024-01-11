@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <deque>
 #include <fstream>
 #include <functional>
 #include <ios>
@@ -34,6 +35,10 @@ struct Vec2 {
 
   Vec2 operator*(int factor) const {
     return {x * factor, y * factor};
+  }
+
+  Vec2 operator/(int divisor) const {
+    return {x / divisor, y / divisor};
   }
 
   void operator+=(Vec2 rhs) {
@@ -93,6 +98,10 @@ struct std::hash<Vec2> {
 struct Rect {
   Vec2 topLeft;
   Vec2 bottomRight;
+
+  Vec2 center() const {
+    return (topLeft + bottomRight) / 2;
+  }
 
   Vec2 size() const {
     return bottomRight - topLeft + Vec2({1, 1});
@@ -164,25 +173,28 @@ struct Terrain {
   }
 
   bool inBounds(Vec2 pos) {
-    Vec2 size = bounds.size();
-    return pos.x >= 0 && pos.x < size.x && pos.y >= 0 && pos.y < size.y;
+    return pos.x >= bounds.topLeft.x && pos.x <= bounds.bottomRight.x && pos.y >= bounds.topLeft.y && pos.y <= bounds.bottomRight.y;
   }
 
   void fill() {
-    Vec2 inner = plan.start + Vec2({0, 1});
+    // Very crude heuristic that will probably fail in the general case, but
+    // works for our inputs.
+    Vec2 inner = plan.start + (bounds.center() - plan.start).signum();
     std::unordered_set<Vec2> visited;
-    std::stack<Vec2> stack;
+    std::deque<Vec2> queue;
 
-    stack.push(inner);
+    queue.push_back(inner);
 
-    while (!stack.empty()) {
-      Vec2 pos = stack.top();
-      stack.pop();
-      visited.insert(pos);
-      (*this)[pos] = '#';
-      for (Vec2 neighbor : pos.neighbors()) {
-        if (inBounds(neighbor) && !visited.contains(neighbor) && (*this)[neighbor] == ' ') {
-          stack.push(neighbor);
+    while (!queue.empty()) {
+      Vec2 pos = queue.front();
+      queue.pop_front();
+      if (!visited.contains(pos)) {
+        visited.insert(pos);
+        (*this)[pos] = '#';
+        for (Vec2 neighbor : pos.neighbors()) {
+          if (inBounds(neighbor) && (*this)[neighbor] == ' ') {
+            queue.push_back(neighbor);
+          }
         }
       }
     }
@@ -228,8 +240,8 @@ int main(int argc, char *argv[]) {
   Plan plan {insts, {0, 0}};
   Terrain terrain {plan};
 
-  // terrain.fill();
-  std::cout << "Part 1: " << terrain.area() << terrain << std::endl;
+  terrain.fill();
+  std::cout << "Part 1: " << terrain.area() << std::endl;
 
   return 0;
 }
