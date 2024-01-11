@@ -85,7 +85,7 @@ std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
 
 template <>
 struct std::hash<Vec2> {
-  std::size_t operator()(const Vec2 &vec) {
+  std::size_t operator()(const Vec2 &vec) const {
     return std::hash<int>()(vec.x) ^ std::hash<int>()(vec.y);
   }
 };
@@ -152,11 +152,54 @@ struct Terrain {
       Vec2 next = pos + inst.vec;
       Vec2 step = inst.vec.signum();
       while (pos != next) {
-        Vec2 rel = pos - bounds.topLeft;
-        fields[rel.y][rel.x] = '#';
+        (*this)[pos] = '#';
         pos += step;
       }
     }
+  }
+
+  char &operator[](Vec2 pos) {
+    Vec2 rel = pos - bounds.topLeft;
+    return fields[rel.y][rel.x];
+  }
+
+  bool inBounds(Vec2 pos) {
+    Vec2 size = bounds.size();
+    return pos.x >= 0 && pos.x < size.x && pos.y >= 0 && pos.y < size.y;
+  }
+
+  void fill() {
+    Vec2 inner = plan.start + Vec2({0, 1});
+    std::unordered_set<Vec2> visited;
+    std::stack<Vec2> stack;
+
+    stack.push(inner);
+
+    while (!stack.empty()) {
+      Vec2 pos = stack.top();
+      stack.pop();
+      visited.insert(pos);
+      (*this)[pos] = '#';
+      for (Vec2 neighbor : pos.neighbors()) {
+        if (inBounds(neighbor) && !visited.contains(neighbor) && (*this)[neighbor] == ' ') {
+          stack.push(neighbor);
+        }
+      }
+    }
+  }
+
+  int area() const {
+    int total = 0;
+
+    for (const std::string &row : fields) {
+      for (char c : row) {
+        if (c == '#') {
+          total++;
+        }
+      }
+    }
+
+    return total;
   }
 };
 
@@ -185,7 +228,8 @@ int main(int argc, char *argv[]) {
   Plan plan {insts, {0, 0}};
   Terrain terrain {plan};
 
-  std::cout << terrain << std::endl;
+  // terrain.fill();
+  std::cout << "Part 1: " << terrain.area() << terrain << std::endl;
 
   return 0;
 }
