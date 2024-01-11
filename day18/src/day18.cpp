@@ -141,94 +141,17 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
   return os;
 }
 
-struct Plan {
-  const std::vector<Inst> insts;
-  const Vec2 start;
-
-  Rect boundingBox() {
-    Rect bb = { .topLeft = start, .bottomRight = start };
-    Vec2 pos = start;
-    for (const Inst &inst : insts) {
-      bb.topLeft = bb.topLeft.min(pos);
-      bb.bottomRight = bb.bottomRight.max(pos);
-      pos += inst.dir1;
-    }
-    return bb;
-  }
+struct Polygon {
+  std::vector<Vec2> vertices;
 };
 
-struct Terrain {
-  const Plan plan;
-  const Rect bounds;
-  std::vector<std::string> fields;
-
-  Terrain(Plan plan) : plan(plan), bounds(plan.boundingBox()) {
-    for (int i = 0; i < bounds.size().y; i++) {
-      fields.push_back(std::string(bounds.size().x, ' '));
+std::ostream &operator<<(std::ostream &os, const Polygon &poly) {
+  int count = poly.vertices.size();
+  for (int i = 0; i < count; i++) {
+    os << poly.vertices[i];
+    if (i < count - 1) {
+      os << ", ";
     }
-
-    Vec2 pos = plan.start;
-    for (const Inst &inst : plan.insts) {
-      Vec2 next = pos + inst.dir1;
-      Vec2 step = inst.dir1.signum();
-      while (pos != next) {
-        (*this)[pos] = '#';
-        pos += step;
-      }
-    }
-  }
-
-  char &operator[](Vec2 pos) {
-    Vec2 rel = pos - bounds.topLeft;
-    return fields[rel.y][rel.x];
-  }
-
-  bool inBounds(Vec2 pos) {
-    return pos.x >= bounds.topLeft.x && pos.x <= bounds.bottomRight.x && pos.y >= bounds.topLeft.y && pos.y <= bounds.bottomRight.y;
-  }
-
-  void fill() {
-    // Very crude heuristic that will probably fail in the general case, but
-    // works for our inputs.
-    Vec2 inner = plan.start + (bounds.center() - plan.start).signum();
-    std::unordered_set<Vec2> visited;
-    std::deque<Vec2> queue;
-
-    queue.push_back(inner);
-
-    while (!queue.empty()) {
-      Vec2 pos = queue.front();
-      queue.pop_front();
-      if (!visited.contains(pos)) {
-        visited.insert(pos);
-        (*this)[pos] = '#';
-        for (Vec2 neighbor : pos.neighbors()) {
-          if (inBounds(neighbor) && (*this)[neighbor] == ' ') {
-            queue.push_back(neighbor);
-          }
-        }
-      }
-    }
-  }
-
-  int area() const {
-    int total = 0;
-
-    for (const std::string &row : fields) {
-      for (char c : row) {
-        if (c == '#') {
-          total++;
-        }
-      }
-    }
-
-    return total;
-  }
-};
-
-std::ostream &operator<<(std::ostream &os, const Terrain &terrain) {
-  for (const std::string &row : terrain.fields) {
-    os << row << std::endl;
   }
   return os;
 }
@@ -242,17 +165,20 @@ int main(int argc, char *argv[]) {
   std::ifstream file;
   file.open(argv[1]);
 
-  std::vector<Inst> insts;
+  Vec2 pos1 {0, 0},
+       pos2 {0, 0};
+  Polygon poly1, poly2;
 
   for (std::string line; std::getline(file, line);) {
-    insts.push_back(Inst::parse(line));
+    Inst inst = Inst::parse(line);
+    poly1.vertices.push_back(pos1);
+    poly2.vertices.push_back(pos2);
+    pos1 += inst.dir1;
+    pos2 += inst.dir2;
   }
 
-  Plan plan {insts, {0, 0}};
-  Terrain terrain {plan};
-
-  terrain.fill();
-  std::cout << "Part 1: " << terrain.area() << std::endl;
+  std::cout << poly1 << std::endl;
+  std::cout << poly2 << std::endl;
 
   return 0;
 }
