@@ -1,11 +1,16 @@
 #include <algorithm>
+#include <array>
+#include <cstddef>
 #include <fstream>
+#include <functional>
 #include <ios>
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <stack>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 template <typename T>
@@ -53,6 +58,15 @@ struct Vec2 {
     return {::signum(x), ::signum(y)};
   }
 
+  std::array<Vec2, 4> neighbors() const {
+    return {
+      Vec2({x - 1, y}),
+      Vec2({x + 1, y}),
+      Vec2({x, y - 1}),
+      Vec2({x, y + 1}),
+    };
+  }
+
   static Vec2 parseDir(char c) {
     switch (c) {
     case 'L': return {-1, 0};
@@ -69,18 +83,25 @@ std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
   return os;
 }
 
+template <>
+struct std::hash<Vec2> {
+  std::size_t operator()(const Vec2 &vec) {
+    return std::hash<int>()(vec.x) ^ std::hash<int>()(vec.y);
+  }
+};
+
 struct Rect {
   Vec2 topLeft;
   Vec2 bottomRight;
 
-  Vec2 size() {
+  Vec2 size() const {
     return bottomRight - topLeft + Vec2({1, 1});
   }
 };
 
 struct Inst {
-  Vec2 vec;
-  std::string color;
+  const Vec2 vec;
+  const std::string color;
 
   static Inst parse(const std::string &raw) {
     std::istringstream iss(raw);
@@ -101,8 +122,8 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
 }
 
 struct Plan {
-  std::vector<Inst> insts;
-  Vec2 start;
+  const std::vector<Inst> insts;
+  const Vec2 start;
 
   Rect boundingBox() {
     Rect bb = { .topLeft = start, .bottomRight = start };
@@ -117,14 +138,13 @@ struct Plan {
 };
 
 struct Terrain {
-  Plan plan;
+  const Plan plan;
+  const Rect bounds;
   std::vector<std::string> fields;
 
-  Terrain(Plan plan) : plan(plan) {
-    Rect bb = plan.boundingBox();
-
-    for (int i = 0; i < bb.size().y; i++) {
-      fields.push_back(std::string(bb.size().x, ' '));
+  Terrain(Plan plan) : plan(plan), bounds(plan.boundingBox()) {
+    for (int i = 0; i < bounds.size().y; i++) {
+      fields.push_back(std::string(bounds.size().x, ' '));
     }
 
     Vec2 pos = plan.start;
@@ -132,7 +152,8 @@ struct Terrain {
       Vec2 next = pos + inst.vec;
       Vec2 step = inst.vec.signum();
       while (pos != next) {
-        fields[pos.y][pos.x] = '#';
+        Vec2 rel = pos - bounds.topLeft;
+        fields[rel.y][rel.x] = '#';
         pos += step;
       }
     }
