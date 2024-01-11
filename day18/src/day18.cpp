@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -11,21 +12,68 @@ struct Vec2 {
   int x;
   int y;
 
-  Vec2(int x = 0, int y = 0) : x(x), y(y) {}
-
   Vec2 operator+(Vec2 rhs) const {
     return {x + rhs.x, y + rhs.y};
   }
 
-  Vec2 operator*(int factor) {
+  Vec2 operator-(Vec2 rhs) const {
+    return {x - rhs.x, y - rhs.y};
+  }
+
+  Vec2 operator*(int factor) const {
     return {x * factor, y * factor};
   }
+
+  void operator+=(Vec2 rhs) {
+    x += rhs.x;
+    y += rhs.y;
+  }
+
+  void operator-=(Vec2 rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+  }
+
+  Vec2 max(Vec2 rhs) const {
+    return {std::max(x, rhs.x), std::max(y, rhs.y)};
+  }
+
+  Vec2 min(Vec2 rhs) const {
+    return {std::min(x, rhs.x), std::min(y, rhs.y)};
+  }
+};
+
+struct Rect {
+  Vec2 topLeft;
+  Vec2 bottomRight;
 };
 
 struct Inst {
   Vec2 vec;
   std::string color;
 };
+
+Rect boundingBox(const std::vector<Inst> &insts, Vec2 start = {0, 0}) {
+  Rect bb = { .topLeft = start, .bottomRight = start };
+  Vec2 current = start;
+  for (const Inst &inst : insts) {
+    bb.topLeft = bb.topLeft.max(current);
+    bb.bottomRight = bb.topLeft.min(current);
+    current += inst.vec;
+  }
+  return bb;
+}
+
+std::vector<std::string> digTerrain(const std::vector<Inst> &insts) {
+  Rect bb = boundingBox(insts);
+  std::vector<std::string> terrain;
+
+  for (const Inst &inst : insts) {
+    // TODO
+  }
+
+  return terrain;
+}
 
 std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
   os << '(' << vec.x << ", " << vec.y << ')';
