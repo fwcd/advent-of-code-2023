@@ -109,24 +109,35 @@ struct Rect {
 };
 
 struct Inst {
-  const Vec2 vec;
-  const std::string color;
+  const Vec2 dir1;
+  const Vec2 dir2;
 
   static Inst parse(const std::string &raw) {
     std::istringstream iss(raw);
-    std::string rawDir, rawLength, rawColor;
-    std::getline(iss, rawDir, ' ');
-    std::getline(iss, rawLength, ' ');
-    std::getline(iss, rawColor, ' ');
-    return {
-      .vec = Vec2::parseDir(rawDir[0]) * std::stoi(rawLength),
-      .color = rawColor.substr(2, 6),
-    };
+    std::string rawDir1, rawLength1, rawHex;
+    std::getline(iss, rawDir1, ' ');
+    std::getline(iss, rawLength1, ' ');
+    std::getline(iss, rawHex, ' ');
+
+    Vec2 dir1 = Vec2::parseDir(rawDir1[0]) * std::stoi(rawLength1);
+
+    int length2 = std::stoi(rawHex.substr(2, 5), nullptr, 16);
+    char rawDir2;
+    switch (rawHex[7] - '0') {
+    case 0: rawDir2 = 'R'; break;
+    case 1: rawDir2 = 'D'; break;
+    case 2: rawDir2 = 'L'; break;
+    case 3: rawDir2 = 'U'; break;
+    }
+
+    Vec2 dir2 = Vec2::parseDir(rawDir2) * length2;
+
+    return { .dir1 = dir1, .dir2 = dir2 };
   }
 };
 
 std::ostream &operator<<(std::ostream &os, const Inst &inst) {
-  os << inst.vec << " (#" << inst.color << ')';
+  os << inst.dir1 << ", " << inst.dir2;
   return os;
 }
 
@@ -140,7 +151,7 @@ struct Plan {
     for (const Inst &inst : insts) {
       bb.topLeft = bb.topLeft.min(pos);
       bb.bottomRight = bb.bottomRight.max(pos);
-      pos += inst.vec;
+      pos += inst.dir1;
     }
     return bb;
   }
@@ -158,8 +169,8 @@ struct Terrain {
 
     Vec2 pos = plan.start;
     for (const Inst &inst : plan.insts) {
-      Vec2 next = pos + inst.vec;
-      Vec2 step = inst.vec.signum();
+      Vec2 next = pos + inst.dir1;
+      Vec2 step = inst.dir1.signum();
       while (pos != next) {
         (*this)[pos] = '#';
         pos += step;
