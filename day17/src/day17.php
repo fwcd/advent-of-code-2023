@@ -90,10 +90,10 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
 $raw = trim(file_get_contents($argv[1]));
 $input = preg_split('/\R/', $raw);
 
-$shortest = shortestPath($input);
-echo "Part 1: $shortest->total" . PHP_EOL;
+$destNode = shortestPath($input);
+echo "Part 1: $destNode->total" . PHP_EOL;
 
-foreach ($shortest->path as $node) {
+foreach ([...$destNode->path, $destNode] as $node) {
   $c = '?';
   $pos = $node->pos;
   $dir = $node->dir;
