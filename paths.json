@@ -147,5 +147,12 @@
     },
     "path": "day17/src/day17.php",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "clike",
+      "name": "C++"
+    },
+    "path": "day18/src/day18.cpp"
   }
 ]
