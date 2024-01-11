@@ -81,6 +81,7 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
     if ($node->pos == $dest) {
       return $node;
     }
+    $visited[(string) $node->pos] = true;
     $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
     if ($node->straightLeft > 0) {
       array_push($dirs, $node->dir);
@@ -89,7 +90,6 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
     foreach ($dirs as $dir) {
       $pos = $node->pos->add($dir);
       if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
-        $visited[(string) $pos] = true;
         $path = [...$node->path, $node];
         $cost = intval($matrix[$pos->y][$pos->x]);
         $total = $node->total + $cost;
