@@ -98,7 +98,10 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
         $path = [...$node->path, $node];
         $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
         $next = new Node($pos, $dir, $path, $total, $straightLeft);
-        $cost = $total + abs($diff->x) + abs($diff->y);
+        // FIXME: A* seems to yield a different length on demo2 (362) with the
+        // heuristic than without (363), why? Isn't the heuristic monotonic?
+        // $cost = $total + abs($diff->x) + abs($diff->y);
+        $cost = $total;
         $queue->insert($next, -$cost);
       }
     }
