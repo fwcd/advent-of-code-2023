@@ -13,7 +13,7 @@
 
       cat <<EOF > $out/bin/day17
       #!/bin/bash
-      exec php -d memory_limit=512M "\$(dirname "\$0")/../share/day17.php" "\$@"
+      exec php -d memory_limit=1G "\$(dirname "\$0")/../share/day17.php" "\$@"
       EOF
 
       chmod +x $out/bin/day17

@@ -62,6 +62,10 @@ class Node {
     $this->total = $total;
     $this->straightLeft = $straightLeft;
   }
+
+  function visitKey(): string {
+    return "$this->pos{$this->dir->arrow()}$this->straightLeft";
+  }
 }
 
 function shortestPath(array $matrix, int $maxStraight = 3): Node {
@@ -77,19 +81,19 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
 
   while ($queue->valid()) {
     $node = $queue->extract();
-    if (!array_key_exists((string) $node->pos, $visited)) {
+    if (!array_key_exists($node->visitKey(), $visited)) {
       if ($node->pos == $dest) {
         return $node;
       }
-      $visited[(string) $node->pos] = true;
+      $visited[$node->visitKey()] = true;
       $dirs = [$node->dir->turnLeft(), $node->dir->turnRight()];
       if ($node->straightLeft > 0) {
         array_push($dirs, $node->dir);
       }
-      echo "$node->pos ($node->straightLeft left)" . PHP_EOL;
+      // echo $node->visitKey() . PHP_EOL;
       foreach ($dirs as $dir) {
         $pos = $node->pos->add($dir);
-        if (!array_key_exists((string) $pos, $visited) && $pos->inBounds($width, $height)) {
+        if ($pos->inBounds($width, $height)) {
           $total = $node->total + intval($matrix[$pos->y][$pos->x]);
           $path = [...$node->path, $node];
           $straightLeft = (($dir == $node->dir) ? $node->straightLeft : $maxStraight) - 1;
@@ -97,14 +101,18 @@ function shortestPath(array $matrix, int $maxStraight = 3): Node {
           // FIXME: A* seems to yield a different length on demo2 (362) with the
           // heuristic than without (363), why? Isn't the heuristic monotonic?
           $diff = $dest->sub($pos);
-          $cost = $total;
-          $c = $total - $node->total;
-          $h = $cost - $total;
+          $cost = $total + abs($diff->x) + abs($diff->y);
+          // $c = $total - $node->total;
+          // $h = $cost - $total;
           // $cost = $total;
-          $queue->insert($next, -$cost);
-          echo "  {$dir->arrow()} $pos (cost $cost = $node->total + $c + $h)" . PHP_EOL;
+          if (!array_key_exists($next->visitKey(), $visited)) {
+            $queue->insert($next, -$cost);
+            // echo "  {$dir->arrow()} {$next->visitKey()} (cost $cost = $node->total + $c + $h)" . PHP_EOL;
+          } else {
+            // echo "  {$dir->arrow()} {$next->visitKey()} <SKIPPED, visited>" . PHP_EOL;
+          }
         } else {
-          echo "  {$dir->arrow()} $pos <SKIPPED>" . PHP_EOL;
+          // echo "  {$dir->arrow()} $pos <SKIPPED, out of bounds>" . PHP_EOL;
         }
       }
     }
