@@ -114,8 +114,10 @@ struct std::hash<Vec2> {
   }
 };
 
+constexpr int PARTS = 2;
+
 struct Inst {
-  std::array<Vec2, 2> dirs;
+  std::array<Vec2, PARTS> dirs;
 
   static Inst parse(const std::string &raw) {
     std::istringstream iss(raw);
@@ -180,18 +182,18 @@ int main(int argc, char *argv[]) {
   std::ifstream file;
   file.open(argv[1]);
 
-  std::array<Vec2, 2> positions {Vec2 {0, 0}, Vec2 {0, 0}};
-  std::array<Polygon, 2> polygons {Polygon {}, Polygon {}};
+  std::array<Vec2, PARTS> positions {Vec2 {0, 0}, Vec2 {0, 0}};
+  std::array<Polygon, PARTS> polygons {Polygon {}, Polygon {}};
 
   for (std::string line; std::getline(file, line);) {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < PARTS; i++) {
       Inst inst = Inst::parse(line);
       polygons[i].vertices.push_back(positions[i]);
       positions[i] += inst.dirs[i];
     }
   }
 
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < PARTS; i++) {
     std::cout << "Part " << (i + 1) << ": " << polygons[i].area() << std::endl;
   }
 
