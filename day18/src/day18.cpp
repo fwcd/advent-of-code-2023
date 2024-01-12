@@ -236,6 +236,10 @@ int main(int argc, char *argv[]) {
       Vec2 step = dir.signum();
       quadrupleExtraArea[part] += (dir - step).manhattan() * 2;
 
+      // The cross product is > 0 if we turn right, in which case we need to
+      // fill in 3 quarters of a grid cell, < 0 if we turn left, in which case
+      // we have to fill in 1 quarter etc or 0 if we move ahead, in which case
+      // we have to fill in 2 quarters (i.e. half the cell).
       int turn = signum(dir.cross(next.dirs[part]));
       quadrupleExtraArea[part] += 2 + turn;
     }
