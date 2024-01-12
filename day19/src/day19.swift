@@ -86,14 +86,14 @@ extension Rule {
   private static let outputRef = Reference(Output.self)
 
   static let pattern = Regex {
-    Capture(as: conditionRef) {
-      Optionally {
+    Optionally {
+      Capture(as: conditionRef) {
         Condition.pattern
+      } transform: { rawCondition in
+        try Condition(rawValue: rawCondition)
       }
-    } transform: { rawCondition in
-      try Condition(rawValue: rawCondition)
+      ":"
     }
-    ":"
     Capture(as: outputRef) {
       Output.pattern
     } transform: { rawOutput in
