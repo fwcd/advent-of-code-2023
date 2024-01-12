@@ -13,7 +13,7 @@ enum Operator: String {
 }
 
 extension Operator {
-  static let pattern = try! Regex<String>("[<>]")
+  static let pattern = try! Regex("[<>]", as: String.self)
 
   func apply(_ lhs: Int, _ rhs: Int) -> Bool {
     switch self {
@@ -34,7 +34,7 @@ extension Condition {
 
   static let pattern = Regex {
     Capture(as: categoryRef) {
-      try! Regex<String>("[a-z]")
+      try! Regex("[a-z]", as: String.self)
     }
     Capture(as: operatorRef) {
       Operator.pattern
@@ -59,7 +59,7 @@ enum Output {
 }
 
 extension Output {
-  static let pattern = try! Regex<String>("\\w+")
+  static let pattern = try! Regex("\\w+", as: String.self)
 
   init(rawValue: String) {
     switch rawValue {
@@ -115,11 +115,11 @@ extension Workflow {
 
   static let pattern = Regex {
     Capture(as: nameRef) {
-      try! Regex<String>("\\w+")
+      try! Regex("\\w+", as: String.self)
     }
     "{"
     Capture(as: rulesRef) {
-      try! Regex<String>("[^}]+")
+      try! Regex("[^}]+", as: String.self)
     } transform: { rawRules in
       rawRules.split(separator: ",").map { Rule(rawValue: String($0))! }
     }
@@ -145,7 +145,7 @@ extension Part {
   static let pattern = Regex {
     "{"
     Capture(as: valuesRef) {
-      try! Regex<String>("[^}]+")
+      try! Regex("[^}]+", as: String.self)
     } transform: { rawRules in
       Dictionary(uniqueKeysWithValues: rawRules.split(separator: ",").map {
         let split = $0.split(separator: "=")
