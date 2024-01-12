@@ -50,7 +50,7 @@ extension Condition {
   }
 
   init(rawValue: Substring) throws {
-    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match condition") }
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match condition: \(rawValue)") }
     self.init(
       category: match[Self.categoryRef],
       operator: match[Self.operatorRef]
@@ -102,7 +102,7 @@ extension Rule {
   }
 
   init(rawValue: Substring) throws {
-    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match rule") }
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match rule: \(rawValue)") }
     self.init(
       condition: match[Self.conditionRef],
       output: match[Self.outputRef]
@@ -135,7 +135,7 @@ extension Workflow {
   }
 
   init(rawValue: Substring) throws {
-    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match workflow") }
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match workflow: \(rawValue)") }
     self.init(
       name: match[Self.nameRef],
       rules: match[Self.rulesRef]
@@ -164,7 +164,7 @@ extension Part {
   }
 
   init(rawValue: Substring) throws {
-    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match part") }
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match part: \(rawValue)") }
     self.init(
       values: match[Self.valuesRef]
     )
