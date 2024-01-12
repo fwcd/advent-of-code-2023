@@ -115,8 +115,7 @@ struct std::hash<Vec2> {
 };
 
 struct Inst {
-  Vec2 dir1;
-  Vec2 dir2;
+  std::array<Vec2, 2> dirs;
 
   static Inst parse(const std::string &raw) {
     std::istringstream iss(raw);
@@ -138,12 +137,12 @@ struct Inst {
 
     Vec2 dir2 = Vec2::parseDir(rawDir2) * length2;
 
-    return { .dir1 = dir1, .dir2 = dir2 };
+    return {{dir1, dir2}};
   }
 };
 
 std::ostream &operator<<(std::ostream &os, const Inst &inst) {
-  os << inst.dir1 << ", " << inst.dir2;
+  os << inst.dirs[0] << ", " << inst.dirs[1];
   return os;
 }
 
@@ -283,34 +282,21 @@ int main(int argc, char *argv[]) {
   std::ifstream file;
   file.open(argv[1]);
 
-  Vec2 pos1 {0, 0},
-       pos2 {0, 0};
-  Polygon poly1, poly2;
-  std::optional<Inst> first;
-  std::optional<Inst> last;
+  std::array<Vec2, 2> positions {Vec2 {0, 0}, Vec2 {0, 0}};
+  std::array<Polygon, 2> polygons {Polygon {}, Polygon {}};
 
   for (std::string line; std::getline(file, line);) {
-    Inst inst = Inst::parse(line);
-    poly1.vertices.push_back(pos1);
-    poly2.vertices.push_back(pos2);
-    if (!first.has_value()) {
-      first = inst;
+    for (int i = 0; i < 2; i++) {
+      Inst inst = Inst::parse(line);
+      polygons[i].vertices.push_back(positions[i]);
+      positions[i] += inst.dirs[i];
     }
-    if (last.has_value()) {
-      if (!inst.dir1.isAxisAlignedWith(last->dir1)) pos1 += last->dir1.signum();
-      if (!inst.dir2.isAxisAlignedWith(last->dir2)) pos2 += last->dir2.signum();
-    }
-    pos1 += inst.dir1;
-    pos2 += inst.dir2;
-    last = inst;
-  }
-  if (last.has_value()) {
-    if (!last->dir1.isAxisAlignedWith(first->dir1)) pos1 += first->dir1.signum();
-    if (!last->dir2.isAxisAlignedWith(first->dir2)) pos2 += first->dir2.signum();
   }
 
-  std::cout << "Part 1: " << poly1.area() << std::endl;
-  // std::cout << "Part 2: " << poly2.area() << std::endl;
+  for (int i = 0; i < 2; i++) {
+    std::cout << "Part " << i << ": " << polygons[i].area() << std::endl;
+    break; // DEBUG: Remove this!
+  }
 
   return 0;
 }
