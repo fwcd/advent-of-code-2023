@@ -146,23 +146,6 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
   return os;
 }
 
-struct Triangle {
-  Vec2 a, b, c;
-
-  bool isFacingUp() const {
-    return signedDoubleArea() > 0;
-  }
-
-  long long signedDoubleArea() const {
-    return (c - b).cross(a - b);
-  }
-};
-
-std::ostream &operator<<(std::ostream &os, const Triangle &tri) {
-  os << tri.a << ", " << tri.b << ", " << tri.c;
-  return os;
-}
-
 struct Polygon {
   std::vector<Vec2> vertices;
 
@@ -171,9 +154,7 @@ struct Polygon {
     long long doubleArea = 0;
     for (int i0 = 0; i0 < vertices.size(); i0++) {
       int i1 = (i0 + 1) % vertices.size();
-      int i2 = (i0 + 2) % vertices.size();
-      Triangle tri {vertices[i0], vertices[i1], vertices[i2]};
-      doubleArea += tri.signedDoubleArea();
+      doubleArea += vertices[i0].cross(vertices[i1]);
     }
     return doubleArea / 2;
   }
@@ -212,7 +193,6 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < 2; i++) {
     std::cout << "Part " << (i + 1) << ": " << polygons[i].area() << std::endl;
-    break; // DEBUG: Remove this!
   }
 
   return 0;
