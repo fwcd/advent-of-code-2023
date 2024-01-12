@@ -9,6 +9,7 @@ if args.count == 1 {
 
 enum ParseError: Error {
   case noMatch(String)
+  case noInt(String)
 }
 
 enum Operator: String {
@@ -30,11 +31,13 @@ extension Operator {
 struct Condition {
   let category: String
   let `operator`: Operator
+  let value: Int
 }
 
 extension Condition {
   private static let categoryRef = Reference(String.self)
   private static let operatorRef = Reference(Operator.self)
+  private static let valueRef = Reference(Int.self)
 
   static let pattern = Regex {
     Capture(as: categoryRef) {
@@ -47,13 +50,20 @@ extension Condition {
     } transform: { rawOperator in
       Operator(rawValue: String(rawOperator))!
     }
+    Capture(as: valueRef) {
+      /\d+/
+    } transform: {
+      guard let value = Int($0) else { throw ParseError.noInt("Could not parse int: \($0)") }
+      return value
+    }
   }
 
   init(rawValue: Substring) throws {
     guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match condition: \(rawValue)") }
     self.init(
       category: match[Self.categoryRef],
-      operator: match[Self.operatorRef]
+      operator: match[Self.operatorRef],
+      value: match[Self.valueRef]
     )
   }
 }
