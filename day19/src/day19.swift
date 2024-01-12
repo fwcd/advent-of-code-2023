@@ -6,4 +6,5 @@ if args.count == 1 {
   exit(1)
 }
 
-print("Hello world!")
+let rawInput = try String(contentsOfFile: args[1])
+print(rawInput)
