@@ -220,6 +220,8 @@ int main(int argc, char *argv[]) {
   //
   // i.e. we pretend that every vertex is in the center of each integer grid
   // cell, but we want the area to include the full grid cells.
+  //
+  // (might have been easier to research Pick's theorem, but hey, it works...)
 
   std::array<long long, PARTS> quadrupleExtraArea {0, 0};
 
