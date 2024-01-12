@@ -72,7 +72,12 @@ struct Vec2 {
     return {::signum(x), ::signum(y)};
   }
 
-  bool isCollinear(Vec2 other1, Vec2 other2) const {
+  bool isAxisAlignedWith(Vec2 rhs) const {
+    return (x == rhs.x && y == 0 && rhs.y == 0)
+        || (y == rhs.y && x == 0 && rhs.x == 0);
+  }
+
+  bool isCollinearWithPoints(Vec2 other1, Vec2 other2) const {
     return (x == other1.x && x == other2.x)
         || (y == other1.y && y == other2.y);
   }
@@ -110,8 +115,8 @@ struct std::hash<Vec2> {
 };
 
 struct Inst {
-  const Vec2 dir1;
-  const Vec2 dir2;
+  Vec2 dir1;
+  Vec2 dir2;
 
   static Inst parse(const std::string &raw) {
     std::istringstream iss(raw);
@@ -190,7 +195,7 @@ struct Polygon {
       for (int i0 = 0; i0 < remaining.size(); ) {
         int i1 = (i0 + 1) % remaining.size();
         int i2 = (i0 + 2) % remaining.size();
-        if (remaining[i0].isCollinear(remaining[i1], remaining[i2])) {
+        if (remaining[i0].isCollinearWithPoints(remaining[i1], remaining[i2])) {
           remaining.erase(remaining.begin() + i1);
         } else {
           i0++;
@@ -281,13 +286,27 @@ int main(int argc, char *argv[]) {
   Vec2 pos1 {0, 0},
        pos2 {0, 0};
   Polygon poly1, poly2;
+  std::optional<Inst> first;
+  std::optional<Inst> last;
 
   for (std::string line; std::getline(file, line);) {
     Inst inst = Inst::parse(line);
     poly1.vertices.push_back(pos1);
     poly2.vertices.push_back(pos2);
+    if (!first.has_value()) {
+      first = inst;
+    }
+    if (last.has_value()) {
+      if (!inst.dir1.isAxisAlignedWith(last->dir1)) pos1 += last->dir1.signum();
+      if (!inst.dir2.isAxisAlignedWith(last->dir2)) pos2 += last->dir2.signum();
+    }
     pos1 += inst.dir1;
     pos2 += inst.dir2;
+    last = inst;
+  }
+  if (last.has_value()) {
+    if (!last->dir1.isAxisAlignedWith(first->dir1)) pos1 += first->dir1.signum();
+    if (!last->dir2.isAxisAlignedWith(first->dir2)) pos2 += first->dir2.signum();
   }
 
   std::cout << "Part 1: " << poly1.area() << std::endl;
