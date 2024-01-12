@@ -155,9 +155,8 @@ struct Triangle {
     int lamC = baryC.signedDoubleArea();
     std::cout << "  Testing " << p << ": " << lamA << " and " << lamB << " and " << lamC << std::endl;
     // If all barycentric coordinates are positive, we definitely contain the point
-    return (lamA > 0 && lamB > 0 && lamC > 0)
-        // If one of the coordinates is zero, we are on the boundary
-        || lamA == 0 || lamB == 0 || lamC == 0;
+    // If one of the coordinates is zero, the point is on the boundary
+    return lamA >= 0 && lamB >= 0 && lamC >= 0;
   }
 
   bool isFacingUp() const {
@@ -216,7 +215,7 @@ struct Polygon {
 
         Vec2 d0 = p0 - p1;
         Vec2 d2 = p2 - p1;
-        std::cout << "  " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
+        std::cout << "  ==> " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
 
         if (isConvex) {
           // Check if lies within the polygon by testing if every vertex is in the triangle
