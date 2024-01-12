@@ -41,7 +41,7 @@ extension Condition {
 
   static let pattern = Regex {
     Capture(as: categoryRef) {
-      /[a-z]/
+      #/[a-z]/#
     } transform: {
       String($0)
     }
@@ -51,7 +51,7 @@ extension Condition {
       Operator(rawValue: String(rawOperator))!
     }
     Capture(as: valueRef) {
-      /\d+/
+      #/\d+/#
     } transform: {
       guard let value = Int($0) else { throw ParseError.noInt("Could not parse int: \($0)") }
       return value
@@ -75,7 +75,7 @@ enum Output {
 }
 
 extension Output {
-  static let pattern = /\w+/
+  static let pattern = #/\w+/#
 
   init(rawValue: Substring) {
     switch rawValue {
