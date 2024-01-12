@@ -1,10 +1,11 @@
-{ stdenv, swift }:
+{ stdenv, swift, swiftPackages }:
   stdenv.mkDerivation {
     name = "advent-of-code-2023-day19";
     src = ./src;
 
     nativeBuildInputs = [
       swift
+      swiftPackages.Foundation
     ];
 
     buildPhase = ''
