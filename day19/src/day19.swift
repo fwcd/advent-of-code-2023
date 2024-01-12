@@ -31,6 +31,7 @@ struct Condition {
 extension Condition {
   private static let categoryRef = Reference(String.self)
   private static let operatorRef = Reference(Operator.self)
+
   static let pattern = Regex {
     Capture(as: categoryRef) {
       try! Regex<String>("[a-z]")
@@ -64,7 +65,7 @@ extension Output {
     switch rawValue {
     case "R": self = .reject
     case "A": self = .accept
-    case _: self = .workflow(rawValue)
+    case _: self = .workflow(String(rawValue))
     }
   }
 }
@@ -77,13 +78,14 @@ struct Rule {
 extension Rule {
   private static let conditionRef = Reference(Condition?.self)
   private static let outputRef = Reference(Output.self)
+
   static let pattern = Regex {
-    Optionally {
-      Capture(as: conditionRef) {
+    Capture(as: conditionRef) {
+      Optionally {
         Condition.pattern
-      } transform: { rawCondition in
-        Condition(rawValue: String(rawCondition))
       }
+    } transform: { rawCondition in
+      Condition(rawValue: String(rawCondition))
     }
     ":"
     Capture(as: outputRef) {
@@ -102,7 +104,80 @@ extension Rule {
   }
 }
 
-typealias Part = [String: Int]
+struct Workflow {
+  let name: String
+  let rules: [Rule]
+}
+
+extension Workflow {
+  private static let nameRef = Reference(String.self)
+  private static let rulesRef = Reference([Rule].self)
+
+  static let pattern = Regex {
+    Capture(as: nameRef) {
+      try! Regex<String>("\\w+")
+    }
+    "{"
+    Capture(as: rulesRef) {
+      try! Regex<String>("[^}]+")
+    } transform: { rawRules in
+      rawRules.split(separator: ",").map { Rule(rawValue: String($0))! }
+    }
+    "}"
+  }
+
+  init?(rawValue: String) {
+    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+    self.init(
+      name: match[Self.nameRef],
+      rules: match[Self.rulesRef]
+    )
+  }
+}
+
+struct Part {
+  let values: [String: Int]
+}
+
+extension Part {
+  private static let valuesRef = Reference([String: Int].self)
+
+  static let pattern = Regex {
+    "{"
+    Capture(as: valuesRef) {
+      try! Regex<String>("[^}]+")
+    } transform: { rawRules in
+      Dictionary(uniqueKeysWithValues: rawRules.split(separator: ",").map {
+        let split = $0.split(separator: "=")
+        return (String(split[0]), Int(split[1])!)
+      })
+    }
+    "}"
+  }
+
+  init?(rawValue: String) {
+    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+    self.init(
+      values: match[Self.valuesRef]
+    )
+  }
+}
+
+struct Input {
+  let workflows: [Workflow]
+  let parts: [Part]
+}
+
+extension Input {
+  init(rawValue: String) {
+    let chunks = rawValue.split(separator: "\n\n").map { $0.split(separator: "\n") }
+    self.init(
+      workflows: chunks[0].map { Workflow(rawValue: String($0))! },
+      parts: chunks[1].map { Part(rawValue: String($0))! }
+    )
+  }
+}
 
 let rawInput = try String(contentsOfFile: args[1])
-print(rawInput)
+let input = Input(rawValue: rawInput)
+print(input)
