@@ -13,7 +13,7 @@ enum Operator: String {
 }
 
 extension Operator {
-  static let pattern = try! Regex("[<>]", as: String.self)
+  static let pattern = /[<>]/
 
   func apply(_ lhs: Int, _ rhs: Int) -> Bool {
     switch self {
@@ -34,7 +34,9 @@ extension Condition {
 
   static let pattern = Regex {
     Capture(as: categoryRef) {
-      try! Regex("[a-z]", as: String.self)
+      /[a-z]/
+    } transform: {
+      String($0)
     }
     Capture(as: operatorRef) {
       Operator.pattern
@@ -43,7 +45,7 @@ extension Condition {
     }
   }
 
-  init?(rawValue: String) {
+  init?(rawValue: Substring) {
     guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
     self.init(
       category: match[Self.categoryRef],
@@ -59,9 +61,9 @@ enum Output {
 }
 
 extension Output {
-  static let pattern = try! Regex("\\w+", as: String.self)
+  static let pattern = /\w+/
 
-  init(rawValue: String) {
+  init(rawValue: Substring) {
     switch rawValue {
     case "R": self = .reject
     case "A": self = .accept
@@ -85,7 +87,7 @@ extension Rule {
         Condition.pattern
       }
     } transform: { rawCondition in
-      Condition(rawValue: String(rawCondition))
+      Condition(rawValue: rawCondition)
     }
     ":"
     Capture(as: outputRef) {
@@ -95,7 +97,7 @@ extension Rule {
     }
   }
 
-  init?(rawValue: String) {
+  init?(rawValue: Substring) {
     guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
     self.init(
       condition: match[Self.conditionRef],
@@ -115,18 +117,20 @@ extension Workflow {
 
   static let pattern = Regex {
     Capture(as: nameRef) {
-      try! Regex("\\w+", as: String.self)
+      /\w+/
+    } transform: {
+      String($0)
     }
     "{"
     Capture(as: rulesRef) {
-      try! Regex("[^}]+", as: String.self)
+      /[^}]+/
     } transform: { rawRules in
-      rawRules.split(separator: ",").map { Rule(rawValue: String($0))! }
+      rawRules.split(separator: ",").map { Rule(rawValue: $0)! }
     }
     "}"
   }
 
-  init?(rawValue: String) {
+  init?(rawValue: Substring) {
     guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
     self.init(
       name: match[Self.nameRef],
@@ -145,7 +149,7 @@ extension Part {
   static let pattern = Regex {
     "{"
     Capture(as: valuesRef) {
-      try! Regex("[^}]+", as: String.self)
+      /[^}]+/
     } transform: { rawRules in
       Dictionary(uniqueKeysWithValues: rawRules.split(separator: ",").map {
         let split = $0.split(separator: "=")
@@ -155,7 +159,7 @@ extension Part {
     "}"
   }
 
-  init?(rawValue: String) {
+  init?(rawValue: Substring) {
     guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
     self.init(
       values: match[Self.valuesRef]
@@ -169,15 +173,15 @@ struct Input {
 }
 
 extension Input {
-  init(rawValue: String) {
+  init(rawValue: Substring) {
     let chunks = rawValue.split(separator: "\n\n").map { $0.split(separator: "\n") }
     self.init(
-      workflows: chunks[0].map { Workflow(rawValue: String($0))! },
-      parts: chunks[1].map { Part(rawValue: String($0))! }
+      workflows: chunks[0].map { Workflow(rawValue: $0)! },
+      parts: chunks[1].map { Part(rawValue: $0)! }
     )
   }
 }
 
 let rawInput = try String(contentsOfFile: args[1])
-let input = Input(rawValue: rawInput)
+let input = Input(rawValue: rawInput[...])
 print(input)
