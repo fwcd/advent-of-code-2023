@@ -24,6 +24,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 16: [Zig](day16/src/day16.zig)
 - [x] Day 17: [PHP](day17/src/day17.php)
 - [x] Day 18: [C++](day18/src/day18.cpp)
+- [ ] Day 19: [Swift](day19/src/day19.swift)
 
 ## Packaging
 

@@ -155,5 +155,12 @@
     },
     "path": "day18/src/day18.cpp",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "swift",
+      "name": "Swift"
+    },
+    "path": "day19/src/day19.swift"
   }
 ]
