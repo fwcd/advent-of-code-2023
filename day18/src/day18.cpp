@@ -149,27 +149,12 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
 struct Triangle {
   Vec2 a, b, c;
 
-  bool contains(Vec2 p) const {
-    // Compute barycentric coordinates
-    Triangle baryA {p, b, c};
-    Triangle baryB {a, p, c};
-    Triangle baryC {a, b, p};
-    int lamA = baryA.signedDoubleArea();
-    int lamB = baryB.signedDoubleArea();
-    int lamC = baryC.signedDoubleArea();
-    std::cout << "  Testing " << p << ": " << lamA << " and " << lamB << " and " << lamC << std::endl;
-    // If all barycentric coordinates are positive, we definitely contain the point
-    // If one of the coordinates is zero, the point is on the boundary
-    return lamA >= 0 && lamB >= 0 && lamC >= 0;
-  }
-
   bool isFacingUp() const {
-    // True iff the triangle is wound counter-clockwise
     return signedDoubleArea() > 0;
   }
 
   long long signedDoubleArea() const {
-    return (a - b).cross(c - b);
+    return (c - b).cross(a - b);
   }
 };
 
@@ -181,82 +166,14 @@ std::ostream &operator<<(std::ostream &os, const Triangle &tri) {
 struct Polygon {
   std::vector<Vec2> vertices;
 
-  /// Triangulates the polygon using ear clipping in O(|vertices|^2).
-  std::vector<Triangle> triangulate() const {
-    std::vector<Triangle> triangles;
-    std::vector<Vec2> remaining = vertices;
-
-    std::reverse(remaining.begin(), remaining.end());
-
-    // Perform ear clipping
-    while (remaining.size() > 3) {
-      // Merge collinear vertices
-      for (int i0 = 0; i0 < remaining.size(); ) {
-        int i1 = (i0 + 1) % remaining.size();
-        int i2 = (i0 + 2) % remaining.size();
-        if (remaining[i0].isCollinearWithPoints(remaining[i1], remaining[i2])) {
-          remaining.erase(remaining.begin() + i1);
-        } else {
-          i0++;
-        }
-      }
-
-      std::cout << "Remaining: ";
-      for (Vec2 v : remaining) {
-        std::cout << v << ",";
-      }
-      std::cout << std::endl;
-
-      // Find convex ear
-      for (int i0 = 0; i0 < remaining.size(); i0++) {
-        int i1 = (i0 + 1) % remaining.size();
-        int i2 = (i0 + 2) % remaining.size();
-        Vec2 p0 = remaining[i0];
-        Vec2 p1 = remaining[i1];
-        Vec2 p2 = remaining[i2];
-        Triangle tri {p0, p1, p2};
-        bool isConvex = tri.isFacingUp();
-
-        Vec2 d0 = p0 - p1;
-        Vec2 d2 = p2 - p1;
-        std::cout << "  ==> " << p0 << ", " << p1 << ", " << p2 << " -\td0: " << d0 << ",\td2: " << d2 << ",\td0 x d2: " << d0.cross(d2) << ",\td2 x d0: " << d2.cross(d0) << ", convex: " << isConvex << std::endl;
-
-        if (isConvex) {
-          // Check if lies within the polygon by testing if every vertex is in the triangle
-          bool intersectsPolygon = false;
-          for (int j = 0; j < remaining.size(); j++) {
-            if (j != i0 && j != i1 && j != i2 && tri.contains(remaining[j])) {
-              intersectsPolygon = true;
-              break;
-            }
-          }
-
-          if (!intersectsPolygon) {
-            // Clip it!
-            triangles.push_back({p0, p1, p2});
-            remaining.erase(remaining.begin() + i1);
-            std::cout << "Snip snap" << std::endl;
-            goto continueOuter;
-          }
-        }
-      }
-
-      throw new std::runtime_error("No convex ear found!");
-
-      continueOuter:;
-    }
-
-    triangles.push_back({remaining[0], remaining[1], remaining[2]});
-
-    return triangles;
-  }
-
-  /// Computes the area of the polygon via triangulation.
+  /// Computes the area of the polygon via the shoelace formula.
   long long area() const {
     long long doubleArea = 0;
-    std::vector<Triangle> tris = triangulate();
-    for (const Triangle &tri : tris) {
-      doubleArea += std::abs(tri.signedDoubleArea());
+    for (int i0 = 0; i0 < vertices.size(); i0++) {
+      int i1 = (i0 + 1) % vertices.size();
+      int i2 = (i0 + 2) % vertices.size();
+      Triangle tri {vertices[i0], vertices[i1], vertices[i2]};
+      doubleArea += tri.signedDoubleArea();
     }
     return doubleArea / 2;
   }
@@ -294,7 +211,7 @@ int main(int argc, char *argv[]) {
   }
 
   for (int i = 0; i < 2; i++) {
-    std::cout << "Part " << i << ": " << polygons[i].area() << std::endl;
+    std::cout << "Part " << (i + 1) << ": " << polygons[i].area() << std::endl;
     break; // DEBUG: Remove this!
   }
 
