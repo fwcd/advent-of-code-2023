@@ -166,7 +166,8 @@ std::ostream &operator<<(std::ostream &os, const Inst &inst) {
 struct Polygon {
   std::vector<Vec2> vertices;
 
-  /// Computes the area of the polygon via the shoelace formula.
+  /// Computes the area of the polygon via the shoelace triangle formula.
+  /// See https://en.wikipedia.org/wiki/Shoelace_formula#Triangle_formula
   long long area() const {
     long long doubleArea = 0;
     for (int i0 = 0; i0 < vertices.size(); i0++) {
