@@ -7,6 +7,10 @@ if args.count == 1 {
   exit(1)
 }
 
+enum ParseError: Error {
+  case noMatch(String)
+}
+
 enum Operator: String {
   case lessThan = "<"
   case greaterThan = ">"
@@ -45,8 +49,8 @@ extension Condition {
     }
   }
 
-  init?(rawValue: Substring) {
-    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+  init(rawValue: Substring) throws {
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match condition") }
     self.init(
       category: match[Self.categoryRef],
       operator: match[Self.operatorRef]
@@ -87,7 +91,7 @@ extension Rule {
         Condition.pattern
       }
     } transform: { rawCondition in
-      Condition(rawValue: rawCondition)
+      try Condition(rawValue: rawCondition)
     }
     ":"
     Capture(as: outputRef) {
@@ -97,8 +101,8 @@ extension Rule {
     }
   }
 
-  init?(rawValue: Substring) {
-    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+  init(rawValue: Substring) throws {
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match rule") }
     self.init(
       condition: match[Self.conditionRef],
       output: match[Self.outputRef]
@@ -125,13 +129,13 @@ extension Workflow {
     Capture(as: rulesRef) {
       /[^}]+/
     } transform: { rawRules in
-      rawRules.split(separator: ",").map { Rule(rawValue: $0)! }
+      try rawRules.split(separator: ",").map { try Rule(rawValue: $0) }
     }
     "}"
   }
 
-  init?(rawValue: Substring) {
-    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+  init(rawValue: Substring) throws {
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match workflow") }
     self.init(
       name: match[Self.nameRef],
       rules: match[Self.rulesRef]
@@ -159,8 +163,8 @@ extension Part {
     "}"
   }
 
-  init?(rawValue: Substring) {
-    guard let match = try? Self.pattern.wholeMatch(in: rawValue) else { return nil }
+  init(rawValue: Substring) throws {
+    guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match part") }
     self.init(
       values: match[Self.valuesRef]
     )
@@ -173,15 +177,15 @@ struct Input {
 }
 
 extension Input {
-  init(rawValue: Substring) {
+  init(rawValue: Substring) throws {
     let chunks = rawValue.split(separator: "\n\n").map { $0.split(separator: "\n") }
     self.init(
-      workflows: chunks[0].map { Workflow(rawValue: $0)! },
-      parts: chunks[1].map { Part(rawValue: $0)! }
+      workflows: try chunks[0].map { try Workflow(rawValue: $0) },
+      parts: try chunks[1].map { try Part(rawValue: $0) }
     )
   }
 }
 
 let rawInput = try String(contentsOfFile: args[1])
-let input = Input(rawValue: rawInput[...])
+let input = try Input(rawValue: rawInput[...])
 print(input)
