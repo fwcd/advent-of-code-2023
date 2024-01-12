@@ -1,5 +1,5 @@
-{ stdenv, swift, swiftPackages }:
-  stdenv.mkDerivation {
+{ clangStdenv, swift, swiftPackages }:
+  clangStdenv.mkDerivation {
     name = "advent-of-code-2023-day19";
     src = ./src;
 
