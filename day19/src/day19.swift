@@ -18,7 +18,7 @@ enum Operator: String {
 }
 
 extension Operator {
-  static let pattern = /[<>]/
+  static let pattern = #/[<>]/#
 
   func apply(_ lhs: Int, _ rhs: Int) -> Bool {
     switch self {
@@ -131,13 +131,13 @@ extension Workflow {
 
   static let pattern = Regex {
     Capture(as: nameRef) {
-      /\w+/
+      #/\w+/#
     } transform: {
       String($0)
     }
     "{"
     Capture(as: rulesRef) {
-      /[^}]+/
+      #/[^}]+/#
     } transform: { rawRules in
       try rawRules.split(separator: ",").map { try Rule(rawValue: $0) }
     }
@@ -163,7 +163,7 @@ extension Part {
   static let pattern = Regex {
     "{"
     Capture(as: valuesRef) {
-      /[^}]+/
+      #/[^}]+/#
     } transform: { rawRules in
       Dictionary(uniqueKeysWithValues: rawRules.split(separator: ",").map {
         let split = $0.split(separator: "=")
