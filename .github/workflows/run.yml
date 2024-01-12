@@ -20,6 +20,10 @@ jobs:
         # https://github.com/fwcd/advent-of-code-2023/actions/runs/7153749665/job/19480549989
         - os: 'ubuntu-latest'
           day: '09'
+        # TODO: Investigate why the Swift compiler crashes on macOS
+        # https://github.com/fwcd/advent-of-code-2023/actions/runs/7496992931/job/20409901820
+        - os: 'macos-latest'
+          day: '19'
 
     steps:
     - uses: actions/checkout@v4
