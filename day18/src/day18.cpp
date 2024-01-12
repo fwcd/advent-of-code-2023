@@ -229,8 +229,6 @@ int main(int argc, char *argv[]) {
     Inst inst = insts[i];
     Inst next = insts[(i + 1) % insts.size()];
 
-    std::cout << inst << std::endl;
-
     for (int part = 0; part < PARTS; part++) {
       Vec2 dir = inst.dirs[part];
       polygons[part].vertices.push_back(positions[part]);
