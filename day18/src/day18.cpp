@@ -26,6 +26,12 @@ struct Vec2 {
   long long x;
   long long y;
 
+  static const Vec2 ZERO;
+  static const Vec2 RIGHT;
+  static const Vec2 DOWN;
+  static const Vec2 LEFT;
+  static const Vec2 UP;
+
   constexpr Vec2(long long x, long long y) : x(x), y(y) {}
 
   auto operator<=>(const Vec2 &rhs) const = default;
@@ -72,9 +78,12 @@ struct Vec2 {
     return {::signum(x), ::signum(y)};
   }
 
-  bool isAxisAlignedWith(Vec2 rhs) const {
-    return (x == rhs.x && y == 0 && rhs.y == 0)
-        || (y == rhs.y && x == 0 && rhs.x == 0);
+  bool isAxisAligned() const {
+    return x == 0 || y == 0;
+  }
+
+  long long manhattan() const {
+    return std::abs(x) + std::abs(y);
   }
 
   bool isCollinearWithPoints(Vec2 other1, Vec2 other2) const {
@@ -93,14 +102,20 @@ struct Vec2 {
 
   static Vec2 parseDir(char c) {
     switch (c) {
-    case 'L': return {-1, 0};
-    case 'R': return {1, 0};
-    case 'U': return {0, -1};
-    case 'D': return {0, 1};
+    case 'L': return Vec2::LEFT;
+    case 'R': return Vec2::RIGHT;
+    case 'U': return Vec2::UP;
+    case 'D': return Vec2::DOWN;
     default: throw std::runtime_error("Could not parse direction");
     }
   }
 };
+
+constexpr Vec2 Vec2::ZERO = {0, 0};
+constexpr Vec2 Vec2::RIGHT = {1, 0};
+constexpr Vec2 Vec2::DOWN = {0, 1};
+constexpr Vec2 Vec2::LEFT = {-1, 0};
+constexpr Vec2 Vec2::UP = {0, -1};
 
 std::ostream &operator<<(std::ostream &os, const Vec2 &vec) {
   os << '(' << vec.x << ", " << vec.y << ')';
@@ -179,22 +194,56 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::ifstream file;
-  file.open(argv[1]);
+  std::vector<Inst> insts;
+
+  {
+    std::ifstream file;
+    file.open(argv[1]);
+
+    for (std::string line; std::getline(file, line);) {
+      insts.push_back(Inst::parse(line));
+    }
+  }
 
   std::array<Vec2, PARTS> positions {Vec2 {0, 0}, Vec2 {0, 0}};
   std::array<Polygon, PARTS> polygons {Polygon {}, Polygon {}};
 
-  for (std::string line; std::getline(file, line);) {
-    for (int i = 0; i < PARTS; i++) {
-      Inst inst = Inst::parse(line);
-      polygons[i].vertices.push_back(positions[i]);
-      positions[i] += inst.dirs[i];
+  // Since we want to include the boundary too, we'll have to add some extra
+  // area to account for that.
+  //
+  // Essentially we have:        but we want:
+  //   +---+---+                  ##########
+  //   | ##### |                  ##########
+  //   + ##### +                  ##########
+  //      ...                        ...
+  //
+  // i.e. we pretend that every vertex is in the center of each integer grid
+  // cell, but we want the area to include the full grid cells.
+
+  std::array<long long, PARTS> quadrupleExtraArea {0, 0};
+
+  for (int i = 0; i < insts.size(); i++) {
+    Inst inst = insts[i];
+    Inst next = insts[(i + 1) % insts.size()];
+
+    std::cout << inst << std::endl;
+
+    for (int part = 0; part < PARTS; part++) {
+      Vec2 dir = inst.dirs[part];
+      polygons[part].vertices.push_back(positions[part]);
+      positions[part] += dir;
+      
+      Vec2 step = dir.signum();
+      quadrupleExtraArea[part] += (dir - step).manhattan() * 2;
+
+      int turn = signum(dir.cross(next.dirs[part]));
+      quadrupleExtraArea[part] += 2 + turn;
     }
   }
 
-  for (int i = 0; i < PARTS; i++) {
-    std::cout << "Part " << (i + 1) << ": " << polygons[i].area() << std::endl;
+  for (int part = 0; part < PARTS; part++) {
+    long long area = polygons[part].area() + quadrupleExtraArea[part] / 4;
+    std::cout << "Part " << (part + 1) << ": " << area << std::endl;
   }
 
   return 0;
