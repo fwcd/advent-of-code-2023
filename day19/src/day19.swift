@@ -129,6 +129,10 @@ extension Rule {
     )
   }
 
+  func prepending(conditions prepended: [Condition]) -> Rule {
+    Rule(conditions: prepended + conditions, output: output)
+  }
+
   func apply(_ part: Part) -> Output? {
     if conditions.allSatisfy({ $0.matches(part) }) {
       return output
@@ -224,12 +228,30 @@ extension System {
     )
   }
 
+  func mergedWorkflow(name: String = "in") throws -> Workflow {
+    guard let workflow = workflows[name] else { throw SystemError.noMatchingWorkflow(name) }
+    let rules = try workflow.rules.flatMap { rule in
+      switch rule.output {
+      case .workflow(let next):
+        return try mergedWorkflow(name: next).rules.map { child in
+          child.prepending(conditions: rule.conditions)
+        }
+      default:
+        return [rule]
+      }
+    }
+    return Workflow(name: "<merged>", rules: rules)
+  }
+
   func accepts(_ part: Part, workflowName: String = "in") throws -> Bool {
     guard let workflow = workflows[workflowName] else { throw SystemError.noMatchingWorkflow(workflowName) }
     switch try workflow.check(part) {
-    case .workflow(let next): return try accepts(part, workflowName: next)
-    case .accept: return true
-    case .reject: return false
+    case .workflow(let next):
+      return try accepts(part, workflowName: next)
+    case .accept:
+      return true
+    case .reject:
+      return false
     }
   }
 }
