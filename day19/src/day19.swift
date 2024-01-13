@@ -128,14 +128,6 @@ extension Condition {
     )
   }
 
-  func split(_ hyperrect: Hyperrect, axis: Int) -> (matching: Hyperrect?, nonmatching: [Hyperrect]) {
-    let range = hyperrect.ranges[axis]
-    return (
-      matching: range.intersection(matchingRange).map { hyperrect.with(range: $0, along: axis) },
-      nonmatching: range.subtracting(matchingRange).map { hyperrect.with(range: $0, along: axis) }
-    )
-  }
-
   func matches(_ part: Part) -> Bool {
     guard let actualValue = part[category] else { return false }
     return self.operator.apply(actualValue, value)
