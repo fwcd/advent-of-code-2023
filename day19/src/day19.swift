@@ -182,7 +182,7 @@ extension Part {
 }
 
 struct Input {
-  let workflows: [Workflow]
+  let workflows: [String: Workflow]
   let parts: [Part]
 }
 
@@ -190,7 +190,11 @@ extension Input {
   init(rawValue: Substring) throws {
     let chunks = rawValue.split(separator: "\n\n").map { $0.split(separator: "\n") }
     self.init(
-      workflows: try chunks[0].map { try Workflow(rawValue: $0) },
+      workflows: Dictionary(uniqueKeysWithValues:
+        try chunks[0]
+          .map { try Workflow(rawValue: $0) }
+          .map { ($0.name, $0) }
+      ),
       parts: try chunks[1].map { try Part(rawValue: $0) }
     )
   }
