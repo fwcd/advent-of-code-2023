@@ -47,8 +47,12 @@ extension Hyperrect {
     return result
   }
 
-  mutating func remove(_ range: Range<Int>) {
-    ranges = ranges.flatMap { $0.subtracting(range) }
+  func split(matching: Range<Int>, along axis: Int) -> (matching: Hyperrect?, nonmatching: [Hyperrect]) {
+    let range = ranges[axis]
+    return (
+      matching: range.intersection(matching).map { with(range: $0, along: axis) },
+      nonmatching: range.subtracting(matching).map { with(range: $0, along: axis) }
+    )
   }
 }
 
@@ -329,7 +333,7 @@ extension System {
 
         for condition in rule.conditions {
           let axis = categoryIndices[condition.category]!
-          let split = condition.split(matching, axis: axis)
+          let split = matching.split(matching: condition.matchingRange, along: axis)
           guard let matchingSplit = split.matching else {
             continue hyperrects
           }
