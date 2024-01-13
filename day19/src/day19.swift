@@ -97,7 +97,7 @@ extension Output {
 }
 
 struct Rule {
-  let condition: Condition?
+  let conditions: [Condition]
   let output: Output
 }
 
@@ -124,13 +124,13 @@ extension Rule {
   init(rawValue: Substring) throws {
     guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match rule: \(rawValue)") }
     self.init(
-      condition: match[Self.conditionRef],
+      conditions: match[Self.conditionRef].map { [$0] } ?? [],
       output: match[Self.outputRef]
     )
   }
 
   func apply(_ part: Part) -> Output? {
-    if condition == nil || condition!.matches(part) {
+    if conditions.allSatisfy({ $0.matches(part) }) {
       return output
     } else {
       return nil
