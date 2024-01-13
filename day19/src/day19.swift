@@ -240,9 +240,12 @@ struct Input {
 }
 
 extension Input {
-  var acceptedParts: [Part] {
+  var acceptedPartCount: Int {
     get throws {
-      try parts.filter { try system.accepts($0) }
+      try parts
+        .filter { try system.accepts($0) }
+        .flatMap { $0.values.values }
+        .reduce(0, +)
     }
   }
 
@@ -258,4 +261,4 @@ extension Input {
 let rawInput = try String(contentsOfFile: args[1])
 let input = try Input(rawValue: rawInput[...])
 
-print("Part 1: \(try input.acceptedParts.flatMap { $0.values.values }.reduce(0, +))")
+print("Part 1: \(try input.acceptedPartCount)")
