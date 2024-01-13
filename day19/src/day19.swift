@@ -243,27 +243,6 @@ struct System {
 }
 
 extension System {
-  var acceptedCombinations: Int {
-    get throws {
-      let workflow = try mergedWorkflow()
-      let total = 1..<4001
-      var rangeSets = Dictionary(uniqueKeysWithValues: ["x", "m", "a", "s"].map { ($0, RangeSet(total)) })
-      var combinations = 0
-
-      for rule in workflow.rules {
-        let ranges = rule.matchingRangesByCategory(in: total)
-        if case .accept = rule.output {
-          combinations += ranges.values.map(\.count).reduce(1, *) * rangeSets.filter { !ranges.keys.contains($0.key) }.map(\.value.count).reduce(1, *)
-        }
-        for (category, range) in ranges {
-          rangeSets[category]!.remove(range)
-        }
-      }
-
-      return combinations
-    }
-  }
-
   init(workflows: [Workflow]) {
     self.init(workflows: Dictionary(uniqueKeysWithValues: workflows.map { ($0.name, $0) }))
   }
@@ -297,6 +276,24 @@ extension System {
     case .reject:
       return false
     }
+  }
+
+  func acceptedCombinations(categories: [String] = ["x", "m", "a", "s"], total: Range<Int> = 1..<4001) throws -> Int {
+    let workflow = try mergedWorkflow()
+    var rangeSets = Dictionary(uniqueKeysWithValues: categories.map { ($0, RangeSet(total)) })
+    var combinations = 0
+
+    for rule in workflow.rules {
+      let ranges = rule.matchingRangesByCategory(in: total)
+      if case .accept = rule.output {
+        combinations += ranges.values.map(\.count).reduce(1, *) * rangeSets.filter { !ranges.keys.contains($0.key) }.map(\.value.count).reduce(1, *)
+      }
+      for (category, range) in ranges {
+        rangeSets[category]!.remove(range)
+      }
+    }
+
+    return combinations
   }
 }
 
@@ -363,4 +360,4 @@ let rawInput = try String(contentsOfFile: args[1])
 let input = try Input(rawValue: rawInput[...])
 
 print("Part 1: \(try input.acceptedPartCount)")
-print("Part 2: \(try input.system.acceptedCombinations)")
+print("Part 2: \(try input.system.acceptedCombinations())")
