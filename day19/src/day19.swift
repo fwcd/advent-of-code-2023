@@ -181,21 +181,34 @@ extension Part {
   }
 }
 
-struct Input {
+struct System {
   let workflows: [String: Workflow]
+}
+
+extension System {
+  init(rawValue: Substring) throws {
+    self.init(
+      workflows: Dictionary(uniqueKeysWithValues:
+        try rawValue
+          .split(separator: "\n")
+          .map { try Workflow(rawValue: $0) }
+          .map { ($0.name, $0) }
+      )
+    )
+  }
+}
+
+struct Input {
+  let system: System
   let parts: [Part]
 }
 
 extension Input {
   init(rawValue: Substring) throws {
-    let chunks = rawValue.split(separator: "\n\n").map { $0.split(separator: "\n") }
+    let chunks = rawValue.split(separator: "\n\n")
     self.init(
-      workflows: Dictionary(uniqueKeysWithValues:
-        try chunks[0]
-          .map { try Workflow(rawValue: $0) }
-          .map { ($0.name, $0) }
-      ),
-      parts: try chunks[1].map { try Part(rawValue: $0) }
+      system: try System(rawValue: chunks[0]),
+      parts: try chunks[1].split(separator: "\n").map { try Part(rawValue: $0) }
     )
   }
 }
