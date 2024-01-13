@@ -1,6 +1,35 @@
 import Foundation
 import RegexBuilder
 
+extension Range {
+  func intersection(_ rhs: Range<Bound>) -> Range<Bound> {
+    let intersectLower = Swift.max(lowerBound, rhs.lowerBound)
+    let intersectUpper = Swift.min(upperBound, rhs.upperBound)
+    if intersectLower < intersectUpper {
+      return intersectLower..<intersectUpper
+    } else {
+      // No overlap, we make sure to always return an empty range to make the
+      // math nicer.
+      return intersectLower..<intersectLower
+    }
+  }
+
+  func subtracting(_ rhs: Range<Bound>) -> [Range<Bound>] {
+    let intersect = intersection(rhs)
+    if intersect.isEmpty {
+      return [self]
+    }
+    var partials: [Range<Bound>] = []
+    if lowerBound < intersect.lowerBound {
+      partials.append(lowerBound..<intersect.lowerBound)
+    }
+    if intersect.upperBound < upperBound {
+      partials.append(intersect.upperBound..<upperBound)
+    }
+    return partials
+  }
+}
+
 /// A set of disjoint (i.e. non-overlapping) ranges. Could probably be
 /// implemented more efficiently using an interval tree.
 struct RangeSet {
@@ -294,35 +323,6 @@ extension System {
     }
 
     return combinations
-  }
-}
-
-extension Range {
-  func intersection(_ rhs: Range<Bound>) -> Range<Bound> {
-    let intersectLower = Swift.max(lowerBound, rhs.lowerBound)
-    let intersectUpper = Swift.min(upperBound, rhs.upperBound)
-    if intersectLower < intersectUpper {
-      return intersectLower..<intersectUpper
-    } else {
-      // No overlap, we make sure to always return an empty range to make the
-      // math nicer.
-      return intersectLower..<intersectLower
-    }
-  }
-
-  func subtracting(_ rhs: Range<Bound>) -> [Range<Bound>] {
-    let intersect = intersection(rhs)
-    if intersect.isEmpty {
-      return [self]
-    }
-    var partials: [Range<Bound>] = []
-    if lowerBound < intersect.lowerBound {
-      partials.append(lowerBound..<intersect.lowerBound)
-    }
-    if intersect.upperBound < upperBound {
-      partials.append(intersect.upperBound..<upperBound)
-    }
-    return partials
   }
 }
 
