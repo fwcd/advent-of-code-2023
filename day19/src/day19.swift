@@ -12,6 +12,11 @@ enum ParseError: Error {
   case noInt(String)
 }
 
+enum SystemError: Error {
+  case noMatchingRule(Part)
+  case noMatchingWorkflow(String)
+}
+
 enum Operator: String {
   case lessThan = "<"
   case greaterThan = ">"
@@ -66,6 +71,11 @@ extension Condition {
       value: match[Self.valueRef]
     )
   }
+
+  func matches(_ part: Part) -> Bool {
+    guard let actualValue = part[category] else { return false }
+    return self.operator.apply(actualValue, value)
+  }
 }
 
 enum Output {
@@ -118,6 +128,14 @@ extension Rule {
       output: match[Self.outputRef]
     )
   }
+
+  func apply(_ part: Part) -> Output? {
+    if condition == nil || condition!.matches(part) {
+      return output
+    } else {
+      return nil
+    }
+  }
 }
 
 struct Workflow {
@@ -151,6 +169,11 @@ extension Workflow {
       rules: match[Self.rulesRef]
     )
   }
+
+  func check(_ part: Part) throws -> Output {
+    guard let output = rules.compactMap({ $0.apply(part) }).first else { throw SystemError.noMatchingRule(part) }
+    return output
+  }
 }
 
 struct Part {
@@ -179,6 +202,10 @@ extension Part {
       values: match[Self.valuesRef]
     )
   }
+
+  subscript(_ category: String) -> Int? {
+    values[category]
+  }
 }
 
 struct System {
@@ -196,6 +223,15 @@ extension System {
       )
     )
   }
+
+  func accepts(_ part: Part, workflowName: String = "in") throws -> Bool {
+    guard let workflow = workflows[workflowName] else { throw SystemError.noMatchingWorkflow(workflowName) }
+    switch try workflow.check(part) {
+    case .workflow(let next): return try accepts(part, workflowName: next)
+    case .accept: return true
+    case .reject: return false
+    }
+  }
 }
 
 struct Input {
@@ -204,6 +240,12 @@ struct Input {
 }
 
 extension Input {
+  var acceptedParts: [Part] {
+    get throws {
+      try parts.filter { try system.accepts($0) }
+    }
+  }
+
   init(rawValue: Substring) throws {
     let chunks = rawValue.split(separator: "\n\n")
     self.init(
@@ -215,4 +257,5 @@ extension Input {
 
 let rawInput = try String(contentsOfFile: args[1])
 let input = try Input(rawValue: rawInput[...])
-print(input)
+
+print("Part 1: \(try input.acceptedParts.flatMap { $0.values.values }.reduce(0, +))")
