@@ -13,7 +13,7 @@
 
       # Explicitly set the target since swiftc seems to otherwise use an older
       # macOS version that doesn't support all of the regex stuff.
-      target="$(swiftc --version 2>/dev/null | grep Target | sed 's/Target: //g')"
+      target="$(swiftc --version 2>/dev/null | grep Target | sed 's/Target: //g' | sed "s/-pc-linux-/-unknown-linux-/g")"
       swiftc -target "$target" -o out/day19 day19.swift
     '';
 
