@@ -302,8 +302,8 @@ extension System {
 
 extension Range {
   func intersection(_ rhs: Range<Bound>) -> Range<Bound> {
-    let intersectLower = max(lowerBound, rhs.lowerBound)
-    let intersectUpper = min(upperBound, rhs.upperBound)
+    let intersectLower = Swift.max(lowerBound, rhs.lowerBound)
+    let intersectUpper = Swift.min(upperBound, rhs.upperBound)
     if intersectLower < intersectUpper {
       return intersectLower..<intersectUpper
     } else {
