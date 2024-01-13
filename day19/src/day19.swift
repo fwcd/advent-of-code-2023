@@ -86,6 +86,13 @@ extension Condition {
     )
   }
 
+  func matchingRange(in total: Range<Int>) -> Range<Int> {
+    switch self.operator {
+    case .lessThan: return total.lowerBound..<value
+    case .greaterThan: return (value + 1)..<total.upperBound
+    }
+  }
+
   func matches(_ part: Part) -> Bool {
     guard let actualValue = part[category] else { return false }
     return self.operator.apply(actualValue, value)
@@ -141,6 +148,11 @@ extension Rule {
       conditions: match[Self.conditionRef].map { [$0] } ?? [],
       output: match[Self.outputRef]
     )
+  }
+
+  func matchingRangesByCategory(in total: Range<Int>) -> [String: Range<Int>] {
+    Dictionary(grouping: conditions, by: \.category)
+      .mapValues { $0.map { $0.matchingRange(in: total) }.reduce(total) { $0.intersection($1) } }
   }
 
   func prepending(conditions prepended: [Condition]) -> Rule {
@@ -314,6 +326,27 @@ extension Input {
     }
   }
 
+  var acceptedCombinations: Int {
+    get throws {
+      let workflow = try system.mergedWorkflow()
+      let total = 1..<4001
+      var rangeSets = Dictionary(uniqueKeysWithValues: ["x", "m", "a", "s"].map { ($0, RangeSet(total)) })
+      var combinations = 0
+
+      for rule in workflow.rules {
+        let ranges = rule.matchingRangesByCategory(in: total)
+        if case .accept = rule.output {
+          combinations += ranges.values.map(\.count).reduce(1, *) * rangeSets.filter { !ranges.keys.contains($0.key) }.map(\.value.count).reduce(1, *)
+        }
+        for (category, range) in ranges {
+          rangeSets[category]!.remove(range)
+        }
+      }
+
+      return combinations
+    }
+  }
+
   init(rawValue: Substring) throws {
     let chunks = rawValue.split(separator: "\n\n")
     self.init(
@@ -333,3 +366,4 @@ let rawInput = try String(contentsOfFile: args[1])
 let input = try Input(rawValue: rawInput[...])
 
 print("Part 1: \(try input.acceptedPartCount)")
+print("Part 2: \(try input.acceptedCombinations)")
