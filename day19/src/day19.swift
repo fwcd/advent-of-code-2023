@@ -1,10 +1,24 @@
 import Foundation
 import RegexBuilder
 
-let args = CommandLine.arguments
-if args.count == 1 {
-  print("Usage: \(args[0]) <path to input>")
-  exit(1)
+/// A set of disjoint (i.e. non-overlapping) ranges. Could probably be
+/// implemented more efficiently using an interval tree.
+struct RangeSet {
+  /// Sorted list of the ranges.
+  var ranges: [Range<Int>]
+
+  /// The total count of all ranges, summed up.
+  var count: Int {
+    ranges.map { $0.count }.reduce(0, +)
+  }
+
+  init(_ range: Range<Int>) {
+    ranges = [range]
+  }
+
+  mutating func remove(_ range: Range<Int>) {
+    ranges = ranges.flatMap { $0.subtracting(range) }
+  }
 }
 
 enum ParseError: Error {
@@ -285,26 +299,6 @@ extension Range {
   }
 }
 
-/// A set of disjoint (i.e. non-overlapping) ranges. Could probably be
-/// implemented more efficiently using an interval tree.
-struct RangeSet {
-  /// Sorted list of the ranges.
-  var ranges: [Range<Int>]
-
-  /// The total count of all ranges, summed up.
-  var count: Int {
-    ranges.map { $0.count }.reduce(0, +)
-  }
-
-  init(_ range: Range<Int>) {
-    ranges = [range]
-  }
-
-  mutating func remove(_ range: Range<Int>) {
-    ranges = ranges.flatMap { $0.subtracting(range) }
-  }
-}
-
 struct Input {
   let system: System
   let parts: [Part]
@@ -327,6 +321,12 @@ extension Input {
       parts: try chunks[1].split(separator: "\n").map { try Part(rawValue: $0) }
     )
   }
+}
+
+let args = CommandLine.arguments
+if args.count == 1 {
+  print("Usage: \(args[0]) <path to input>")
+  exit(1)
 }
 
 let rawInput = try String(contentsOfFile: args[1])
