@@ -23,6 +23,12 @@ extension Range {
   }
 }
 
+extension Array {
+  mutating func remove(atOffsets indexSet: IndexSet) {
+    self = enumerated().filter { !indexSet.contains($0.offset) }.map(\.element)
+  }
+}
+
 /// An n-dimensional generalization of a range/rectangle/cuboid.
 struct Hyperrect {
   /// The ranges along each axis.
@@ -307,10 +313,10 @@ extension System {
   }
 
   func acceptedCombinations(categories: [String] = ["x", "m", "a", "s"], total: Range<Int> = 1..<4001) throws -> Int {
+    let categoryIndices = Dictionary(uniqueKeysWithValues: categories.enumerated().map { ($0.element, $0.offset) })
     let workflow = try mergedWorkflow()
     var remaining: [Hyperrect] = [.init(ranges: Array(repeating: total, count: categories.count))]
     var accepted: Int = 0
-    var categoryIndices = Dictionary(uniqueKeysWithValues: categories.enumerated().map { ($0.element, $0.offset) })
 
     for rule in workflow.rules {
       var toBeRemoved = IndexSet()
@@ -339,7 +345,7 @@ extension System {
         }
       }
 
-      remaining = remaining.enumerated().filter { !toBeRemoved.contains($0.offset) }.map(\.element)
+      remaining.remove(atOffsets: toBeRemoved)
       remaining += toBeAdded
     }
 
