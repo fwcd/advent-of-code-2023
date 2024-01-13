@@ -2,21 +2,14 @@ import Foundation
 import RegexBuilder
 
 extension Range {
-  func intersection(_ rhs: Range<Bound>) -> Range<Bound> {
+  func intersection(_ rhs: Range<Bound>) -> Range<Bound>? {
     let intersectLower = Swift.max(lowerBound, rhs.lowerBound)
     let intersectUpper = Swift.min(upperBound, rhs.upperBound)
-    if intersectLower < intersectUpper {
-      return intersectLower..<intersectUpper
-    } else {
-      // No overlap, we make sure to always return an empty range to make the
-      // math nicer.
-      return intersectLower..<intersectLower
-    }
+    return intersectLower < intersectUpper ? intersectLower..<intersectUpper : nil
   }
 
   func subtracting(_ rhs: Range<Bound>) -> [Range<Bound>] {
-    let intersect = intersection(rhs)
-    if intersect.isEmpty {
+    guard let intersect = intersection(rhs) else {
       return [self]
     }
     var partials: [Range<Bound>] = []
@@ -30,19 +23,22 @@ extension Range {
   }
 }
 
-/// A set of disjoint (i.e. non-overlapping) ranges. Could probably be
-/// implemented more efficiently using an interval tree.
-struct RangeSet {
-  /// Sorted list of the ranges.
+/// An n-dimensional generalization of a range/rectangle/cuboid.
+struct Hyperrect {
+  /// The ranges along each axis.
   var ranges: [Range<Int>]
+}
 
-  /// The total count of all ranges, summed up.
-  var count: Int {
-    ranges.map { $0.count }.reduce(0, +)
+extension Hyperrect {
+  /// The length/area/volume/hypervolume.
+  var size: Int {
+    ranges.map(\.count).reduce(1, *)
   }
 
-  init(_ range: Range<Int>) {
-    ranges = [range]
+  func with(range: Range<Int>, along axis: Int) -> Hyperrect {
+    var result = self
+    result.ranges[axis] = range
+    return result
   }
 
   mutating func remove(_ range: Range<Int>) {
@@ -106,6 +102,13 @@ extension Condition {
     }
   }
 
+  var matchingRange: Range<Int> {
+    switch self.operator {
+    case .lessThan: return Int.min..<value
+    case .greaterThan: return (value + 1)..<Int.max
+    }
+  }
+
   init(rawValue: Substring) throws {
     guard let match = try Self.pattern.wholeMatch(in: rawValue) else { throw ParseError.noMatch("Could not match condition: \(rawValue)") }
     self.init(
@@ -115,11 +118,12 @@ extension Condition {
     )
   }
 
-  func matchingRange(in total: Range<Int>) -> Range<Int> {
-    switch self.operator {
-    case .lessThan: return total.lowerBound..<value
-    case .greaterThan: return (value + 1)..<total.upperBound
-    }
+  func split(_ hyperrect: Hyperrect, axis: Int) -> (matching: Hyperrect?, nonmatching: [Hyperrect]) {
+    let range = hyperrect.ranges[axis]
+    return (
+      matching: range.intersection(matchingRange).map { hyperrect.with(range: $0, along: axis) },
+      nonmatching: range.subtracting(matchingRange).map { hyperrect.with(range: $0, along: axis) }
+    )
   }
 
   func matches(_ part: Part) -> Bool {
@@ -177,11 +181,6 @@ extension Rule {
       conditions: match[Self.conditionRef].map { [$0] } ?? [],
       output: match[Self.outputRef]
     )
-  }
-
-  func matchingRangesByCategory(in total: Range<Int>) -> [String: Range<Int>] {
-    Dictionary(grouping: conditions, by: \.category)
-      .mapValues { $0.map { $0.matchingRange(in: total) }.reduce(total) { $0.intersection($1) } }
   }
 
   func prepending(conditions prepended: [Condition]) -> Rule {
@@ -309,20 +308,42 @@ extension System {
 
   func acceptedCombinations(categories: [String] = ["x", "m", "a", "s"], total: Range<Int> = 1..<4001) throws -> Int {
     let workflow = try mergedWorkflow()
-    var rangeSets = Dictionary(uniqueKeysWithValues: categories.map { ($0, RangeSet(total)) })
-    var combinations = 0
+    var remaining: [Hyperrect] = [.init(ranges: Array(repeating: total, count: categories.count))]
+    var accepted: Int = 0
+    var categoryIndices = Dictionary(uniqueKeysWithValues: categories.enumerated().map { ($0.element, $0.offset) })
 
     for rule in workflow.rules {
-      let ranges = rule.matchingRangesByCategory(in: total)
-      if case .accept = rule.output {
-        combinations += ranges.values.map(\.count).reduce(1, *) * rangeSets.filter { !ranges.keys.contains($0.key) }.map(\.value.count).reduce(1, *)
+      var toBeRemoved = IndexSet()
+      var toBeAdded: [Hyperrect] = []
+
+      hyperrects:
+      for (i, hyperrect) in remaining.enumerated() {
+        var matching = hyperrect
+        var nonmatching: [Hyperrect] = []
+
+        for condition in rule.conditions {
+          let axis = categoryIndices[condition.category]!
+          let split = condition.split(matching, axis: axis)
+          guard let matchingSplit = split.matching else {
+            continue hyperrects
+          }
+          matching = matchingSplit
+          nonmatching += split.nonmatching
+        }
+
+        toBeRemoved.insert(i)
+        toBeAdded += nonmatching
+
+        if case .accept = rule.output {
+          accepted += matching.size
+        }
       }
-      for (category, range) in ranges {
-        rangeSets[category]!.remove(range)
-      }
+
+      remaining = remaining.enumerated().filter { !toBeRemoved.contains($0.offset) }.map(\.element)
+      remaining += toBeAdded
     }
 
-    return combinations
+    return accepted
   }
 }
 
