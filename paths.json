@@ -161,6 +161,7 @@
       "codemirror": "swift",
       "name": "Swift"
     },
-    "path": "day19/src/day19.swift"
+    "path": "day19/src/day19.swift",
+    "completed": true
   }
 ]

@@ -24,17 +24,17 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 16: [Zig](day16/src/day16.zig)
 - [x] Day 17: [PHP](day17/src/day17.php)
 - [x] Day 18: [C++](day18/src/day18.cpp)
-- [ ] Day 19: [Swift](day19/src/day19.swift)
+- [x] Day 19: [Swift](day19/src/day19.swift)
 
 ## Packaging
 
 The programs are packaged with [Nix](https://nixos.org/), a functional package manager for Linux and macOS that focuses on reproducible builds. This makes it easy to build the programs, both locally and CI, without relying on system packages.
 
-To build one of the days, `cd` into the corresponding directory and build and/or run the Nix flake. For example, to run day 4, use the following commands:
+To build one of the days, `cd` into the corresponding directory, `nix-build` the package and run it from the symlinked directory. For example, to build and execute day 4, run:
 
 ```sh
 cd day04
-nix run . resources/input.txt
+nix-build && result/bin/day04 resources/input.txt
 ```
 
 Every day is packaged up to take exactly one command-line argument, the input file, and usually includes the demo input from the exercise too.
