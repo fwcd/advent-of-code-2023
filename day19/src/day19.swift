@@ -256,6 +256,55 @@ extension System {
   }
 }
 
+extension Range {
+  func intersection(_ rhs: Range<Bound>) -> Range<Bound> {
+    let intersectLower = max(lowerBound, rhs.lowerBound)
+    let intersectUpper = min(upperBound, rhs.upperBound)
+    if intersectLower < intersectUpper {
+      return intersectLower..<intersectUpper
+    } else {
+      // No overlap, we make sure to always return an empty range to make the
+      // math nicer.
+      return intersectLower..<intersectLower
+    }
+  }
+
+  func subtracting(_ rhs: Range<Bound>) -> [Range<Bound>] {
+    let intersect = intersection(rhs)
+    if intersect.isEmpty {
+      return [self]
+    }
+    var partials: [Range<Bound>] = []
+    if lowerBound < intersect.lowerBound {
+      partials.append(lowerBound..<intersect.lowerBound)
+    }
+    if intersect.upperBound < upperBound {
+      partials.append(intersect.upperBound..<upperBound)
+    }
+    return partials
+  }
+}
+
+/// A set of disjoint (i.e. non-overlapping) ranges. Could probably be
+/// implemented more efficiently using an interval tree.
+struct RangeSet {
+  /// Sorted list of the ranges.
+  var ranges: [Range<Int>]
+
+  /// The total count of all ranges, summed up.
+  var count: Int {
+    ranges.map { $0.count }.reduce(0, +)
+  }
+
+  init(_ range: Range<Int>) {
+    ranges = [range]
+  }
+
+  mutating func remove(_ range: Range<Int>) {
+    ranges = ranges.flatMap { $0.subtracting(range) }
+  }
+}
+
 struct Input {
   let system: System
   let parts: [Part]
