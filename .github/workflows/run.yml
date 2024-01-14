@@ -24,6 +24,10 @@ jobs:
         # https://github.com/fwcd/advent-of-code-2023/actions/runs/7496992931/job/20409901820
         - os: 'macos-latest'
           day: '19'
+        # TODO: Investigate why the JVM crashes while building Kotlin/Native on Linux
+        # https://github.com/fwcd/advent-of-code-2023/actions/runs/7520132829/job/20469461877
+        - os: 'ubuntu-latest'
+          day: '20'
 
     steps:
     - uses: actions/checkout@v4
