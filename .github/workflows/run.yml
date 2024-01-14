@@ -34,7 +34,9 @@ jobs:
       # We have to disable sandboxing to allow derivations to access the network
       # during builds. This is required e.g. to build day 9's PAKCS with Haskell
       # Stack, which downloads its own GHC, packages etc.
-      run: nix build -v --option sandbox false
+      run: |
+        set -o pipefail
+        nix build -v --option sandbox false || nix log
       working-directory: 'day${{ matrix.day }}'
     - name: Run with input
       run: nix run . resources/input.txt
