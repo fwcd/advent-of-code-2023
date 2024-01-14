@@ -163,5 +163,12 @@
     },
     "path": "day19/src/day19.swift",
     "completed": true
+  },
+  {
+    "lang": {
+      "codemirror": "kotlin",
+      "name": "Kotlin/Native"
+    },
+    "path": "day20/src/day20.kt"
   }
 ]

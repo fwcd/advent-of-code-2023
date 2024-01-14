@@ -25,6 +25,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 17: [PHP](day17/src/day17.php)
 - [x] Day 18: [C++](day18/src/day18.cpp)
 - [x] Day 19: [Swift](day19/src/day19.swift)
+- [ ] Day 20: [Kotlin/Native](day20/src/day20.kt)
 
 ## Packaging
 
