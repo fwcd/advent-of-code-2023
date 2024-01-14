@@ -1,3 +1,4 @@
+import kotlin.system.exitProcess
 import kotlinx.cinterop.*
 import platform.posix.*
 
@@ -22,6 +23,13 @@ fun readLines(filePath: String): List<String> {
   return lines
 }
 
-fun main() {
-  print("Hello!")
+@ExperimentalForeignApi
+fun main(args: Array<String>) {
+  if (args.isEmpty()) {
+    println("Usage: day20 <path to input>")
+    exitProcess(1)
+  }
+
+  val lines = readLines(args[0])
+  println(lines)
 }
