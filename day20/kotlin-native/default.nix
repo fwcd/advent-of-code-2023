@@ -42,6 +42,9 @@ stdenv.mkDerivation rec {
 
   postFixup = ''
     wrapProgram $out/bin/run_konan --prefix PATH ":" ${lib.makeBinPath [ jre ]}
+
+    # Hack that makes sure all relevant $out/klib/cache directories are generated
+    $out/bin/kotlinc-native -o /dev/null /dev/null || true
   '';
 
   meta = {
