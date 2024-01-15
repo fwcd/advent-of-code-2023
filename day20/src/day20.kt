@@ -61,6 +61,8 @@ value class Memory(val value: ULong) {
   fun flip(i: Int) = Memory(value xor (1UL shl i))
 
   fun set(i: Int, bit: ULong) = Memory(zero(i).value or (bit shl i))
+
+  override fun toString() = value.toString(radix = 2).padStart(64, '0')
 }
 
 data class Circuit(
@@ -161,11 +163,9 @@ fun main(args: Array<String>) {
   val runner = Runner()
   var i = 0
   while (!runner.received) {
-    if (i % 100000 == 0) {
-      println(i)
-    }
     runner.run(circuit)
     i++
+    println(runner.memory)
   }
   println("Part 2: ${i}")
 }
