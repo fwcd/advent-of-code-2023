@@ -53,22 +53,20 @@ data class Node<T>(
   }
 }
 
-value class Memory(
-  val value: ULong
-) {
+value class Memory(val value: ULong) {
   operator fun get(i: Int): ULong = (value shr i) and 1UL
 
   fun zero(i: Int) = Memory(value and (1UL shl i).inv())
 
   fun flip(i: Int) = Memory(value xor (1UL shl i))
 
-  fun set(i: Int, bit: ULong) = Memory(zero(i).value or (1UL shl i))
+  fun set(i: Int, bit: ULong) = Memory(zero(i).value or (bit shl i))
 }
 
 data class Circuit(
   val nodes: List<Node<Int>>,
   val inputs: List<List<Int>>,
-  val start: Int
+  val start: Int,
 ) {
   companion object {
     fun parse(lines: List<String>, start: String = "broadcaster"): Circuit {
@@ -82,30 +80,56 @@ data class Circuit(
       )
     }
   }
+}
 
-  fun run(memory: Memory): Memory {
-    var memory = memory
-    var queue = ArrayDeque<Int>()
-    queue.addLast(start)
+data class Pulse(
+  val receiver: Int,
+  val value: ULong,
+)
+
+data class Runner(
+  var memory: Memory = Memory(0UL),
+  var lows: Int = 0,
+  var highs: Int = 0,
+) {
+  fun run(circuit: Circuit) {
+    var queue = ArrayDeque<Pulse>()
+    queue.addLast(Pulse(circuit.start, 0UL))
+    lows++
     while (queue.isNotEmpty()) {
-      val i = queue.removeFirst()
-      val node = nodes[i]
+      val pulse = queue.removeFirst()
+      val i = pulse.receiver
+      val node = circuit.nodes[i]
+      var changed = false
       when (node.type) {
         NodeType.FLIPFLOP -> {
-          if (memory[i] == 0UL) {
+          if (pulse.value == 0UL) {
             memory = memory.flip(i)
+            changed = true
           }
         }
         NodeType.CONJUNCTION -> {
-          memory = memory.set(i, inputs[i].map { memory[it] }.reduce(ULong::and))
+          val last = memory
+          memory = memory.set(i, 1UL - circuit.inputs[i].map { memory[it] }.reduce(ULong::and))
+          changed = true
         }
-        else -> {}
+        NodeType.BROADCAST -> {
+          changed = true
+        }
       }
-      for (j in node.outputs) {
-        memory = memory.set(j, memory[i])
+      if (changed) {
+        val bit = memory[i]
+        if (bit == 1UL) {
+          highs += node.outputs.size
+        } else {
+          lows += node.outputs.size
+        }
+        for (j in node.outputs) {
+          println("$i (${node.type})\t-${memory[i]}> $j")
+          queue.addLast(Pulse(j, bit))
+        }
       }
     }
-    return memory
   }
 }
 
@@ -118,5 +142,8 @@ fun main(args: Array<String>) {
 
   val lines = readLines(args[0])
   val circuit = Circuit.parse(lines)
-  println(circuit)
+  val runner = Runner()
+
+  runner.run(circuit)
+  println("Lows: ${runner.lows}, highs: ${runner.highs}")
 }
