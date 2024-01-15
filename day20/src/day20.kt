@@ -66,17 +66,17 @@ value class Memory(val value: ULong) {
 data class Circuit(
   val nodes: List<Node<Int>>,
   val inputs: List<List<Int>>,
-  val start: Int,
+  val broadcaster: Int,
 ) {
   companion object {
-    fun parse(lines: List<String>, start: String = "broadcaster"): Circuit {
+    fun parse(lines: List<String>): Circuit {
       val strNodes = lines.mapNotNull { Node.parse(it) }
       val indexing = strNodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
       val intNodes = strNodes.mapIndexed { i, n -> Node(n.type, i, n.outputs.map { indexing[it] ?: -1 }) }
       return Circuit(
         nodes = intNodes,
         inputs = intNodes.map { n -> intNodes.filter { n.name in it.outputs }.map { it.name } },
-        start = indexing[start]!!
+        broadcaster = indexing["broadcaster"]!!
       )
     }
   }
@@ -91,10 +91,11 @@ data class Runner(
   var memory: Memory = Memory(0UL),
   var lows: Int = 0,
   var highs: Int = 0,
+  var received: Boolean = false,
 ) {
   fun run(circuit: Circuit) {
     var queue = ArrayDeque<Pulse>()
-    queue.addLast(Pulse(circuit.start, 0UL))
+    queue.addLast(Pulse(circuit.broadcaster, 0UL))
     lows++
     while (queue.isNotEmpty()) {
       val pulse = queue.removeFirst()
@@ -127,6 +128,8 @@ data class Runner(
         for (j in node.outputs) {
           if (j >= 0) {
             queue.addLast(Pulse(j, bit))
+          } else if (bit == 0UL) {
+            received = true
           }
         }
       }
@@ -143,10 +146,26 @@ fun main(args: Array<String>) {
 
   val lines = readLines(args[0])
   val circuit = Circuit.parse(lines)
-  val runner = Runner()
 
-  repeat(1000) {
-    runner.run(circuit)
+  val broadcaster = "broadcaster"
+  val receiver = "rx"
+
+  run {
+    val runner = Runner()
+    repeat(1000) {
+      runner.run(circuit)
+    }
+    println("Part 1: ${runner.lows * runner.highs}")
   }
-  println("Part 1: ${runner.lows * runner.highs}")
+  
+  val runner = Runner()
+  var i = 0
+  while (!runner.received) {
+    if (i % 100000 == 0) {
+      println(i)
+    }
+    runner.run(circuit)
+    i++
+  }
+  println("Part 2: ${i}")
 }
