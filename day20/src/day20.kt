@@ -26,11 +26,13 @@ fun readLines(filePath: String): List<String> {
 private val NODE_PATTERN = """([%&]?)(\w+)\s+->\s+((?:\w+,\s*)*\w+)""".toRegex()
 
 enum class NodeType {
-  FLIPFLOP, CONJUNCTION;
+  BROADCAST, FLIPFLOP, CONJUNCTION;
+
   companion object {
     fun parse(raw: String) = when (raw) {
       "&" -> NodeType.CONJUNCTION
-      else -> NodeType.FLIPFLOP
+      "%" -> NodeType.FLIPFLOP
+      else -> NodeType.BROADCAST
     }
   }
 }
@@ -51,8 +53,21 @@ data class Node<T>(
   }
 }
 
+value class Memory(
+  val value: ULong
+) {
+  operator fun get(i: Int): ULong = (value shr i) and 1UL
+
+  fun zero(i: Int) = Memory(value and (1UL shl i).inv())
+
+  fun flip(i: Int) = Memory(value xor (1UL shl i))
+
+  fun set(i: Int, bit: ULong) = Memory(zero(i).value or (1UL shl i))
+}
+
 data class Circuit(
   val nodes: List<Node<Int>>,
+  val inputs: List<List<Int>>,
   val start: Int
 ) {
   companion object {
@@ -60,8 +75,37 @@ data class Circuit(
       val strNodes = lines.mapNotNull { Node.parse(it) }
       val indexing = strNodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
       val intNodes = strNodes.mapIndexed { i, n -> Node(n.type, i, n.outputs.map { indexing[it]!! }) }
-      return Circuit(nodes = intNodes, start = indexing[start]!!)
+      return Circuit(
+        nodes = intNodes,
+        inputs = intNodes.map { n -> intNodes.filter { n.name in it.outputs }.map { it.name } },
+        start = indexing[start]!!
+      )
     }
+  }
+
+  fun run(memory: Memory): Memory {
+    var memory = memory
+    var queue = ArrayDeque<Int>()
+    queue.addLast(start)
+    while (queue.isNotEmpty()) {
+      val i = queue.removeFirst()
+      val node = nodes[i]
+      when (node.type) {
+        NodeType.FLIPFLOP -> {
+          if (memory[i] == 0UL) {
+            memory = memory.flip(i)
+          }
+        }
+        NodeType.CONJUNCTION -> {
+          memory = memory.set(i, inputs[i].map { memory[it] }.reduce(ULong::and))
+        }
+        else -> {}
+      }
+      for (j in node.outputs) {
+        memory = memory.set(j, memory[i])
+      }
+    }
+    return memory
   }
 }
 
