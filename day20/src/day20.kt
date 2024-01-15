@@ -72,7 +72,7 @@ data class Circuit(
     fun parse(lines: List<String>, start: String = "broadcaster"): Circuit {
       val strNodes = lines.mapNotNull { Node.parse(it) }
       val indexing = strNodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
-      val intNodes = strNodes.mapIndexed { i, n -> Node(n.type, i, n.outputs.map { indexing[it]!! }) }
+      val intNodes = strNodes.mapIndexed { i, n -> Node(n.type, i, n.outputs.map { indexing[it] ?: -1 }) }
       return Circuit(
         nodes = intNodes,
         inputs = intNodes.map { n -> intNodes.filter { n.name in it.outputs }.map { it.name } },
@@ -126,7 +126,9 @@ data class Runner(
         }
         for (j in node.outputs) {
           println("$i (${node.type})\t-${memory[i]}> $j")
-          queue.addLast(Pulse(j, bit))
+          if (j >= 0) {
+            queue.addLast(Pulse(j, bit))
+          }
         }
       }
     }
