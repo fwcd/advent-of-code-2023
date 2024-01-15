@@ -146,6 +146,8 @@ fun main(args: Array<String>) {
   val circuit = Circuit.parse(lines)
   val runner = Runner()
 
-  runner.run(circuit)
-  println("Lows: ${runner.lows}, highs: ${runner.highs}")
+  repeat(1000) {
+    runner.run(circuit)
+  }
+  println("Part 1: ${runner.lows * runner.highs}")
 }
