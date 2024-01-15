@@ -162,9 +162,7 @@ fun main(args: Array<String>) {
   while (!runner.received) {
     runner.run(circuit)
     i++
-    if (i % 10000 == 0) {
-      println(runner.memory)
-    }
+    println(runner.memory)
   }
   println("Part 2: ${i}")
 }
