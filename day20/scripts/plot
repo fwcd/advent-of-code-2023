@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ $# == 0 ]; then
-  echo "Usage: $0 <path to input>"
-  exit 1
-fi
-
-dot="$(cat "$1" | sed 's/[&%,]//g' | sed 's/->\s*[^\s]\(.*\)/-> {\1}/g')"
-echo "digraph { $dot }" | dot -Tpdf

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# == 0 ]; then
+  echo "Usage: $0 <path to input>"
+  exit 1
+fi
+
+labels="$(cat "$1" | sed 's/\([&%]*\)\(.*\) ->.*/\2[label="\1\2"]/g')"
+edges="$(cat "$1" | sed 's/[&%,]//g' | sed 's/->\s*[^\s]\(.*\)/-> {\1}/g')"
+cat <(echo "digraph {") <(echo "$labels") <(echo "$edges") <(echo "}")
