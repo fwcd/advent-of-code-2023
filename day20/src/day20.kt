@@ -149,9 +149,6 @@ fun main(args: Array<String>) {
   val lines = readLines(args[0])
   val circuit = Circuit.parse(lines)
 
-  val broadcaster = "broadcaster"
-  val receiver = "rx"
-
   run {
     val runner = Runner()
     repeat(1000) {
@@ -165,7 +162,9 @@ fun main(args: Array<String>) {
   while (!runner.received) {
     runner.run(circuit)
     i++
-    println(runner.memory)
+    if (i % 10000 == 0) {
+      println(runner.memory)
+    }
   }
   println("Part 2: ${i}")
 }
