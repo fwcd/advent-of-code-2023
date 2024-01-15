@@ -40,12 +40,24 @@ fun parseNodeType(raw: String) = when (raw) {
   else -> NodeType.FLIPFLOP
 }
 
-fun parseNode(raw: String) = NODE_PATTERN.matchEntire(raw.trim())?.let { match ->
+fun parseNode(raw: String): Node<String>? = NODE_PATTERN.matchEntire(raw.trim())?.let { match ->
   Node(
     type = parseNodeType(match.groupValues[1]),
     name = match.groupValues[2],
     outputs = match.groupValues[3].split(",").map { it.trim() }
   )
+}
+
+data class Circuit(
+  val nodes: List<Node<Int>>,
+  val start: Int
+)
+
+fun parseCircuit(lines: List<String>, start: String = "broadcaster"): Circuit {
+  val strNodes = lines.mapNotNull(::parseNode)
+  val indexing = strNodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
+  val intNodes = strNodes.mapIndexed { i, n -> Node(n.type, i, n.outputs.map { indexing[it]!! }) }
+  return Circuit(nodes = intNodes, start = indexing[start]!!)
 }
 
 @ExperimentalForeignApi
@@ -55,7 +67,7 @@ fun main(args: Array<String>) {
     exitProcess(1)
   }
 
-  val nodes = readLines(args[0]).mapNotNull(::parseNode)
-  val indexing = nodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
-  val intNodes = nodes.map { Node<Int>(it.type, indexing[it.name]!!, it.outputs.map { indexing[it]!! }) }
+  val lines = readLines(args[0])
+  val circuit = parseCircuit(lines)
+  println(circuit)
 }
