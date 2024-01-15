@@ -68,7 +68,7 @@ value class Memory(val value: ULong) {
 data class Circuit(
   val nodes: List<Node<Int>>,
   val inputs: List<List<Int>>,
-  val broadcaster: Int,
+  val indexing: Map<String, Int>,
 ) {
   companion object {
     fun parse(lines: List<String>): Circuit {
@@ -78,7 +78,7 @@ data class Circuit(
       return Circuit(
         nodes = intNodes,
         inputs = intNodes.map { n -> intNodes.filter { n.name in it.outputs }.map { it.name } },
-        broadcaster = indexing["broadcaster"]!!
+        indexing = indexing,
       )
     }
   }
@@ -95,9 +95,9 @@ data class Runner(
   var highs: Int = 0,
   var received: Boolean = false,
 ) {
-  fun run(circuit: Circuit) {
+  fun run(circuit: Circuit, broadcaster: Int) {
     var queue = ArrayDeque<Pulse>()
-    queue.addLast(Pulse(circuit.broadcaster, 0UL))
+    queue.addLast(Pulse(broadcaster, 0UL))
     lows++
     while (queue.isNotEmpty()) {
       val pulse = queue.removeFirst()
@@ -139,6 +139,21 @@ data class Runner(
   }
 }
 
+data class CycleTracker<T>(
+  var expected: T,
+  var cycleLength: Int = 0,
+  var runningLength: Int = 0,
+) {
+  fun feed(value: T) {
+    if (value == expected) {
+      runningLength++
+    } else if (runningLength > 0) {
+      cycleLength = runningLength
+      runningLength = 0
+    }
+  }
+}
+
 @ExperimentalForeignApi
 fun main(args: Array<String>) {
   if (args.isEmpty()) {
@@ -148,21 +163,28 @@ fun main(args: Array<String>) {
 
   val lines = readLines(args[0])
   val circuit = Circuit.parse(lines)
+  val broadcaster = circuit.indexing["broadcaster"]!!
 
   run {
     val runner = Runner()
     repeat(1000) {
-      runner.run(circuit)
+      runner.run(circuit, broadcaster)
     }
     println("Part 1: ${runner.lows * runner.highs}")
   }
-  
+
   val runner = Runner()
+  val trackers = List(circuit.nodes.size) { CycleTracker(1UL) }
   var i = 0
   while (!runner.received) {
-    runner.run(circuit)
+    runner.run(circuit, broadcaster)
     i++
-    println(runner.memory)
+    for (i in 0 until circuit.nodes.size) {
+      trackers[i].feed(runner.memory[i])
+    }
+    if (i % 1000 == 0) {
+      println(listOf("qr", "kf", "kr", "zs").map { trackers[circuit.indexing[it]!!].cycleLength })
+    }
   }
   println("Part 2: ${i}")
 }
