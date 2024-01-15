@@ -53,14 +53,14 @@ data class Node<T>(
   }
 }
 
-value class Memory(val value: ULong) {
+value class BitArray(val value: ULong) {
   operator fun get(i: Int): ULong = (value shr i) and 1UL
 
-  fun zero(i: Int) = Memory(value and (1UL shl i).inv())
+  fun zero(i: Int) = BitArray(value and (1UL shl i).inv())
 
-  fun flip(i: Int) = Memory(value xor (1UL shl i))
+  fun flip(i: Int) = BitArray(value xor (1UL shl i))
 
-  fun set(i: Int, bit: ULong) = Memory(zero(i).value or (bit shl i))
+  fun set(i: Int, bit: ULong) = BitArray(zero(i).value or (bit shl i))
 
   override fun toString() = value.toString(radix = 2).padStart(64, '0')
 }
@@ -90,7 +90,7 @@ data class Pulse(
 )
 
 data class Runner(
-  var memory: Memory = Memory(0UL),
+  var memory: BitArray = BitArray(0UL),
   var lows: Int = 0,
   var highs: Int = 0,
   var received: Boolean = false,
