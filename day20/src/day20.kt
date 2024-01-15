@@ -29,7 +29,7 @@ enum class NodeType {
 
 data class Node<T>(
   val type: NodeType,
-  val name: String,
+  val name: T,
   val outputs: List<T>
 )
 
@@ -56,5 +56,6 @@ fun main(args: Array<String>) {
   }
 
   val nodes = readLines(args[0]).mapNotNull(::parseNode)
-  println(nodes)
+  val indexing = nodes.mapIndexed { i, n -> Pair(n.name, i) }.toMap()
+  val intNodes = nodes.map { Node<Int>(it.type, indexing[it.name]!!, it.outputs.map { indexing[it]!! }) }
 }
