@@ -125,7 +125,6 @@ data class Runner(
           lows += node.outputs.size
         }
         for (j in node.outputs) {
-          println("$i (${node.type})\t-${memory[i]}> $j")
           if (j >= 0) {
             queue.addLast(Pulse(j, bit))
           }
