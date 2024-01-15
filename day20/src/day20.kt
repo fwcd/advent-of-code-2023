@@ -23,6 +23,31 @@ fun readLines(filePath: String): List<String> {
   return lines
 }
 
+enum class NodeType {
+  FLIPFLOP, CONJUNCTION
+}
+
+data class Node<T>(
+  val type: NodeType,
+  val name: String,
+  val outputs: List<T>
+)
+
+private val NODE_PATTERN = """([%&]?)(\w+)\s+->\s+((?:\w+,\s*)*\w+)""".toRegex()
+
+fun parseNodeType(raw: String) = when (raw) {
+  "&" -> NodeType.CONJUNCTION
+  else -> NodeType.FLIPFLOP
+}
+
+fun parseNode(raw: String) = NODE_PATTERN.matchEntire(raw.trim())?.let { match ->
+  Node(
+    type = parseNodeType(match.groupValues[1]),
+    name = match.groupValues[2],
+    outputs = match.groupValues[3].split(",").map { it.trim() }
+  )
+}
+
 @ExperimentalForeignApi
 fun main(args: Array<String>) {
   if (args.isEmpty()) {
@@ -30,6 +55,6 @@ fun main(args: Array<String>) {
     exitProcess(1)
   }
 
-  val lines = readLines(args[0])
-  println(lines)
+  val nodes = readLines(args[0]).mapNotNull(::parseNode)
+  println(nodes)
 }
