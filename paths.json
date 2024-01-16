@@ -169,6 +169,7 @@
       "codemirror": "kotlin",
       "name": "Kotlin/Native"
     },
-    "path": "day20/src/day20.kt"
+    "path": "day20/src/day20.kt",
+    "completed": true
   }
 ]
