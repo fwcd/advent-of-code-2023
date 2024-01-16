@@ -117,7 +117,6 @@ data class Runner(
           }
         }
         NodeType.CONJUNCTION -> {
-          val last = memory
           memory = memory.set(i, 1UL - circuit.inputs[i].map { memory[it] }.reduce(ULong::and))
           changed = true
         }
