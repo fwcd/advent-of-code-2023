@@ -41,7 +41,7 @@ nix run . resources/input.txt
 
 Every day is packaged up to take exactly one command-line argument, the input file, and usually includes the demo input from the exercise too.
 
-> ![TIP]
+> [!TIP]
 > The build environment can be added to the current `PATH` using `nix develop`. This is useful to manually run the compiler.
 
 ## Previous years
