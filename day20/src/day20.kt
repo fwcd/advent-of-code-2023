@@ -60,6 +60,8 @@ value class BitArray(val value: ULong) {
 
   fun flip(i: Int) = BitArray(value xor (1UL shl i))
 
+  fun set(i: Int) = BitArray(value or (1UL shl i))
+
   fun set(i: Int, bit: ULong) = BitArray(zero(i).value or (bit shl i))
 
   override fun toString() = value.toString(radix = 2).padStart(64, '0')
@@ -93,9 +95,9 @@ data class Runner(
   var memory: BitArray = BitArray(0UL),
   var lows: Int = 0,
   var highs: Int = 0,
-  var received: Boolean = false,
 ) {
-  fun run(circuit: Circuit, broadcaster: Int) {
+  fun run(circuit: Circuit, broadcaster: Int): BitArray {
+    var pulsed = BitArray(0UL)
     var queue = ArrayDeque<Pulse>()
     queue.addLast(Pulse(broadcaster, 0UL))
     lows++
@@ -104,6 +106,9 @@ data class Runner(
       val i = pulse.receiver
       val node = circuit.nodes[i]
       var changed = false
+      if (pulse.value == 0UL) {
+        pulsed = pulsed.set(i)
+      }
       when (node.type) {
         NodeType.FLIPFLOP -> {
           if (pulse.value == 0UL) {
@@ -130,27 +135,29 @@ data class Runner(
         for (j in node.outputs) {
           if (j >= 0) {
             queue.addLast(Pulse(j, bit))
-          } else if (bit == 0UL) {
-            received = true
           }
         }
       }
     }
+    return pulsed
   }
 }
 
 data class CycleTracker<T>(
-  var expected: T,
-  var cycleLength: Int = 0,
-  var runningLength: Int = 0,
+  var last: T? = null,
+  val cycles: MutableMap<T, ULong> = mutableMapOf(),
+  var runningLength: ULong = 0UL,
 ) {
+  val total: ULong
+    get() = cycles.values.sum()
+
   fun feed(value: T) {
-    if (value == expected) {
-      runningLength++
-    } else if (runningLength > 0) {
-      cycleLength = runningLength
-      runningLength = 0
+    if (value != last && runningLength > 0UL) {
+      last?.let { cycles[it] = runningLength }
+      runningLength = 0UL
     }
+    runningLength++
+    last = value
   }
 }
 
@@ -173,18 +180,20 @@ fun main(args: Array<String>) {
     println("Part 1: ${runner.lows * runner.highs}")
   }
 
-  val runner = Runner()
-  val trackers = List(circuit.nodes.size) { CycleTracker(1UL) }
-  var i = 0
-  while (!runner.received) {
-    runner.run(circuit, broadcaster)
-    i++
-    for (i in 0 until circuit.nodes.size) {
-      trackers[i].feed(runner.memory[i])
+  // The trick for part 2 is visualizing the input: There
+  // are four binary counters and we need to find the LCM.
+  // Since they have prime cycles, we can just multiply them.
+
+  circuit.nodes.find { -1 in it.outputs }?.name?.let { rxInput ->
+    val rxInputInputs = circuit.inputs[rxInput]
+    val runner = Runner()
+    val trackers = rxInputInputs.associateWith { CycleTracker<ULong>() }
+    repeat (8000) { // Not hardcoding this would be nicer, but the condition seems to be nontrivial
+      val pulsed = runner.run(circuit, broadcaster)
+      for (i in trackers.keys) {
+        trackers[i]!!.feed(pulsed[i])
+      }
     }
-    if (i % 1000 == 0) {
-      println(listOf("qr", "kf", "kr", "zs").map { trackers[circuit.indexing[it]!!].cycleLength })
-    }
+    println("Part 2: ${trackers.map { it.value.total }.reduce(ULong::times)}")
   }
-  println("Part 2: ${i}")
 }
