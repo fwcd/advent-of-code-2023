@@ -22,7 +22,7 @@ List<List<long>> Step(List<List<long>> maze) =>
     .Select((row, i) => row
       .Select((cell, j) => IsWall(cell)
         ? cell
-        : Neighbors(maze, i, j).Where(n => !IsWall(n)).Sum())
+        : Math.Sign(Neighbors(maze, i, j).Where(n => !IsWall(n)).Sum()))
       .ToList())
     .ToList();
 
@@ -43,12 +43,12 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-// long part1 = StepN(maze, 64)
-//   .Select(row => row.Sum())
-//   .Sum();
-// 
-// Console.WriteLine($"Part 1: {part1}");
+long part1 = StepN(maze, 64)
+  .Select(row => row.Where(cell => !IsWall(cell)).Sum())
+  .Sum();
 
-Console.WriteLine($"{string.Join("\n", StepN(maze, 2).Select(row => string.Join(", ", row.Select(c => IsWall(c) ? " " : c.ToString()))))}");
+Console.WriteLine($"Part 1: {part1}");
+
+// Console.WriteLine($"{string.Join("\n", StepN(maze, 6).Select(row => string.Join(", ", row.Select(c => IsWall(c) ? " " : c.ToString()))))}");
 
 return 0;
