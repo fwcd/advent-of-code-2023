@@ -19,8 +19,10 @@
       dotnet "$sdk/Roslyn/bincore/csc.dll" \
         -r:"$shared/System.Private.CoreLib.dll" \
         -r:"$shared/System.Runtime.dll" \
+        -r:"$shared/System.Collections.dll" \
         -r:"$shared/System.Console.dll" \
         -r:"$shared/System.IO.dll" \
+        -r:"$shared/System.Linq.dll" \
         day21.cs
     '';
 
