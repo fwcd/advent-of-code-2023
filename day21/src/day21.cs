@@ -42,6 +42,10 @@ List<List<char>> maze = File.ReadAllText(args[0])
   .Select(row => row.ToList())
   .ToList();
 
-Console.WriteLine($"{string.Join("\n", StepN(maze, 6).Select(l => string.Join(", ", l)))}");
+int part1 = StepN(maze, 64)
+  .Select(row => row.Count(cell => cell == 'O'))
+  .Sum();
+
+Console.WriteLine($"Part 1: {part1}");
 
 return 0;
