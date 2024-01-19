@@ -15,22 +15,25 @@ string Pretty(List<List<long>> maze) =>
     .Select(row => string.Join(", ", row
       .Select(c => IsWall(c) ? " " : c.ToString()))));
 
-long OccupiedCount(List<List<long>> maze, int steps)
-{
-  Pos start = maze
+Pos StartPos(List<List<long>> maze) =>
+  maze
     .SelectMany((row, y) => row
       .Select(Pos? (cell, x) => cell == 1 ? new Pos(x, y) : null))
     .First(pos => pos != null)!
     .Value;
-  var current = new HashSet<Pos>();
-  current.Add(start);
-  for (int i = 0; i < steps; i++)
-  {
-    current = current
+
+HashSet<Pos> Step(List<List<long>> maze, HashSet<Pos> current, int steps) =>
+  Enumerable.Range(0, steps)
+    .Aggregate(current, (current, i) => current
       .SelectMany(pos => pos.Neighbors)
       .Where(pos => !IsWall(Get(maze, pos)))
-      .ToHashSet();
-  }
+      .ToHashSet());
+
+long OccupiedCountNaive(List<List<long>> maze, int steps)
+{
+  var current = new HashSet<Pos>();
+  current.Add(StartPos(maze));
+  current = Step(maze, current, steps);
   return current.Count;
 }
 
@@ -48,8 +51,7 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-long part1 = OccupiedCount(maze, 64);
-
+long part1 = OccupiedCountNaive(maze, 64);
 Console.WriteLine($"Part 1: {part1}");
 
 return 0;
