@@ -185,5 +185,26 @@
       "name": "Rust"
     },
     "path": "day22/src/day22.rs"
+  },
+  {
+    "lang": {
+      "codemirror": "ruby",
+      "name": "Ruby"
+    },
+    "path": "day23/src/day23.rb"
+  },
+  {
+    "lang": {
+      "codemirror": "haskell",
+      "name": "Haskell"
+    },
+    "path": "day24/src/Day24.hs"
+  },
+  {
+    "lang": {
+      "codemirror": "python",
+      "name": "Python"
+    },
+    "path": "day25/src/day25.py"
   }
 ]
