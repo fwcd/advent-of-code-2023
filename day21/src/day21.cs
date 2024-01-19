@@ -29,6 +29,11 @@ List<List<long>> Step(List<List<long>> maze) =>
 List<List<long>> StepN(List<List<long>> maze, int n) =>
   n <= 0 ? maze : StepN(Step(maze), n - 1);
 
+long OccupiedCount(List<List<long>> maze) =>
+  maze
+    .Select(row => row.Where(cell => !IsWall(cell)).Sum())
+    .Sum();
+
 if (args.Length == 0)
 {
   Console.WriteLine("Usage: day21 <path to input>");
@@ -43,9 +48,7 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-long part1 = StepN(maze, 64)
-  .Select(row => row.Where(cell => !IsWall(cell)).Sum())
-  .Sum();
+long part1 = OccupiedCount(StepN(maze, 64));
 
 Console.WriteLine($"Part 1: {part1}");
 
