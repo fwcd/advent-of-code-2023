@@ -66,6 +66,7 @@ long OccupiedCountSmart(List<List<long>> maze, int steps)
     counts.Add(current.Count);
   }
   // Then extrapolate the quadratic sequence
+  // (degree 2 case of polynomial extrapolation using finite differences)
   var diffs = Differences(counts); // Should be an arithmetic progression
   var diffs2 = Differences(diffs); // Should be a list of equal values
   for (int i = 0; i < fullLengthSteps; i++)
