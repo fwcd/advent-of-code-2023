@@ -5,6 +5,11 @@ using System.Linq;
 
 int Mod(int n, int m) => (n % m + m) % m;
 
+List<long> Differences(IEnumerable<long> list) =>
+  list
+    .Zip(list.Skip(1)).Select(p => p.Item2 - p.Item1)
+    .ToList();
+
 bool IsWall(long cell) => cell < 0;
 
 long Get(List<List<long>> maze, Pos pos) =>
@@ -31,10 +36,28 @@ HashSet<Pos> Step(List<List<long>> maze, HashSet<Pos> current, int steps) =>
 
 long OccupiedCountNaive(List<List<long>> maze, int steps)
 {
-  var current = new HashSet<Pos>();
-  current.Add(StartPos(maze));
+  var current = new HashSet<Pos> {StartPos(maze)};
   current = Step(maze, current, steps);
   return current.Count;
+}
+
+long OccupiedCountSmart(List<List<long>> maze, int steps)
+{
+  // Compute the naive occupied count in multiples of the maze side length.
+  // We then have a quadratic sequence that we can extrapolate.
+  var current = new HashSet<Pos> {StartPos(maze)};
+  current = Step(maze, current, maze.Count / 2 - 1);
+  var counts = new List<long>();
+  for (int i = 0; i < 4; i++)
+  {
+    counts.Add(current.Count);
+    Console.WriteLine($"Got {current.Count}");
+    current = Step(maze, current, maze.Count);
+  }
+  var diffs = Differences(counts);
+  var diffs2 = Differences(diffs);
+  Console.WriteLine(string.Join(", ", diffs2.Select(n => n.ToString())));
+  return -1; // TODO
 }
 
 if (args.Length == 0)
@@ -53,6 +76,9 @@ List<List<long>> maze = File.ReadAllText(args[0])
 
 long part1 = OccupiedCountNaive(maze, 64);
 Console.WriteLine($"Part 1: {part1}");
+
+long part2 = OccupiedCountSmart(maze, 64);
+Console.WriteLine($"Part 2: {part2}");
 
 return 0;
 
