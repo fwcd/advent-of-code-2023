@@ -178,5 +178,12 @@
       "name": "C#"
     },
     "path": "day21/src/day21.cs"
+  },
+  {
+    "lang": {
+      "codemirror": "rust",
+      "name": "Rust"
+    },
+    "path": "day22/src/day22.rs"
   }
 ]

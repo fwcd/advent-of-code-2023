@@ -27,6 +27,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] Day 19: [Swift](day19/src/day19.swift)
 - [x] Day 20: [Kotlin/Native](day20/src/day20.kt)
 - [ ] Day 21: [C#](day21/src/day21.cs)
+- [ ] Day 22: [Rust](day22/src/day22.rs)
 
 ## Packaging
 
