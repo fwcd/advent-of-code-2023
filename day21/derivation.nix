@@ -20,6 +20,7 @@
         -r:"$shared/System.Private.CoreLib.dll" \
         -r:"$shared/System.Runtime.dll" \
         -r:"$shared/System.Console.dll" \
+        -r:"$shared/System.IO.dll" \
         day21.cs
     '';
 
