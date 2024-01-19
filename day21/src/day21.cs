@@ -53,13 +53,6 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-var stepped = maze;
-for (int i = 0; i < 6; i++)
-{
-  Console.WriteLine($"{OccupiedCount(stepped)},");
-  stepped = Step(stepped);
-}
-
 long part1 = OccupiedCount(StepN(maze, 64));
 
 Console.WriteLine($"Part 1: {part1}");
