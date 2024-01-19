@@ -58,3 +58,24 @@ long part1 = OccupiedCount(StepN(maze, 64));
 Console.WriteLine($"Part 1: {part1}");
 
 return 0;
+
+public record struct Pos(int X, int Y)
+{
+  public IEnumerable<Pos> Neighbors
+  {
+    get
+    {
+      int x = X;
+      int y = Y;
+      return Enumerable.Range(-1, 3)
+        .SelectMany(d => d == 0 ? new List<Pos>() : new List<Pos> {
+          new Pos(x + d, y),
+          new Pos(x, y + d),
+        });
+    }
+  }
+  
+  public static Pos operator+(Pos lhs, Pos rhs) => new Pos(lhs.X + rhs.X, lhs.Y + rhs.Y);
+
+  public static Pos operator-(Pos lhs, Pos rhs) => new Pos(lhs.X - rhs.X, lhs.Y - rhs.Y);
+}
