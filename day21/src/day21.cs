@@ -43,21 +43,37 @@ long OccupiedCountNaive(List<List<long>> maze, int steps)
 
 long OccupiedCountSmart(List<List<long>> maze, int steps)
 {
+  int sideLength = maze.Count;
+  int halfLength = maze.Count / 2;
+  if ((steps - halfLength) % sideLength != 0)
+  {
+    throw new ArgumentException($"Step count {steps} must be of the form n * {sideLength} + {halfLength}");
+  }
+  int fullLengthSteps = steps / sideLength;
   // Compute the naive occupied count in multiples of the maze side length.
   // We then have a quadratic sequence that we can extrapolate.
   var current = new HashSet<Pos> {StartPos(maze)};
-  current = Step(maze, current, maze.Count / 2 - 1);
   var counts = new List<long>();
-  for (int i = 0; i < 4; i++)
+  current = Step(maze, current, halfLength);
+  counts.Add(current.Count);
+  // Compute the first three full-length steps naively
+  for (int i = 0; i < 3; i++)
   {
-    counts.Add(current.Count);
-    Console.WriteLine($"Got {current.Count}");
+    if (fullLengthSteps == 0)
+      return current.Count;
+    fullLengthSteps--;
     current = Step(maze, current, maze.Count);
+    counts.Add(current.Count);
   }
-  var diffs = Differences(counts);
-  var diffs2 = Differences(diffs);
-  Console.WriteLine(string.Join(", ", diffs2.Select(n => n.ToString())));
-  return -1; // TODO
+  // Then extrapolate the quadratic sequence
+  var diffs = Differences(counts); // Should be an arithmetic progression
+  var diffs2 = Differences(diffs); // Should be a list of equal values
+  for (int i = 0; i < fullLengthSteps; i++)
+  {
+    diffs.Add(diffs.Last() + diffs2.Last());
+    counts.Add(counts.Last() + diffs.Last());
+  }
+  return counts.Last();
 }
 
 if (args.Length == 0)
@@ -74,11 +90,8 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-long part1 = OccupiedCountNaive(maze, 64);
-Console.WriteLine($"Part 1: {part1}");
-
-long part2 = OccupiedCountSmart(maze, 64);
-Console.WriteLine($"Part 2: {part2}");
+Console.WriteLine($"Part 1: {OccupiedCountNaive(maze, 64)}");
+Console.WriteLine($"Part 2: {OccupiedCountSmart(maze, 26501365)}");
 
 return 0;
 
