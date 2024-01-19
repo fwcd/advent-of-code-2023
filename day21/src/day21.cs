@@ -29,6 +29,11 @@ List<List<long>> Step(List<List<long>> maze) =>
 List<List<long>> StepN(List<List<long>> maze, int n) =>
   n <= 0 ? maze : StepN(Step(maze), n - 1);
 
+string Pretty(List<List<long>> maze) =>
+  string.Join("\n", maze
+    .Select(row => string.Join(", ", row
+      .Select(c => IsWall(c) ? " " : c.ToString()))));
+
 long OccupiedCount(List<List<long>> maze) =>
   maze
     .Select(row => row.Where(cell => !IsWall(cell)).Sum())
@@ -48,10 +53,15 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
+var stepped = maze;
+for (int i = 0; i < 6; i++)
+{
+  Console.WriteLine($"{OccupiedCount(stepped)},");
+  stepped = Step(stepped);
+}
+
 long part1 = OccupiedCount(StepN(maze, 64));
 
 Console.WriteLine($"Part 1: {part1}");
-
-// Console.WriteLine($"{string.Join("\n", StepN(maze, 6).Select(row => string.Join(", ", row.Select(c => IsWall(c) ? " " : c.ToString()))))}");
 
 return 0;
