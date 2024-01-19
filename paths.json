@@ -177,7 +177,8 @@
       "codemirror": "csharp",
       "name": "C#"
     },
-    "path": "day21/src/day21.cs"
+    "path": "day21/src/day21.cs",
+    "completed": true
   },
   {
     "lang": {
