@@ -7,37 +7,32 @@ int Mod(int n, int m) => (n % m + m) % m;
 
 bool IsWall(long cell) => cell < 0;
 
-long Get(List<List<long>> maze, int i, int j) =>
-  maze[Mod(i, maze.Count)][Mod(j, maze[0].Count)];
-
-IEnumerable<long> Neighbors(List<List<long>> maze, int i, int j) =>
-  Enumerable.Range(-1, 3)
-    .SelectMany(d => d == 0 ? new List<long>() : new List<long> {
-      Get(maze, i + d, j),
-      Get(maze, i, j + d),
-    });
-
-List<List<long>> Step(List<List<long>> maze) =>
-  maze
-    .Select((row, i) => row
-      .Select((cell, j) => IsWall(cell)
-        ? cell
-        : Math.Sign(Neighbors(maze, i, j).Where(n => !IsWall(n)).Sum()))
-      .ToList())
-    .ToList();
-
-List<List<long>> StepN(List<List<long>> maze, int n) =>
-  n <= 0 ? maze : StepN(Step(maze), n - 1);
+long Get(List<List<long>> maze, Pos pos) =>
+  maze[Mod(pos.Y, maze.Count)][Mod(pos.X, maze[0].Count)];
 
 string Pretty(List<List<long>> maze) =>
   string.Join("\n", maze
     .Select(row => string.Join(", ", row
       .Select(c => IsWall(c) ? " " : c.ToString()))));
 
-long OccupiedCount(List<List<long>> maze) =>
-  maze
-    .Select(row => row.Where(cell => !IsWall(cell)).Sum())
-    .Sum();
+long OccupiedCount(List<List<long>> maze, int steps)
+{
+  Pos start = maze
+    .SelectMany((row, y) => row
+      .Select(Pos? (cell, x) => cell == 1 ? new Pos(x, y) : null))
+    .First(pos => pos != null)!
+    .Value;
+  var current = new HashSet<Pos>();
+  current.Add(start);
+  for (int i = 0; i < steps; i++)
+  {
+    current = current
+      .SelectMany(pos => pos.Neighbors)
+      .Where(pos => !IsWall(Get(maze, pos)))
+      .ToHashSet();
+  }
+  return current.Count;
+}
 
 if (args.Length == 0)
 {
@@ -53,7 +48,7 @@ List<List<long>> maze = File.ReadAllText(args[0])
     .ToList())
   .ToList();
 
-long part1 = OccupiedCount(StepN(maze, 64));
+long part1 = OccupiedCount(maze, 64);
 
 Console.WriteLine($"Part 1: {part1}");
 
