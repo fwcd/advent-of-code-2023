@@ -1,22 +1,23 @@
 use std::{
-    convert::TryInto,
+    convert::{TryInto, TryFrom},
     env,
     fs,
-    fmt,
     process,
     str::FromStr,
 };
 
-fn parse_delimited<T, const N: usize>(raw: &str, delimiter: &str) -> Result<[T; N], String>
+fn parse_delimited<T, I>(raw: &str, delimiter: &str) -> Result<T, String>
 where
-    T: FromStr,
-    T::Err: fmt::Display {
+    T: TryFrom<Vec<I>>,
+    I: FromStr {
     raw
         .split(delimiter)
-        .map(|s| s.parse().map_err(|e| format!("Could not parse '{s}': {e}")))
-        .collect::<Result<Vec<T>, _>>()?
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .map(|s| s.parse().map_err(|_| format!("Could not parse '{s}' as value")))
+        .collect::<Result<Vec<I>, _>>()?
         .try_into()
-        .map_err(|e| format!("Could not parse '{raw}': Expected {N} element(s)"))
+        .map_err(|_| format!("Could not parse '{raw}' into collection"))
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -56,6 +57,20 @@ impl FromStr for Brick {
     }
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+struct Board {
+    bricks: Vec<Brick>,
+}
+
+impl FromStr for Board {
+    type Err = String;
+
+    fn from_str(raw: &str) -> Result<Self, String> {
+        let bricks = parse_delimited(raw, "\n")?;
+        Ok(Self { bricks })
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
@@ -63,9 +78,6 @@ fn main() {
         process::exit(1);
     }
     let raw_input = fs::read_to_string(&args[1]).unwrap();
-    let bricks: Vec<Brick> = raw_input.lines()
-        .map(Brick::from_str)
-        .collect::<Result<_, _>>()
-        .unwrap();
-    println!("{bricks:?}");
+    let board: Board = raw_input.parse().unwrap();
+    println!("{board:?}");
 }
