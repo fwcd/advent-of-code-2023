@@ -2,7 +2,7 @@ use std::{
     convert::{TryInto, TryFrom},
     env,
     fs,
-    ops::{Add, Deref, DerefMut},
+    ops::{Add, Deref, DerefMut, RangeInclusive},
     process,
     str::FromStr,
 };
@@ -19,6 +19,11 @@ where
         .collect::<Result<Vec<I>, _>>()?
         .try_into()
         .map_err(|_| format!("Could not parse '{raw}' into collection"))
+}
+
+fn intersects<T>(lhs: RangeInclusive<T>, rhs: RangeInclusive<T>) -> bool
+    where T: Ord {
+    lhs.end() >= rhs.start() && lhs.start() <= rhs.end()
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -81,6 +86,24 @@ impl Brick {
     fn fall(&self) {
         todo!()
     }
+
+    fn x_range(&self) -> RangeInclusive<i32> { self.start.x..=self.end.x }
+
+    fn y_range(&self) -> RangeInclusive<i32> { self.start.y..=self.end.y }
+
+    fn z_range(&self) -> RangeInclusive<i32> { self.start.z..=self.end.z }
+
+    fn x_aligned(&self) -> bool { self.start.y == self.end.y && self.start.z == self.end.z }
+
+    fn y_aligned(&self) -> bool { self.start.x == self.end.x && self.start.z == self.end.z }
+
+    fn z_aligned(&self) -> bool { self.start.x == self.end.x && self.start.y == self.end.y }
+
+    fn collides_with(&self, rhs: &Self) -> bool {
+        (self.x_aligned() && rhs.x_aligned() && intersects(self.x_range(), rhs.x_range()))
+        || (self.y_aligned() && rhs.y_aligned() && intersects(self.y_range(), rhs.y_range()))
+        || (self.z_aligned() && rhs.z_aligned() && intersects(self.z_range(), rhs.z_range()))
+    }
 }
 
 impl FromStr for Brick {
@@ -99,11 +122,18 @@ struct Board {
 
 impl Board {
     fn collides(&self, brick: &Id<Brick>) -> bool {
+        self.bricks
+            .iter()
+            .filter(|b| b.id != brick.id)
+            .any(|b| b.collides_with(&brick.value))
+    }
+
+    fn step(&mut self) {
         todo!()
     }
 
-    fn step() {
-        todo!()
+    fn next(&self) {
+        
     }
 }
 
