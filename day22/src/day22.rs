@@ -33,12 +33,6 @@ struct Vec3 {
     z: i32,
 }
 
-impl Vec3 {
-    fn new(x: i32, y: i32, z: i32) -> Self {
-        Self { x, y, z }
-    }
-}
-
 impl Add<Vec3> for Vec3 {
     type Output = Self;
 
@@ -83,8 +77,9 @@ struct Brick {
 }
 
 impl Brick {
-    fn fall(&self) {
-        todo!()
+    fn fall(&self) -> Self {
+        let delta = Vec3 { x: 0, y: 0, z: -1 };
+        Self { start: self.start + delta, end: self.end + delta }
     }
 
     fn x_range(&self) -> RangeInclusive<i32> { self.start.x..=self.end.x }
@@ -98,6 +93,11 @@ impl Brick {
     fn y_aligned(&self) -> bool { self.start.x == self.end.x && self.start.z == self.end.z }
 
     fn z_aligned(&self) -> bool { self.start.x == self.end.x && self.start.y == self.end.y }
+
+    fn on_ground(&self) -> bool {
+        assert!(self.start.z >= 0 && self.end.z >= 0);
+        self.start.z == 1 || self.end.z == 1
+    }
 
     fn collides_with(&self, rhs: &Self) -> bool {
         (self.x_aligned() && rhs.x_aligned() && intersects(self.x_range(), rhs.x_range()))
@@ -125,7 +125,7 @@ impl Board {
         self.bricks
             .iter()
             .filter(|b| b.id != brick.id)
-            .any(|b| b.collides_with(&brick.value))
+            .any(|b| b.on_ground() || b.collides_with(&brick.value))
     }
 
     fn step(&mut self) {
