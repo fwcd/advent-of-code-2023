@@ -1,0 +1,10 @@
+{
+  "crates": [
+    {
+      "display_name": "day22",
+      "edition": "2021",
+      "root_module": "day22/src/day22.rs",
+      "deps": []
+    }
+  ]
+}
