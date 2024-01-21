@@ -2,6 +2,7 @@ use std::{
     convert::{TryInto, TryFrom},
     env,
     fs,
+    fmt,
     ops::{Add, Deref, DerefMut, RangeInclusive},
     process,
     str::FromStr,
@@ -31,6 +32,12 @@ struct Vec3 {
     x: i32,
     y: i32,
     z: i32,
+}
+
+impl Vec3 {
+    fn min(self, rhs: Self) -> Self { x: self.x.min(rhs.x), y: self.y.min(rhs.y), z: self.z.min(rhs.z) }
+
+    fn max(self, rhs: Self) -> Self { x: self.x.max(rhs.x), y: self.y.max(rhs.y), z: self.z.max(rhs.z) }
 }
 
 impl Add<Vec3> for Vec3 {
@@ -121,6 +128,14 @@ struct Board {
 }
 
 impl Board {
+    fn min_bound(&self) -> Vec3 {
+        todo!()
+    }
+
+    fn max_bound(&self) -> Vec3 {
+        todo!()
+    }
+
     fn collides(&self, brick: &Id<Brick>) -> bool {
         self.bricks
             .iter()
@@ -134,6 +149,12 @@ impl Board {
 
     fn next(&self) {
         
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result<()> {
+        todo!()
     }
 }
 
