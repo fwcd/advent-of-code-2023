@@ -3,7 +3,7 @@ use std::{
     env,
     fs,
     fmt,
-    ops::{Add, Deref, DerefMut, RangeInclusive},
+    ops::{Add, Sub, Deref, DerefMut, RangeInclusive},
     process,
     str::FromStr,
 };
@@ -38,6 +38,8 @@ impl Vec3 {
     fn min(self, rhs: Self) -> Self { Self { x: self.x.min(rhs.x), y: self.y.min(rhs.y), z: self.z.min(rhs.z) } }
 
     fn max(self, rhs: Self) -> Self { Self { x: self.x.max(rhs.x), y: self.y.max(rhs.y), z: self.z.max(rhs.z) } }
+
+    fn signum(self) -> Self { Self { x: self.x.signum(), y: self.y.signum(), z: self.z.signum() } }
 }
 
 impl Add<Vec3> for Vec3 {
@@ -45,6 +47,14 @@ impl Add<Vec3> for Vec3 {
 
     fn add(self, rhs: Self) -> Self {
         Self { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
+    }
+}
+
+impl Sub<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self {
+        Self { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 
@@ -154,7 +164,24 @@ impl Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
+        let min_bound = Vec3 { z: 0, ..self.min_bound() };
+        let max_bound = self.max_bound();
+        let width = (1 + max_bound.x - min_bound.x) as usize;
+        let height = (1 + max_bound.z - min_bound.z) as usize;
+        let mut lines: Vec<Vec<char>> = vec![vec![' '; width]; height];
+        lines[0] = vec!['-'; width];
+        for (i, brick) in self.bricks.iter().enumerate() {
+            let step = (brick.end - brick.start).signum();
+            let mut current = brick.start;
+            while current != (brick.end + step) {
+                lines[(current.z - min_bound.z) as usize][(current.x - min_bound.x) as usize] = (i + 'A' as usize) as u8 as char;
+                current = current + step;
+            }
+        }
+        for line in lines.into_iter().rev() {
+            writeln!(f, "{}", line.into_iter().collect::<String>())?;
+        }
+        Ok(())
     }
 }
 
@@ -181,5 +208,5 @@ fn main() {
     }
     let raw_input = fs::read_to_string(&args[1]).unwrap();
     let board: Board = raw_input.parse().unwrap();
-    println!("{board:?}");
+    println!("{board}");
 }
