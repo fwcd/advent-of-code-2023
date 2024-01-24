@@ -129,11 +129,11 @@ struct Board {
 
 impl Board {
     fn min_bound(&self) -> Vec3 {
-        todo!()
+        self.bricks.iter().flat_map(|b| [b.start, b.end]).reduce(Vec3::min).unwrap()
     }
 
     fn max_bound(&self) -> Vec3 {
-        todo!()
+        self.bricks.iter().flat_map(|b| [b.start, b.end]).reduce(Vec3::max).unwrap()
     }
 
     fn collides(&self, brick: &Id<Brick>) -> bool {
