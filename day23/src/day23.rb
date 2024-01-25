@@ -25,11 +25,18 @@ end
 
 def longest_path(matrix, visited = Set[], pos = [0, 1])
   visited.add(pos)
+
+  # Follow path until we reach a choice point or the end
   while (n = neighbors(matrix, pos).filter { |p| !visited.include?(p) }).size == 1
     pos = n[0]
     visited.add(pos)
   end
-  n
+
+  if n.size == 0
+    visited.size - 1
+  else
+    n.map { |p| longest_path(matrix, visited.clone, p) }.max
+  end
 end
 
 if ARGV.size == 0
