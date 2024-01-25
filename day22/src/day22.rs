@@ -152,20 +152,21 @@ impl Board {
             .find(|b| b.collides_with(&**brick))
     }
 
-    fn apply_gravity(&mut self) -> bool {
-        let mut fell = false;
-        for i in 0..self.bricks.len() {
-            let next = self.bricks[i].map(|b| b.fall());
-            if !next.in_ground() && self.collision(&next).is_none() {
-                self.bricks[i] = next;
-                fell = true;
+    fn apply_gravity(&mut self) {
+        'outer: loop {
+            for i in 0..self.bricks.len() {
+                let next = self.bricks[i].map(|b| b.fall());
+                if !next.in_ground() && self.collision(&next).is_none() {
+                    self.bricks[i] = next;
+                    continue 'outer;
+                }
             }
+            break;
         }
-        fell
     }
 
     fn step(&mut self) {
-        while self.apply_gravity() {}
+        self.apply_gravity();
     }
 }
 
