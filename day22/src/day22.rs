@@ -167,13 +167,17 @@ impl Board {
         }
     }
 
-    fn can_disintegrate(&self, brick: &Id<Brick>) -> bool {
+    fn dependent_brick_count(&self, brick: &Id<Brick>) -> usize {
         let next = Board { bricks: self.bricks.iter().filter(|b| b.id != brick.id).cloned().collect() };
-        next.bricks.iter().all(|b| next.fall(b).is_none())
+        next.bricks.iter().filter(|b| next.fall(b).is_some()).count()
     }
 
     fn disintegrable_count(&self) -> usize {
-        self.bricks.iter().filter(|b| self.can_disintegrate(b)).count()
+        self.bricks.iter().filter(|b| self.dependent_brick_count(b) == 0).count()
+    }
+
+    fn dependent_brick_sum(&self) -> usize {
+        self.bricks.iter().map(|b| self.dependent_brick_count(b)).sum()
     }
 
     fn apply_gravity(&mut self) {
@@ -239,7 +243,6 @@ fn main() {
     println!("Applying gravity...");
     board.apply_gravity();
 
-    println!("Computing part 1...");
-    let part1 = board.disintegrable_count();
-    println!("Part 1: {part1}");
+    println!("Part 1: {}", board.disintegrable_count());
+    println!("Part 2: {}", board.dependent_brick_sum());
 }
