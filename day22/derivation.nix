@@ -9,7 +9,7 @@
 
     buildPhase = ''
       mkdir -p out
-      rustc -o out/day22 day22.rs
+      rustc -o out/day22 -C opt-level=3 day22.rs
     '';
 
     installPhase = ''

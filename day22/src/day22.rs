@@ -178,7 +178,6 @@ impl Board {
 
     fn apply_gravity(&mut self) {
         while let Some((i, next)) = self.bricks.iter().enumerate().find_map(|(i, b)| self.fall(b).map(|b| (i, b))) {
-            println!("{i} -> {next:?}");
             self.bricks[i] = next;
         }
     }
