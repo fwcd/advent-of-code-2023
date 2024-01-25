@@ -168,7 +168,7 @@ impl fmt::Display for Board {
         let max_bound = self.max_bound();
         let width = (1 + max_bound.x - min_bound.x) as usize;
         let height = (1 + max_bound.z - min_bound.z) as usize;
-        let mut lines: Vec<Vec<char>> = vec![vec![' '; width]; height];
+        let mut lines: Vec<Vec<char>> = vec![vec!['.'; width]; height];
         lines[0] = vec!['-'; width];
         for (i, brick) in self.bricks.iter().enumerate() {
             let step = (brick.end - brick.start).signum();
