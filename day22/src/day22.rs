@@ -145,25 +145,42 @@ impl Board {
         self.bricks.iter().flat_map(|b| [b.start, b.end]).reduce(Vec3::max).unwrap()
     }
 
-    fn collision(&self, brick: &Id<Brick>) -> Option<&Id<Brick>> {
+    fn colliding_brick(&self, brick: &Id<Brick>) -> Option<&Id<Brick>> {
         self.bricks
             .iter()
             .filter(|b| b.id != brick.id)
             .find(|b| b.collides_with(&**brick))
     }
 
+    fn collides(&self, brick: &Id<Brick>) -> bool {
+        brick.in_ground() || self.colliding_brick(brick).is_some()
+    }
+
     fn fall(&self, brick: &Id<Brick>) -> Option<Id<Brick>> {
-        Some(brick.map(|b| b.fall())).filter(|next| !next.in_ground() && self.collision(&next).is_none())
+        let mut last: Option<Id<Brick>> = None;
+        loop {
+            let next = last.unwrap_or_else(|| brick.clone()).map(|b| b.fall());
+            if self.collides(&next) {
+                break last;
+            }
+            last = Some(next);
+        }
+    }
+
+    fn can_disintegrate(&self, brick: &Id<Brick>) -> bool {
+        let next = Board { bricks: self.bricks.iter().filter(|b| b.id != brick.id).cloned().collect() };
+        next.bricks.iter().all(|b| next.fall(b).is_none())
+    }
+
+    fn disintegrable_count(&self) -> usize {
+        self.bricks.iter().filter(|b| self.can_disintegrate(b)).count()
     }
 
     fn apply_gravity(&mut self) {
         while let Some((i, next)) = self.bricks.iter().enumerate().find_map(|(i, b)| self.fall(b).map(|b| (i, b))) {
+            println!("{i} -> {next:?}");
             self.bricks[i] = next;
         }
-    }
-
-    fn step(&mut self) {
-        self.apply_gravity();
     }
 }
 
@@ -219,7 +236,11 @@ fn main() {
     }
     let raw_input = fs::read_to_string(&args[1]).unwrap();
     let mut board: Board = raw_input.parse().unwrap();
-    println!("{board}");
-    board.step();
-    println!("{board}");
+
+    println!("Applying gravity...");
+    board.apply_gravity();
+
+    println!("Computing part 1...");
+    let part1 = board.disintegrable_count();
+    println!("Part 1: {part1}");
 }
