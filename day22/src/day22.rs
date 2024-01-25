@@ -73,6 +73,12 @@ struct Id<T> {
     value: T,
 }
 
+impl<T> Id<T> {
+    fn map<U>(self, action: impl Fn(T) -> U) -> Id<U> {
+        Id { id: self.id, value: action(self.value) }
+    }
+}
+
 impl<T> Deref for Id<T> {
     type Target = T;
 
@@ -105,21 +111,14 @@ impl Brick {
 
     fn z_range(&self) -> RangeInclusive<i32> { self.start.z..=self.end.z }
 
-    fn x_aligned(&self) -> bool { self.start.y == self.end.y && self.start.z == self.end.z }
-
-    fn y_aligned(&self) -> bool { self.start.x == self.end.x && self.start.z == self.end.z }
-
-    fn z_aligned(&self) -> bool { self.start.x == self.end.x && self.start.y == self.end.y }
-
-    fn on_ground(&self) -> bool {
-        assert!(self.start.z >= 0 && self.end.z >= 0);
-        self.start.z == 1 || self.end.z == 1
+    fn in_ground(&self) -> bool {
+        self.start.z < 1 || self.end.z < 1
     }
 
     fn collides_with(&self, rhs: &Self) -> bool {
-        (self.x_aligned() && rhs.x_aligned() && intersects(self.x_range(), rhs.x_range()))
-        || (self.y_aligned() && rhs.y_aligned() && intersects(self.y_range(), rhs.y_range()))
-        || (self.z_aligned() && rhs.z_aligned() && intersects(self.z_range(), rhs.z_range()))
+        intersects(self.x_range(), rhs.x_range())
+        && intersects(self.y_range(), rhs.y_range())
+        && intersects(self.z_range(), rhs.z_range())
     }
 }
 
@@ -146,19 +145,32 @@ impl Board {
         self.bricks.iter().flat_map(|b| [b.start, b.end]).reduce(Vec3::max).unwrap()
     }
 
-    fn collides(&self, brick: &Id<Brick>) -> bool {
+    fn collision(&self, brick: &Id<Brick>) -> Option<&Id<Brick>> {
         self.bricks
             .iter()
             .filter(|b| b.id != brick.id)
-            .any(|b| b.on_ground() || b.collides_with(&brick.value))
+            .find(|b| b.collides_with(&**brick))
+    }
+
+    fn apply_gravity(&mut self) -> bool {
+        let mut fell = false;
+        for i in 0..self.bricks.len() {
+            let mut brick = self.bricks[i].clone();
+            loop {
+                let next = brick.map(|b| b.fall());
+                if next.in_ground() || self.collision(&next).is_some() {
+                    break;
+                }
+                brick = next;
+                fell = true;
+            }
+            self.bricks[i] = brick;
+        }
+        fell
     }
 
     fn step(&mut self) {
-        todo!()
-    }
-
-    fn next(&self) {
-        
+        while self.apply_gravity() {}
     }
 }
 
@@ -174,7 +186,13 @@ impl fmt::Display for Board {
             let step = (brick.end - brick.start).signum();
             let mut current = brick.start;
             while current != (brick.end + step) {
-                lines[(current.z - min_bound.z) as usize][(current.x - min_bound.x) as usize] = (i + 'A' as usize) as u8 as char;
+                let rel_z = (current.z - min_bound.z) as usize;
+                let rel_x = (current.x - min_bound.x) as usize;
+                let c = (i + 'A' as usize) as u8 as char;
+                lines[rel_z][rel_x] = match lines[rel_z][rel_x] {
+                    p if p == '.' || p == c => c,
+                    _ => '?',
+                };
                 current = current + step;
             }
         }
@@ -207,6 +225,8 @@ fn main() {
         process::exit(1);
     }
     let raw_input = fs::read_to_string(&args[1]).unwrap();
-    let board: Board = raw_input.parse().unwrap();
+    let mut board: Board = raw_input.parse().unwrap();
+    println!("{board}");
+    board.step();
     println!("{board}");
 }
