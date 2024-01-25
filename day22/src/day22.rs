@@ -181,14 +181,6 @@ impl Board {
         let mut next = Board { bricks: self.bricks.iter().filter(|b| b.id != brick.id).cloned().collect() };
         next.apply_gravity()
     }
-
-    fn disintegrable_count(&self) -> usize {
-        self.bricks.iter().filter(|b| self.dependent_brick_count(b) == 0).count()
-    }
-
-    fn dependent_brick_sum(&self) -> usize {
-        self.bricks.iter().map(|b| self.dependent_brick_count(b)).sum()
-    }
 }
 
 impl fmt::Display for Board {
@@ -247,9 +239,16 @@ fn main() {
     println!("Applying gravity...");
     board.apply_gravity();
 
-    println!("Part 1: {}", board.disintegrable_count());
-    for (i, b) in board.bricks.iter().enumerate() {
-        println!("{} -> {}", i, board.dependent_brick_count(b));
+    let mut part1 = 0;
+    let mut part2 = 0;
+
+    for (i, brick) in board.bricks.iter().enumerate() {
+        let n = board.dependent_brick_count(brick);
+        println!("{i} -> {n}");
+        part1 += 1;
+        part2 += n;
     }
-    println!("Part 2: {}", board.dependent_brick_sum());
+
+    println!("Part 1: {part1}");
+    println!("Part 2: {part2}");
 }
