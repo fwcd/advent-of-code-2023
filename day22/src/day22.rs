@@ -152,16 +152,13 @@ impl Board {
             .find(|b| b.collides_with(&**brick))
     }
 
+    fn fall(&self, brick: &Id<Brick>) -> Option<Id<Brick>> {
+        Some(brick.map(|b| b.fall())).filter(|next| !next.in_ground() && self.collision(&next).is_none())
+    }
+
     fn apply_gravity(&mut self) {
-        'outer: loop {
-            for i in 0..self.bricks.len() {
-                let next = self.bricks[i].map(|b| b.fall());
-                if !next.in_ground() && self.collision(&next).is_none() {
-                    self.bricks[i] = next;
-                    continue 'outer;
-                }
-            }
-            break;
+        while let Some((i, next)) = self.bricks.iter().enumerate().find_map(|(i, b)| self.fall(b).map(|b| (i, b))) {
+            self.bricks[i] = next;
         }
     }
 
