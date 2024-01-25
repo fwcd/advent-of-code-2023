@@ -1,4 +1,5 @@
 use std::{
+    collections::HashSet,
     convert::{TryInto, TryFrom},
     env,
     fs,
@@ -167,9 +168,18 @@ impl Board {
         }
     }
 
+    fn apply_gravity(&mut self) -> usize {
+        let mut fallen = HashSet::new();
+        while let Some((i, next)) = self.bricks.iter().enumerate().find_map(|(i, b)| self.fall(b).map(|b| (i, b))) {
+            self.bricks[i] = next;
+            fallen.insert(i);
+        }
+        fallen.len()
+    }
+
     fn dependent_brick_count(&self, brick: &Id<Brick>) -> usize {
-        let next = Board { bricks: self.bricks.iter().filter(|b| b.id != brick.id).cloned().collect() };
-        next.bricks.iter().filter(|b| next.fall(b).is_some()).count()
+        let mut next = Board { bricks: self.bricks.iter().filter(|b| b.id != brick.id).cloned().collect() };
+        next.apply_gravity()
     }
 
     fn disintegrable_count(&self) -> usize {
@@ -178,12 +188,6 @@ impl Board {
 
     fn dependent_brick_sum(&self) -> usize {
         self.bricks.iter().map(|b| self.dependent_brick_count(b)).sum()
-    }
-
-    fn apply_gravity(&mut self) {
-        while let Some((i, next)) = self.bricks.iter().enumerate().find_map(|(i, b)| self.fall(b).map(|b| (i, b))) {
-            self.bricks[i] = next;
-        }
     }
 }
 
@@ -244,5 +248,8 @@ fn main() {
     board.apply_gravity();
 
     println!("Part 1: {}", board.disintegrable_count());
+    for (i, b) in board.bricks.iter().enumerate() {
+        println!("{} -> {}", i, board.dependent_brick_count(b));
+    }
     println!("Part 2: {}", board.dependent_brick_sum());
 }
