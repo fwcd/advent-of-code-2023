@@ -24,7 +24,7 @@ def neighbors(matrix, pos, slopes: true)
     .map { |a| a[1] }
 end
 
-def longest_path(matrix, visited = Set[], pos = [0, 1], slopes: true)
+def longest_path(matrix, visited = Set[], pos = [0, 1], choices = [], slopes: true)
   visited.add(pos)
 
   # Follow path until we reach a choice point or the end
@@ -33,6 +33,7 @@ def longest_path(matrix, visited = Set[], pos = [0, 1], slopes: true)
     visited.add(pos)
   end
 
+  puts "#{choices}"
   if n.size == 0
     if pos == [matrix.size - 1, matrix[0].size - 2]
       visited.size - 1
@@ -40,7 +41,7 @@ def longest_path(matrix, visited = Set[], pos = [0, 1], slopes: true)
       0
     end
   else
-    n.map { |p| longest_path(matrix, visited.clone, p, slopes: slopes) }.max
+    n.each_with_index.map { |p, i| longest_path(matrix, visited.clone, p, choices + [i], slopes: slopes) }.max
   end
 end
 
