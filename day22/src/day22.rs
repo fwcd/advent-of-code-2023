@@ -155,16 +155,11 @@ impl Board {
     fn apply_gravity(&mut self) -> bool {
         let mut fell = false;
         for i in 0..self.bricks.len() {
-            let mut brick = self.bricks[i].clone();
-            loop {
-                let next = brick.map(|b| b.fall());
-                if next.in_ground() || self.collision(&next).is_some() {
-                    break;
-                }
-                brick = next;
+            let next = self.bricks[i].map(|b| b.fall());
+            if !next.in_ground() && self.collision(&next).is_none() {
+                self.bricks[i] = next;
                 fell = true;
             }
-            self.bricks[i] = brick;
         }
         fell
     }
