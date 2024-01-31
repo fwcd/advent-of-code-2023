@@ -24,6 +24,59 @@ def neighbors(matrix, pos, slopes: true)
     .map { |a| a[1] }
 end
 
+def compute_graph(matrix, slopes: true)
+  visited = Set[]
+  adjacent = {}
+  origins = {}
+  remaining = [[nil, [0, 1]]]
+
+  while !(pred, start = remaining.shift).nil?
+    visited.add(start)
+    last = pred
+    pos = start
+    w = 1
+    while (neighs = neighbors(matrix, pos, slopes: slopes).filter { |n| n != last }).size == 1
+      # Follow path
+      last = pos
+      pos = neighs[0]
+      visited.add(pos)
+      origins[pos] = start
+      w += 1
+    end
+    # If neighs.size > 1 we're at a choice point, otherwise at the end
+    pred ||= start
+    adjacent[pred] = (adjacent[pred] || {}).merge({pos => w})
+    remaining += neighs.filter { |n| !visited.include?(n) }.map { |n| [pos, n] }
+  end
+
+  unless slopes
+    # Insert missing reverse edges
+    adjacent = adjacent
+      .flat_map { |pos, es| es.flat_map { |n, w| [[pos, n, w], [n, pos, w]] } }
+      .group_by { |e| e[0] }
+      .map { |pos, es| [pos, es.map { |e| e[1..] }.to_h] }
+      .to_h
+  end
+
+  adjacent
+end
+
+def dotify_graph(adjacent)
+  ids = (adjacent.keys + adjacent.values.map { |es| es.keys }.flatten(1)).to_set.each_with_index.map { |pos, i| [pos, "#{i}"] }.to_h
+  [
+    'digraph {',
+    *ids.map do |pos, i|
+      "#{i} [label=\"#{pos}\", pos=\"#{pos[1]},-#{pos[0]}!\"];"
+    end,
+    *adjacent.flat_map do |pos, es|
+      es.map do |n, w|
+        "#{ids[pos]} -> #{ids[n]} [label=\"#{w}\"];"
+      end
+    end,
+    '}',
+  ].join("\n")
+end
+
 def longest_path(matrix, visited = Set[], pos = [0, 1], choices = [], slopes: true)
   visited.add(pos)
 
@@ -54,5 +107,6 @@ matrix = File.readlines(ARGV[0])
   .map { |l| l.strip }
   .filter { |l| !l.empty? }
 
-puts "Part 1: #{longest_path(matrix, slopes: true)}"
-puts "Part 2: #{longest_path(matrix, slopes: false)}"
+puts dotify_graph(compute_graph(matrix, slopes: false))
+# puts "Part 1: #{longest_path(matrix, slopes: true)}"
+# puts "Part 2: #{longest_path(matrix, slopes: false)}"
