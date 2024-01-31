@@ -193,7 +193,8 @@
       "codemirror": "ruby",
       "name": "Ruby"
     },
-    "path": "day23/src/day23.rb"
+    "path": "day23/src/day23.rb",
+    "completed": true
   },
   {
     "lang": {
