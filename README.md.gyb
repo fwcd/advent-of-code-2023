@@ -17,6 +17,9 @@
     if additional_notes:
       s += f' {additional_notes}'
     return s
+  
+  def day_links(ds):
+    return f"day {', '.join(f'[{d}](day{d:02})' for d in ds)}"
 }%
 <!-- Automatically generated from README.md.gyb, do not edit directly! -->
 
@@ -28,7 +31,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 
 % for i, day in enumerate(days):
 %   if day:
-- [${'x' if day.get('completed', False) else ' '}] Day ${f'{i + 1:02}'}: ${', '.join(format_solution(part) for part in day.get('parts', [day]))}
+- [${'x' if day.get('completed', False) else ' '}] Day [${f'{i + 1:02}'}](day${f'{i + 1:02}'}): ${', '.join(format_solution(part) for part in day.get('parts', [day]))}
 %   end
 % end
 
@@ -50,11 +53,11 @@ Every day is packaged up to take exactly one command-line argument, the input fi
 
 ## Lessons Learned
 
-- Visualize the input with GraphViz (day 8, 20, 23)
-- Some puzzles are actually reverse-engineering exercises and rely on undocumented input constraints to be solved efficiently or even feasibly at all (day 8, 20, 23)
-- Take the [LCM](https://en.wikipedia.org/wiki/Least_common_multiple) to solve cycle alignment problems (day 8, 20)
+- Visualize the input with GraphViz (${day_links([8, 20, 23])})
+- Some puzzles are actually reverse-engineering exercises and rely on undocumented input constraints to be solved efficiently or even feasibly at all (${day_links([8, 20, 23])})
+- Take the [LCM](https://en.wikipedia.org/wiki/Least_common_multiple) to solve cycle alignment problems (${day_links([8, 20])})
   - If there are offsets, use the [CRT](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) ([like in previous years](https://github.com/fwcd/advent-of-code-2020/blob/18c3ba9820cb52627366a632ccaab233a6d9f563/day13/src/day13.c#L39-L59))
-- Binary counters can elegantly be modeled as chains of flip flop (day 20)
+- Binary counters can elegantly be modeled as chains of flip flop (${day_links([20])})
 
 ## Previous years
 
