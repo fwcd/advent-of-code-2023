@@ -85,16 +85,20 @@ def longest_path(adjacent, visited = Set[], pos = START)
     .map { |n, w| w + longest_path(adjacent, visited | Set[pos], n) }.max || 0
 end
 
-if ARGV.size == 0
-  puts "Usage: day23 <path to input>"
+opts, vals = ARGV.partition { |a| a.start_with?('--') }
+
+if vals.size == 0 || opts.include?('--help')
+  puts "Usage: day23 [--dot] <path to input>"
   exit 1
 end
 
-matrix = File.readlines(ARGV[0])
+matrix = File.readlines(vals[0])
   .map { |l| l.strip }
   .filter { |l| !l.empty? }
 
-# puts dotify_graph(compute_graph(matrix, slopes: false))
-
-puts "Part 1: #{longest_path(compute_graph(matrix, slopes: true))}"
-puts "Part 2: #{longest_path(compute_graph(matrix, slopes: false))}"
+if opts.include?('--dot')
+  puts dotify_graph(compute_graph(matrix, slopes: false))
+else
+  puts "Part 1: #{longest_path(compute_graph(matrix, slopes: true))}"
+  puts "Part 2: #{longest_path(compute_graph(matrix, slopes: false))}"
+end
