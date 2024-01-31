@@ -24,7 +24,7 @@ def neighbors(matrix, pos, slopes: true)
     .map { |a| a[1] }
 end
 
-START = [1, 1]
+START = [0, 1]
 
 def compute_graph(matrix, slopes: true)
   visited = Set[]
@@ -58,6 +58,17 @@ def compute_graph(matrix, slopes: true)
       .group_by { |e| e[0] }
       .map { |pos, es| [pos, es.map { |e| e[1..] }.to_h] }
       .to_h
+
+    # Remove directed back-edges along the boundary (i.e. those with 3
+    # neighbors) via a BFS, these would never lead to a successful path.
+    remaining = [START]
+    visited = Set[]
+    while !(pos = remaining.shift).nil?
+      visited.add(pos)
+      neighs = adjacent[pos].keys.filter { |n| !visited.include?(n) && adjacent[n].size <= 3 }
+      neighs.each { |n| adjacent[n].delete(pos) }
+      remaining += neighs
+    end
   end
 
   adjacent
@@ -79,10 +90,26 @@ def dotify_graph(adjacent)
   ].join("\n")
 end
 
-def longest_path(adjacent, visited = Set[], pos = START)
-  (adjacent[pos] || {})
-    .filter { |n, w| !visited.include?(n) }
-    .map { |n, w| w + longest_path(adjacent, visited | Set[pos], n) }.max || 0
+def longest_path(
+  adjacent,
+  pos = START,
+  goal = adjacent.flat_map { |_, es| es.keys }.max_by { |p| p.sum },
+  visited = Set[],
+  depth = 0
+)
+  if depth < 5
+    puts('|' * visited.size)
+  end
+  es = (adjacent[pos] || {}).filter { |n, _| !visited.include?(n) }
+  if es.empty?
+    if pos == goal
+      0
+    else
+      -1_000_000_000
+    end
+  else
+    es.map { |n, w| w + longest_path(adjacent, n, goal, visited | Set[pos], depth + 1) }.max || 0
+  end
 end
 
 opts, vals = ARGV.partition { |a| a.start_with?('--') }
@@ -99,6 +126,6 @@ matrix = File.readlines(vals[0])
 if opts.include?('--dot')
   puts dotify_graph(compute_graph(matrix, slopes: false))
 else
-  puts "Part 1: #{longest_path(compute_graph(matrix, slopes: true))}"
-  puts "Part 2: #{longest_path(compute_graph(matrix, slopes: false))}"
+  puts "Part 1: #{longest_path(compute_graph(matrix, slopes: true)) - 1}"
+  puts "Part 2: #{longest_path(compute_graph(matrix, slopes: false)) - 1}"
 end
