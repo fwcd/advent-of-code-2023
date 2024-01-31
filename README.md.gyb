@@ -32,7 +32,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 %   end
 % end
 
-## Packaging
+## Development
 
 The programs are packaged with [Nix](https://nixos.org/), a functional package manager for Linux and macOS that focuses on reproducible builds. This makes it easy to build the programs, both locally and CI, without relying on system packages.
 
@@ -47,6 +47,14 @@ Every day is packaged up to take exactly one command-line argument, the input fi
 
 > [!TIP]
 > The build environment can be added to the current `PATH` using `nix develop`. This is useful to manually run the compiler.
+
+## Lessons Learned
+
+- Visualize the input with GraphViz (day 8, 20, 23)
+- Some puzzles are actually reverse-engineering exercises and rely on undocumented input constraints to be solved efficiently or even feasibly at all (day 8, 20, 23)
+- Take the [LCM](https://en.wikipedia.org/wiki/Least_common_multiple) to solve cycle alignment problems (day 8, 20)
+  - More complex problems would likely require the [CRT](https://en.wikipedia.org/wiki/Chinese_remainder_theorem), [like in previous years](https://github.com/fwcd/advent-of-code-2020/blob/18c3ba9820cb52627366a632ccaab233a6d9f563/day13/src/day13.c#L39-L59)
+- Binary counters can elegantly be modeled as chains of flip flop (day 20)
 
 ## Previous years
 
