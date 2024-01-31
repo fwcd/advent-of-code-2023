@@ -118,7 +118,17 @@ end
 opts, vals = ARGV.partition { |a| a.start_with?('--') }
 
 if vals.size == 0 || opts.include?('--help')
-  puts "Usage: day23 [--dot] <path to input>"
+  puts [
+    "Usage: day23 [--dot] <path to input>",
+    "",
+    "To visualize the graph, make sure to have GraphViz installed",
+    "and pipe the output to a layout engine that supports fixed",
+    "positioning, e.g. neato:",
+    "",
+    "    day23 --dot <path to input> | neato -Tpdf -o <path to output pdf>",
+    "",
+    "",
+  ].join("\n")
   exit 1
 end
 
