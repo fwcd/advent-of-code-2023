@@ -24,11 +24,13 @@ def neighbors(matrix, pos, slopes: true)
     .map { |a| a[1] }
 end
 
+START = [1, 1]
+
 def compute_graph(matrix, slopes: true)
   visited = Set[]
   adjacent = {}
   origins = {}
-  remaining = [[nil, [0, 1]]]
+  remaining = [[nil, START]]
 
   while !(pred, start = remaining.shift).nil?
     visited.add(start)
@@ -77,25 +79,10 @@ def dotify_graph(adjacent)
   ].join("\n")
 end
 
-def longest_path(matrix, visited = Set[], pos = [0, 1], choices = [], slopes: true)
-  visited.add(pos)
-
-  # Follow path until we reach a choice point or the end
-  while (n = neighbors(matrix, pos, slopes: slopes).filter { |p| !visited.include?(p) }).size == 1
-    pos = n[0]
-    visited.add(pos)
-  end
-
-  puts "#{choices}"
-  if n.size == 0
-    if pos == [matrix.size - 1, matrix[0].size - 2]
-      visited.size - 1
-    else
-      0
-    end
-  else
-    n.each_with_index.map { |p, i| longest_path(matrix, visited.clone, p, choices + [i], slopes: slopes) }.max
-  end
+def longest_path(adjacent, visited = Set[], pos = START)
+  (adjacent[pos] || {})
+    .filter { |n, w| !visited.include?(n) }
+    .map { |n, w| w + longest_path(adjacent, visited | Set[pos], n) }.max || 0
 end
 
 if ARGV.size == 0
@@ -107,6 +94,7 @@ matrix = File.readlines(ARGV[0])
   .map { |l| l.strip }
   .filter { |l| !l.empty? }
 
-puts dotify_graph(compute_graph(matrix, slopes: false))
-# puts "Part 1: #{longest_path(matrix, slopes: true)}"
-# puts "Part 2: #{longest_path(matrix, slopes: false)}"
+# puts dotify_graph(compute_graph(matrix, slopes: false))
+
+puts "Part 1: #{longest_path(compute_graph(matrix, slopes: true))}"
+puts "Part 2: #{longest_path(compute_graph(matrix, slopes: false))}"
