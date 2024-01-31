@@ -61,6 +61,9 @@ def compute_graph(matrix, slopes: true)
 
     # Remove directed back-edges along the boundary (i.e. those with 3
     # neighbors) via a BFS, these would never lead to a successful path.
+    # Credits go to u/maneatingape for discovering this trick (and for making me
+    # research self-avoiding rook walks):
+    # https://www.reddit.com/r/adventofcode/comments/18oy4pc/comment/kfyvp2g
     remaining = [START]
     visited = Set[]
     while !(pos = remaining.shift).nil?
