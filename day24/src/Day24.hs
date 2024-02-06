@@ -30,6 +30,9 @@ data Vec2 a = Vec2 { x :: a, y :: a }
 data Vec3 a = Vec3 { x :: a, y :: a, z :: a }
   deriving (Show, Eq, Functor)
 
+data Rect2 a = Rect2 { topLeft :: Vec2 a, bottomRight :: Vec2 a }
+  deriving (Show, Eq, Functor)
+
 data Hailstone a = Hailstone { pos :: a, vel :: a }
   deriving (Show, Eq, Functor)
 
@@ -57,9 +60,18 @@ instance Vec Vec2 where
 instance Vec Vec3 where
   v .+. w = Vec3 (v.x + w.x) (v.y + w.y) (v.z + w.z)
 
+-- | Creates a vector with both components set to the given value.
+both :: a -> Vec2 a
+both x = Vec2 x x
+
 -- | Projects the given Vec3 to the xy-plane, i.e. a Vec2.
 projectXY :: Vec3 a -> Vec2 a
 projectXY v = Vec2 v.x v.y
+
+-- | Checks whether the given rectangle contains the given point.
+inRect :: Ord a => Rect2 a -> Vec2 a -> Bool
+inRect r v = v.x >= r.topLeft.x && v.x <= r.bottomRight.x
+          && v.y >= r.topLeft.y && v.y <= r.bottomRight.y
 
 -- | Computes the 2x2 determinant from the given columns.
 det2 :: Vec2 Float -> Vec2 Float -> Float
@@ -94,9 +106,11 @@ main = do
   case args of
     [path] -> do
       raw <- readFile' path
-      let input = mapMaybe parseHailstone (lines raw)
-          xings = uncurry intersect2 <$> (pairs (fmap projectXY <$> input))
-      mapM_ print xings
+      let input  = mapMaybe parseHailstone (lines raw)
+          xings  = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
+          bounds = Rect2 (both 200000000000000) (both 400000000000000)
+          part1  = length (filter (inRect bounds) xings)
+      putStrLn $ "Part 1: " ++ show part1
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
