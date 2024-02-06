@@ -53,8 +53,8 @@ det2 i j = i.x * j.y - i.y * j.x
 
 -- | Computes the 2D intersection between the given two hailstones using Cramer's rule.
 intersect2 :: Hailstone2 -> Hailstone2 -> Maybe (Vec2 Float)
-intersect2 a b | r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
-               | otherwise        = Nothing
+intersect2 a b | d > 0.00001 && r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
+               | otherwise                       = Nothing
   where
     d = det2 a.vel b.vel
     v = b.pos .-. a.pos
