@@ -80,13 +80,13 @@ det2 i j = i.x * j.y - i.y * j.x
 -- | Computes the 2D intersection between the given two hailstones using Cramer's rule.
 -- See https://math.stackexchange.com/questions/406864/intersection-of-two-lines-in-vector-form
 intersect2 :: Hailstone2 -> Hailstone2 -> Maybe (Vec2 Float)
-intersect2 a b | abs d > 0.00001 && r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
-               | otherwise                           = Nothing
+intersect2 a b | abs d > 0.00001 && ta >= 0 && tb >= 0 = Just (a.pos .+. (ta *. a.vel))
+               | otherwise                             = Nothing
   where
     d  = det2 a.vel (neg b.vel)
     dp = b.pos .-. a.pos
-    r  = det2 dp (neg b.vel) / d
-    s  = det2 a.vel dp / d
+    ta = det2 dp (neg b.vel) / d
+    tb = det2 a.vel dp / d
 
 -- | Parsea a Vec3 from the given string.
 parseVec3 :: String -> Maybe (Vec3 Float)
