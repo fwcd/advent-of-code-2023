@@ -4,6 +4,20 @@
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.IO (readFile')
+import Data.List (dropWhileEnd)
+import Data.Char (isSpace)
+import Data.Maybe (mapMaybe)
+
+-- | Trims whitespace from the start/end.
+trim :: String -> String
+trim = dropWhileEnd isSpace . dropWhile isSpace
+
+-- | Splits on the given value.
+split :: Eq a => a -> [a] -> [[a]]
+split x (y:ys) | x == y    = [] : split x ys
+               | otherwise = let (y':ys') = split x ys
+                             in (y : y') : ys'
+split _ []                 = [[]]
 
 -- | Finds all unordered pairs.
 pairs :: [a] -> [(a, a)]
@@ -61,13 +75,26 @@ intersect2 a b | d > 0.00001 && r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
     r = det2 (Vec2 1 0) v / d
     s = det2 v (Vec2 0 1) / d
 
+-- | Parsea a Vec3 from the given string.
+parseVec3 :: String -> Maybe (Vec3 Float)
+parseVec3 raw = do
+  [x, y, z] <- Just $ read . trim <$> split ',' raw
+  Just $ Vec3 x y z
+
+-- | Parses a hailstone from the given string.
+parseHailstone :: String -> Maybe Hailstone3
+parseHailstone raw = do
+  [pos, vel] <- mapM parseVec3 . map trim $ split '@' raw
+  Just $ Hailstone pos vel
+
 main :: IO ()
 main = do
   args <- getArgs
   case args of
     [path] -> do
       raw <- readFile' path
-      putStrLn raw
+      let input = mapMaybe parseHailstone (lines raw)
+      print input
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
