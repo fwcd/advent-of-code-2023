@@ -66,14 +66,15 @@ det2 :: Vec2 Float -> Vec2 Float -> Float
 det2 i j = i.x * j.y - i.y * j.x
 
 -- | Computes the 2D intersection between the given two hailstones using Cramer's rule.
+-- See https://math.stackexchange.com/questions/406864/intersection-of-two-lines-in-vector-form
 intersect2 :: Hailstone2 -> Hailstone2 -> Maybe (Vec2 Float)
-intersect2 a b | d > 0.00001 && r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
-               | otherwise                       = Nothing
+intersect2 a b | abs d > 0.00001 && r >= 0 && s >= 0 = Just (a.pos .+. (r *. a.vel))
+               | otherwise                           = Nothing
   where
-    d = det2 a.vel b.vel
-    v = b.pos .-. a.pos
-    r = det2 (Vec2 1 0) v / d
-    s = det2 v (Vec2 0 1) / d
+    d  = det2 a.vel (neg b.vel)
+    dp = b.pos .-. a.pos
+    r  = det2 dp (neg b.vel) / d
+    s  = det2 a.vel dp / d
 
 -- | Parsea a Vec3 from the given string.
 parseVec3 :: String -> Maybe (Vec3 Float)
@@ -94,7 +95,8 @@ main = do
     [path] -> do
       raw <- readFile' path
       let input = mapMaybe parseHailstone (lines raw)
-      print input
+          xings = uncurry intersect2 <$> (pairs (fmap projectXY <$> input))
+      mapM_ print xings
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
