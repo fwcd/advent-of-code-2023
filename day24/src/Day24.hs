@@ -165,32 +165,32 @@ main = do
     [path] -> do
       raw <- readFile' path
 
-      let input  = mapMaybe parseHailstone (lines raw)
-          xings  = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
-          bounds = Rect2 (both 200000000000000) (both 400000000000000)
-          part1  = length (filter (inRect bounds) xings)
-          p i    = (input !! (i - 1)).pos
-          v i    = (input !! (i - 1)).vel
-          part2  = solveLinearSystem @Float LinearSystem
-          -- The unknowns:         (p 0).x             (p 0).y             (p 0).z           (v 0).x            (v 0).y            (v 0).z
-                      { a = [ [(v 2).y - (v 1).y, (v 1).x - (v 2).x, 0                , (p 1).y - (p 2).y, (p 2).x - (p 1).x, 0                ]
-                            , [(v 3).y - (v 1).y, (v 1).x - (v 3).x, 0                , (p 1).y - (p 3).y, (p 3).x - (p 1).x, 0                ]
-                            , [(v 1).z - (v 2).z, 0                , (v 2).x - (v 1).x, (p 2).z - (p 1).z, 0                , (p 1).x - (p 2).x]
-                            , [(v 1).z - (v 3).z, 0                , (v 3).x - (v 1).x, (p 3).z - (p 1).z, 0                , (p 1).x - (p 3).x]
-                            , [0                , (v 2).z - (v 1).z, (v 1).y - (v 2).y, 0                , (p 1).z - (p 2).z, (p 2).y - (p 1).y]
-                            , [0                , (v 3).z - (v 1).z, (v 1).y - (v 3).y, 0                , (p 1).z - (p 3).z, (p 3).y - (p 1).y]
-                            ]
-                      , b = [ (p 1).y * (v 1).x - (p 1).x * (v 1).y + (p 2).x * (v 2).y - (p 2).y * (v 2).x
-                            , (p 1).y * (v 1).x - (p 1).x * (v 1).y + (p 3).x * (v 3).y - (p 3).y * (v 3).x
-                            , (p 1).x * (v 1).z - (p 1).z * (v 1).x + (p 2).z * (v 2).x - (p 2).x * (v 2).z
-                            , (p 1).x * (v 1).z - (p 1).z * (v 1).x + (p 3).z * (v 3).x - (p 3).x * (v 3).z
-                            , (p 1).z * (v 1).y - (p 1).y * (v 1).z + (p 2).y * (v 2).z - (p 2).z * (v 2).y
-                            , (p 1).z * (v 1).y - (p 1).y * (v 1).z + (p 3).y * (v 3).z - (p 3).z * (v 3).y
-                            ]
-                      }
+      let input               = mapMaybe parseHailstone (lines raw)
+          xings               = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
+          bounds              = Rect2 (both 200000000000000) (both 400000000000000)
+          part1               = length (filter (inRect bounds) xings)
+          p i                 = (input !! (i - 1)).pos
+          v i                 = (input !! (i - 1)).vel
+          [px,py,pz,vx,vy,vz] = map round . fromRight' $ solveLinearSystem @Float LinearSystem
+          --                    Unknowns:  px                 py                 pz                 vx                 vy                 vz
+                                  { a = [ [(v 2).y - (v 1).y, (v 1).x - (v 2).x, 0                , (p 1).y - (p 2).y, (p 2).x - (p 1).x, 0                ]
+                                        , [(v 3).y - (v 1).y, (v 1).x - (v 3).x, 0                , (p 1).y - (p 3).y, (p 3).x - (p 1).x, 0                ]
+                                        , [(v 1).z - (v 2).z, 0                , (v 2).x - (v 1).x, (p 2).z - (p 1).z, 0                , (p 1).x - (p 2).x]
+                                        , [(v 1).z - (v 3).z, 0                , (v 3).x - (v 1).x, (p 3).z - (p 1).z, 0                , (p 1).x - (p 3).x]
+                                        , [0                , (v 2).z - (v 1).z, (v 1).y - (v 2).y, 0                , (p 1).z - (p 2).z, (p 2).y - (p 1).y]
+                                        , [0                , (v 3).z - (v 1).z, (v 1).y - (v 3).y, 0                , (p 1).z - (p 3).z, (p 3).y - (p 1).y]
+                                        ]
+                                  , b = [ (p 1).y * (v 1).x - (p 1).x * (v 1).y + (p 2).x * (v 2).y - (p 2).y * (v 2).x
+                                        , (p 1).y * (v 1).x - (p 1).x * (v 1).y + (p 3).x * (v 3).y - (p 3).y * (v 3).x
+                                        , (p 1).x * (v 1).z - (p 1).z * (v 1).x + (p 2).z * (v 2).x - (p 2).x * (v 2).z
+                                        , (p 1).x * (v 1).z - (p 1).z * (v 1).x + (p 3).z * (v 3).x - (p 3).x * (v 3).z
+                                        , (p 1).z * (v 1).y - (p 1).y * (v 1).z + (p 2).y * (v 2).z - (p 2).z * (v 2).y
+                                        , (p 1).z * (v 1).y - (p 1).y * (v 1).z + (p 3).y * (v 3).z - (p 3).z * (v 3).y
+                                        ]
+                                  }
 
       putStrLn $ "Part 1: " ++ show part1
-      putStrLn $ "Part 2: " ++ show part2
+      putStrLn $ "Part 2: " ++ show (px + py + pz)
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
