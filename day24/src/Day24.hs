@@ -179,8 +179,8 @@ main = do
 
       -- Part 2 explanation:
       --
-      --   - Let each hailstone i have position p[i] and velocity v[i], effectively a 3D line
-      --   - We're looking for a new line with position p and v, such that for i = 1, ..., n and some t[i]:
+      --   - Let each hailstone i have position p[i] and velocity v[i], i.e. be a 3D line
+      --   - We're looking for a new line with position p and velocity v, such that for i = 1, ..., n and some t[i]:
       --
       --            p + t[i] * v = p[i] + t[i] * v[i]          (note that t[i] is the same on both sides due to the time constraint)
       --       <=>  p - p[i]     = t[i] * (v[i] - v)           (i.e. (p - p[i]) and (v[i] - v) are collinear...)
