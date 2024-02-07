@@ -165,11 +165,47 @@ main = do
     [path] -> do
       raw <- readFile' path
 
-      let input               = mapMaybe parseHailstone (lines raw)
-          xings               = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
-          bounds              = Rect2 (both 200000000000000) (both 400000000000000)
-          part1               = length (filter (inRect bounds) xings)
-          p i                 = (input !! (i - 1)).pos
+      -- Part 1 explanation:
+      --
+      --   - Parse lines
+      --   - Compute 2D line intersections
+
+      let input  = mapMaybe parseHailstone (lines raw)
+          xings  = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
+          bounds = Rect2 (both 200000000000000) (both 400000000000000)
+          part1  = length (filter (inRect bounds) xings)
+
+      putStrLn $ "Part 1: " ++ show part1
+
+      -- Part 2 explanation:
+      --
+      --   - Let each hailstone i have position p[i] and velocity v[i], effectively a 3D line
+      --   - We're looking for a new line with position p and v, such that for i = 1, ..., n and some t[i]:
+      --
+      --            p + t[i] * v = p[i] + t[i] * v[i]          (note that t[i] is the same on both sides due to the time constraint)
+      --       <=>  p - p[i]     = t[i] * (v[i] - v)           (i.e. (p - p[i]) and (v[i] - v) are collinear...)
+      --       <=>             0 = (p - p[i]) x (v[i] - v)     (...therefore we can rewrite this with the cross product)
+      --                         = (p - p[i]) x (v - v[i])
+      --                         = (p x v) - (p x v[i]) - (p[i] x v) + (p[i] x v[i])
+      --
+      --   - Note that (p x v) is the only nonlinear term (because it contains two unknowns)
+      --   - The clever trick is now that since (p x v) is the same for every i,
+      --     we can just take two of these vector equations and subtract the
+      --     nonlinear term (p x v) to get rid of it (i >= 2 henceforth):
+      --
+      --             (p x v) - (p x v[1]) - (p[1] x v) + (p[1] x v[1])
+      --          - ((p x v) - (p x v[i]) - (p[i] x v) + (p[i] x v[i]))
+      --          =          - (p x v[1]) - (p[1] x v) + (p[1] x v[1])
+      --                     + (p x v[i]) + (p[i] x v) - (p[i] x v[i])
+      --
+      --   - Remembering that each vector equation expands to three scalar equations and that
+      --     we have 6 unknowns (px, py, pz, vx, vy, vz), we only have to pick two of these
+      --     remaining equations (we'll go with i = 2 and i = 3) to obtain 6 equations.
+      --   - These 6 equations form a linear system of equations, which we can solve via Gaussian elimination.
+      -- 
+      -- Credits for helping me crack this problem go to u/evouga: https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kepu26z
+
+      let p i                 = (input !! (i - 1)).pos
           v i                 = (input !! (i - 1)).vel
           [px,py,pz,vx,vy,vz] = map (round @_ @Integer) . fromRight' $ solveLinearSystem @Double LinearSystem
           --                    Unknowns:  px                 py                 pz                 vx                 vy                 vz
@@ -188,9 +224,10 @@ main = do
                                         , (p 1).z * (v 1).y - (p 1).y * (v 1).z + (p 3).y * (v 3).z - (p 3).z * (v 3).y
                                         ]
                                   }
+          part2               = px + py + pz
 
-      putStrLn $ "Part 1: " ++ show part1
-      putStrLn $ "Part 2: " ++ show (px + py + pz) ++ " (p = " ++ show [px, py, pz] ++ ", v = " ++ show [vx, vy, vz] ++ ")"
+      putStrLn $ "Part 2: " ++ show part2 ++ " (p = " ++ show [px, py, pz] ++ ", v = " ++ show [vx, vy, vz] ++ ")"
+
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
