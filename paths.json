@@ -201,7 +201,8 @@
       "codemirror": "haskell",
       "name": "Haskell"
     },
-    "path": "day24/src/Day24.hs"
+    "path": "day24/src/Day24.hs",
+    "completed": true
   },
   {
     "lang": {
