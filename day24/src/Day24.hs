@@ -111,7 +111,7 @@ intersect2 a b | abs d > 0.00001 && ta >= 0 && tb >= 0 = Just (a.pos .+. (ta *. 
     tb = det2 a.vel dp / d
 
 -- | Transforms a linear system to row-echolon form.
-rowEcholonForm :: (Show a, Fractional a) => LinearSystem a -> LinearSystem a
+rowEcholonForm :: Fractional a => LinearSystem a -> LinearSystem a
 rowEcholonForm sys = rowEcholonForm' 0 sys
   where rowEcholonForm' i sys | i < n     = let (ra:ras) = sys.a
                                                 (rb:rbs) = sys.b
@@ -126,9 +126,13 @@ rowEcholonForm sys = rowEcholonForm' 0 sys
                               | otherwise = sys
         n        = length sys.a
 
+-- | Flips the matrix/vector horizontally and vertically.
+flipLinearSystem :: LinearSystem a -> LinearSystem a
+flipLinearSystem sys = LinearSystem (reverse (reverse <$> sys.a)) (reverse sys.b)
+
 -- | Trasnforms a linear system to reduced row echolon form.
 reducedRowEcholonForm :: Fractional a => LinearSystem a -> LinearSystem a
-reducedRowEcholonForm sys = undefined
+reducedRowEcholonForm = flipLinearSystem . rowEcholonForm . flipLinearSystem . rowEcholonForm
 
 -- | Solves a linear system using Gaussian elimination.
 solveLinearSystem :: Fractional a => LinearSystem a -> Either String [a]
@@ -166,7 +170,7 @@ main = do
           bounds = Rect2 (both 200000000000000) (both 400000000000000)
           part1  = length (filter (inRect bounds) xings)
           -- TODO
-          part2  = rowEcholonForm @Float LinearSystem
+          part2  = solveLinearSystem @Float LinearSystem
                       { a = [ [1, 1, -3, 1]
                             , [-5, 3, -4, 1]
                             , [1, 0, 2, -1]
