@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedRecordDot, DuplicateRecordFields, UndecidableInstances, TypeApplications  #-}
+{-# LANGUAGE OverloadedRecordDot, DuplicateRecordFields, UndecidableInstances, TypeApplications, NoFieldSelectors  #-}
 
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
@@ -46,6 +46,7 @@ data Rect2 a = Rect2 { topLeft :: Vec2 a, bottomRight :: Vec2 a }
 
 -- | A linear system of equations of the form ax = b
 data LinearSystem a = LinearSystem { a :: [[a]], b :: [a] }
+  deriving (Show, Eq, Functor)
 
 data Hailstone a = Hailstone { pos :: a, vel :: a }
   deriving (Show, Eq, Functor)
@@ -68,11 +69,18 @@ class Functor v => Vec v where
   (.*) :: Num a => v a -> a -> v a
   (.*) = flip (*.)
 
+  (./) :: Fractional a => v a -> a -> v a
+  (./) v l = fmap (/ l) v
+
 instance Vec Vec2 where
   v .+. w = Vec2 (v.x + w.x) (v.y + w.y)
 
 instance Vec Vec3 where
   v .+. w = Vec3 (v.x + w.x) (v.y + w.y) (v.z + w.z)
+
+instance Vec [] where
+  (.+.) = zipWith (+)
+  (.-.) = zipWith (-)
 
 -- | Creates a vector with both components set to the given value.
 both :: a -> Vec2 a
@@ -102,17 +110,37 @@ intersect2 a b | abs d > 0.00001 && ta >= 0 && tb >= 0 = Just (a.pos .+. (ta *. 
     ta = det2 dp (neg b.vel) / d
     tb = det2 a.vel dp / d
 
--- | Solves a linear system using Gaussian elimination.
-solveLinearSystem :: LinearSystem Float -> Either String [a]
-solveLinearSystem sys = do
-  let n = length sys.a
+-- | Transforms a linear system to row-echolon form.
+rowEcholonForm :: (Show a, Fractional a) => LinearSystem a -> LinearSystem a
+rowEcholonForm sys = rowEcholonForm' 0 sys
+  where rowEcholonForm' i sys | i < n     = let (ra:ras) = sys.a
+                                                (rb:rbs) = sys.b
+                                                xa       = ra !! i
+                                                ra'      = ra ./ xa
+                                                rb'      = rb / xa
+                                                rxs      = (!! i) <$> ras
+                                                ras'     = zipWith (\r rx -> r .-. (ra' .* rx)) ras rxs
+                                                rbs'     = zipWith (\r rx -> r - (rb' * rx)) rbs rxs
+                                                sys'     = rowEcholonForm' (i + 1) $ LinearSystem ras' rbs'
+                                            in LinearSystem (ra':sys'.a) (rb':sys'.b)
+                              | otherwise = sys
+        n        = length sys.a
 
+-- | Trasnforms a linear system to reduced row echolon form.
+reducedRowEcholonForm :: Fractional a => LinearSystem a -> LinearSystem a
+reducedRowEcholonForm sys = undefined
+
+-- | Solves a linear system using Gaussian elimination.
+solveLinearSystem :: Fractional a => LinearSystem a -> Either String [a]
+solveLinearSystem sys = do
   -- Input validation
+  let n = length sys.a
   assert (length sys.b == n) $ "Matrix a must have same numbers of rows as vector b"
   forM_ sys.a $ \row -> do
     assert (length row == n) "Matrix a must be quadratic"
-
-  Right [] -- TODO
+  
+  let rref = reducedRowEcholonForm sys
+  Right rref.b
 
 -- | Parsea a Vec3 from the given string.
 parseVec3 :: String -> Maybe (Vec3 Float)
@@ -138,7 +166,7 @@ main = do
           bounds = Rect2 (both 200000000000000) (both 400000000000000)
           part1  = length (filter (inRect bounds) xings)
           -- TODO
-          part2  = fromRight' $ solveLinearSystem @Float LinearSystem
+          part2  = rowEcholonForm @Float LinearSystem
                       { a = [ [1, 1, -3, 1]
                             , [-5, 3, -4, 1]
                             , [1, 0, 2, -1]
