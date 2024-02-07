@@ -1,5 +1,4 @@
-{-# LANGUAGE OverloadedRecordDot, DuplicateRecordFields, UndecidableInstances  #-}
-{-# LANGUAGE QuantifiedConstraints #-}
+{-# LANGUAGE OverloadedRecordDot, DuplicateRecordFields, UndecidableInstances, TypeApplications  #-}
 
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
@@ -7,6 +6,18 @@ import System.IO (readFile')
 import Data.List (dropWhileEnd)
 import Data.Char (isSpace)
 import Data.Maybe (mapMaybe)
+import Control.Monad (forM_)
+import Data.Either (fromRight)
+
+-- | Performs an assertion within the Either monad.
+assert :: Bool -> e -> Either e ()
+assert True  _ = Right ()
+assert False e = Left e
+
+-- | Unwraps an Either with a string error.
+fromRight' :: Show a => Either a b -> b
+fromRight' (Left e)  = error $ show e
+fromRight' (Right x) = x
 
 -- | Trims whitespace from the start/end.
 trim :: String -> String
@@ -32,6 +43,9 @@ data Vec3 a = Vec3 { x :: a, y :: a, z :: a }
 
 data Rect2 a = Rect2 { topLeft :: Vec2 a, bottomRight :: Vec2 a }
   deriving (Show, Eq, Functor)
+
+-- | A linear system of equations of the form ax = b
+data LinearSystem a = LinearSystem { a :: [[a]], b :: [a] }
 
 data Hailstone a = Hailstone { pos :: a, vel :: a }
   deriving (Show, Eq, Functor)
@@ -88,6 +102,18 @@ intersect2 a b | abs d > 0.00001 && ta >= 0 && tb >= 0 = Just (a.pos .+. (ta *. 
     ta = det2 dp (neg b.vel) / d
     tb = det2 a.vel dp / d
 
+-- | Solves a linear system using Gaussian elimination.
+solveLinearSystem :: LinearSystem Float -> Either String [a]
+solveLinearSystem sys = do
+  let n = length sys.a
+
+  -- Input validation
+  assert (length sys.b == n) $ "Matrix a must have same numbers of rows as vector b"
+  forM_ sys.a $ \row -> do
+    assert (length row == n) "Matrix a must be quadratic"
+
+  Right [] -- TODO
+
 -- | Parsea a Vec3 from the given string.
 parseVec3 :: String -> Maybe (Vec3 Float)
 parseVec3 raw = do
@@ -106,11 +132,27 @@ main = do
   case args of
     [path] -> do
       raw <- readFile' path
+
       let input  = mapMaybe parseHailstone (lines raw)
           xings  = mapMaybe (uncurry intersect2) (pairs (fmap projectXY <$> input))
           bounds = Rect2 (both 200000000000000) (both 400000000000000)
           part1  = length (filter (inRect bounds) xings)
+          -- TODO
+          part2  = fromRight' $ solveLinearSystem @Float LinearSystem
+                      { a = [ [1, 1, -3, 1]
+                            , [-5, 3, -4, 1]
+                            , [1, 0, 2, -1]
+                            , [1, 2, 0, 0]
+                            ]
+                      , b = [ 2
+                            , 0
+                            , 1
+                            , 12
+                            ]
+                      }
+
       putStrLn $ "Part 1: " ++ show part1
+      putStrLn $ "Part 2: " ++ show part2
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
