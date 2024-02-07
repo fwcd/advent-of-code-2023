@@ -171,7 +171,7 @@ main = do
           part1               = length (filter (inRect bounds) xings)
           p i                 = (input !! (i - 1)).pos
           v i                 = (input !! (i - 1)).vel
-          [px,py,pz,vx,vy,vz] = map round . fromRight' $ solveLinearSystem @Float LinearSystem
+          [px,py,pz,vx,vy,vz] = map (round @Float @Integer) . fromRight' $ solveLinearSystem @Float LinearSystem
           --                    Unknowns:  px                 py                 pz                 vx                 vy                 vz
                                   { a = [ [(v 2).y - (v 1).y, (v 1).x - (v 2).x, 0                , (p 1).y - (p 2).y, (p 2).x - (p 1).x, 0                ]
                                         , [(v 3).y - (v 1).y, (v 1).x - (v 3).x, 0                , (p 1).y - (p 3).y, (p 3).x - (p 1).x, 0                ]
@@ -190,7 +190,7 @@ main = do
                                   }
 
       putStrLn $ "Part 1: " ++ show part1
-      putStrLn $ "Part 2: " ++ show (px + py + pz)
+      putStrLn $ "Part 2: " ++ show (px + py + pz) ++ " (p = " ++ show [px, py, pz] ++ ", v = " ++ show [vx, vy, vz] ++ ")"
     _ -> do
       putStrLn "Usage: day24 <path to input>"
       exitFailure
