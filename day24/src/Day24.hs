@@ -51,8 +51,8 @@ data LinearSystem a = LinearSystem { a :: [[a]], b :: [a] }
 data Hailstone a = Hailstone { pos :: a, vel :: a }
   deriving (Show, Eq, Functor)
 
-type Hailstone2 = Hailstone (Vec2 Float)
-type Hailstone3 = Hailstone (Vec3 Float)
+type Hailstone2 = Hailstone (Vec2 Double)
+type Hailstone3 = Hailstone (Vec3 Double)
 
 class Functor v => Vec v where
   (.+.) :: Num a => v a -> v a -> v a
@@ -96,12 +96,12 @@ inRect r v = v.x >= r.topLeft.x && v.x <= r.bottomRight.x
           && v.y >= r.topLeft.y && v.y <= r.bottomRight.y
 
 -- | Computes the 2x2 determinant from the given columns.
-det2 :: Vec2 Float -> Vec2 Float -> Float
+det2 :: Vec2 Double -> Vec2 Double -> Double
 det2 i j = i.x * j.y - i.y * j.x
 
 -- | Computes the 2D intersection between the given two hailstones using Cramer's rule.
 -- See https://math.stackexchange.com/questions/406864/intersection-of-two-lines-in-vector-form
-intersect2 :: Hailstone2 -> Hailstone2 -> Maybe (Vec2 Float)
+intersect2 :: Hailstone2 -> Hailstone2 -> Maybe (Vec2 Double)
 intersect2 a b | abs d > 0.00001 && ta >= 0 && tb >= 0 = Just (a.pos .+. (ta *. a.vel))
                | otherwise                             = Nothing
   where
@@ -147,7 +147,7 @@ solveLinearSystem sys = do
   Right rref.b
 
 -- | Parsea a Vec3 from the given string.
-parseVec3 :: String -> Maybe (Vec3 Float)
+parseVec3 :: String -> Maybe (Vec3 Double)
 parseVec3 raw = do
   [x, y, z] <- Just $ read . trim <$> split ',' raw
   Just $ Vec3 x y z
@@ -171,7 +171,7 @@ main = do
           part1               = length (filter (inRect bounds) xings)
           p i                 = (input !! (i - 1)).pos
           v i                 = (input !! (i - 1)).vel
-          [px,py,pz,vx,vy,vz] = map (round @Float @Integer) . fromRight' $ solveLinearSystem @Float LinearSystem
+          [px,py,pz,vx,vy,vz] = map (round @_ @Integer) . fromRight' $ solveLinearSystem @Double LinearSystem
           --                    Unknowns:  px                 py                 pz                 vx                 vy                 vz
                                   { a = [ [(v 2).y - (v 1).y, (v 1).x - (v 2).x, 0                , (p 1).y - (p 2).y, (p 2).x - (p 1).x, 0                ]
                                         , [(v 3).y - (v 1).y, (v 1).x - (v 3).x, 0                , (p 1).y - (p 3).y, (p 3).x - (p 1).x, 0                ]
