@@ -115,9 +115,9 @@ rowEcholonForm :: Fractional a => LinearSystem a -> LinearSystem a
 rowEcholonForm sys = rowEcholonForm' 0 sys
   where rowEcholonForm' i sys | i < n     = let (ra:ras) = sys.a
                                                 (rb:rbs) = sys.b
-                                                xa       = ra !! i
-                                                ra'      = ra ./ xa
-                                                rb'      = rb / xa
+                                                rx       = ra !! i
+                                                ra'      = ra ./ rx
+                                                rb'      = rb / rx
                                                 rxs      = (!! i) <$> ras
                                                 ras'     = zipWith (\r rx -> r .-. (ra' .* rx)) ras rxs
                                                 rbs'     = zipWith (\r rx -> r - (rb' * rx)) rbs rxs
