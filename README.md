@@ -50,7 +50,7 @@ Every day is packaged up to take exactly one command-line argument, the input fi
 
 ## Lessons Learned
 
-- Visualize the input with GraphViz (day [8](day08), [20](day20), [23](day23))
+- Visualize the input with GraphViz (day [8](day08), [20](day20), [23](day23), [25](day25))
 - Some puzzles are actually reverse-engineering exercises and rely on undocumented input constraints to be solved efficiently or even feasibly at all (day [8](day08), [20](day20), [23](day23))
 - Take the [LCM](https://en.wikipedia.org/wiki/Least_common_multiple) to solve cycle alignment problems (day [8](day08), [20](day20))
   - If there are offsets, use the [CRT](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) ([like in previous years](https://github.com/fwcd/advent-of-code-2020/blob/18c3ba9820cb52627366a632ccaab233a6d9f563/day13/src/day13.c#L39-L59))
