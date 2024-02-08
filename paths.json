@@ -209,6 +209,7 @@
       "codemirror": "python",
       "name": "Python"
     },
-    "path": "day25/src/day25.py"
+    "path": "day25/src/day25.py",
+    "completed": true
   }
 ]

@@ -30,7 +30,7 @@ My solutions to the [Advent of Code 2023](https://adventofcode.com/2023), writte
 - [x] [**Day 22**](day22): [Rust](day22/src/day22.rs)
 - [x] [**Day 23**](day23): [Ruby](day23/src/day23.rb)
 - [x] [**Day 24**](day24): [Haskell](day24/src/Day24.hs)
-- [ ] [**Day 25**](day25): [Python](day25/src/day25.py)
+- [x] [**Day 25**](day25): [Python](day25/src/day25.py)
 
 ## Development
 
