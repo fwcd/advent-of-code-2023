@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $# == 0 ]; then
+  echo "Usage: $0 <path to input>"
+  echo ""
+  echo "For example, to render to a PDF:"
+  echo ""
+  echo "    $0 <path to input> | dot -Tpdf -o <path to output>"
+  echo ""
+  exit 1
+fi
+
+edges="$(cat "$1" | sed 's/ \([$a-z]\)/, \1/g' | sed 's/:,/: /g' | sed 's/: / -- /g')"
+cat <(echo "graph {") <(echo "$edges") <(echo "}")
