@@ -36,6 +36,7 @@ def main():
         graph = {k: set(v.split(' ')) for l in f.readlines() for k, v in [l.strip().split(': ')]}
     
     # Cut edges (found visually by inspecting using GraphViz's sfdp output)
+    # TODO: Implement https://en.wikipedia.org/wiki/Karger%27s_algorithm instead
     for n1, n2 in [['xnn', 'txf'], ['tmc', 'lms'], ['jjn', 'nhg']]:
         if n1 in graph and n2 in graph[n1]:
             graph[n1].remove(n2)
